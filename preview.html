@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<!--
+  Harness IDP Catalog Entity Pages — Layout Preview
+  Simulates: System, Component (service), Resource (database, mq, cache)
+  Open directly in browser — no server needed.
+  Author: Rohid Dev · github.com/rohiddev
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Harness IDP — Catalog Preview</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #f5f6fa; min-height: 100vh; }
+
+  /* ── Shell ── */
+  .shell { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: #1a1a2e; flex-shrink: 0; padding: 16px 0; }
+  .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 8px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 12px; }
+  .sidebar-logo-icon { width: 28px; height: 28px; background: #0078D7; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .sidebar-logo-icon .material-icons { font-size: 16px; color: #fff; }
+  .sidebar-logo-text { font-size: 13px; font-weight: 700; color: #fff; }
+  .sidebar-section { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 20px 4px; }
+  .sidebar-item { display: flex; align-items: center; gap: 10px; padding: 8px 20px; font-size: 12px; color: rgba(255,255,255,0.6); cursor: pointer; transition: background 0.15s; }
+  .sidebar-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .sidebar-item.active { background: rgba(0,120,215,0.2); color: #60AEFF; border-left: 3px solid #0078D7; }
+  .sidebar-item .material-icons { font-size: 16px; }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ── Top nav ── */
+  .topnav { height: 48px; background: #fff; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; padding: 0 24px; gap: 8px; }
+  .topnav-breadcrumb { font-size: 12px; color: #9CA3AF; display: flex; align-items: center; gap: 6px; }
+  .topnav-breadcrumb .active { color: #111; font-weight: 600; }
+  .topnav-breadcrumb .material-icons { font-size: 14px; }
+  .topnav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 28px; height: 28px; background: #0078D7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; }
+
+  /* ── Entity header ── */
+  .entity-header { background: #fff; border-bottom: 1px solid #E5E7EB; padding: 20px 28px 0; }
+  .entity-kind-badge { display: inline-flex; align-items: center; gap: 5px; background: #EEF3FD; color: #0078D7; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 12px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .entity-kind-badge .material-icons { font-size: 12px; }
+  .entity-title-row { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 14px; }
+  .entity-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .entity-icon.system { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+  .entity-icon.service { background: linear-gradient(135deg, #0078D7, #005EA8); }
+  .entity-icon.database { background: linear-gradient(135deg, #10B981, #059669); }
+  .entity-icon.mq { background: linear-gradient(135deg, #F59E0B, #D97706); }
+  .entity-icon.cache { background: linear-gradient(135deg, #EF4444, #DC2626); }
+  .entity-icon .material-icons { font-size: 24px; color: #fff; }
+  .entity-name { font-size: 22px; font-weight: 700; color: #111; }
+  .entity-desc { font-size: 12px; color: #6B7280; margin-top: 3px; line-height: 1.5; max-width: 680px; }
+  .entity-meta { display: flex; gap: 16px; margin-top: 6px; flex-wrap: wrap; }
+  .entity-meta-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #6B7280; }
+  .entity-meta-item .material-icons { font-size: 13px; }
+  .tag { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: #F3F4F6; color: #374151; }
+  .tag.green { background: #D1FAE5; color: #065F46; }
+  .tag.blue { background: #EEF3FD; color: #1D4ED8; }
+  .tag.red { background: #FEE2E2; color: #991B1B; }
+
+  /* ── Tabs ── */
+  .entity-tabs { display: flex; gap: 2px; margin-top: 14px; }
+  .entity-tab { padding: 8px 16px; font-size: 12px; font-weight: 600; color: #6B7280; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .entity-tab:hover { color: #111; }
+  .entity-tab.active { color: #0078D7; border-bottom-color: #0078D7; }
+
+  /* ── Content area ── */
+  .content { padding: 24px 28px; overflow-y: auto; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ── Grid ── */
+  .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+  .col-6 { grid-column: span 6; }
+  .col-12 { grid-column: span 12; }
+  .col-4 { grid-column: span 4; }
+
+  /* ── Cards ── */
+  .card { background: #fff; border-radius: 10px; border: 1px solid #E5E7EB; overflow: hidden; }
+  .card-header { padding: 12px 16px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: center; gap: 8px; }
+  .card-header-title { font-size: 13px; font-weight: 700; color: #111; }
+  .card-header-icon { color: #9CA3AF; }
+  .card-header-icon .material-icons { font-size: 16px; }
+  .card-body { padding: 14px 16px; }
+
+  /* About card */
+  .about-row { display: flex; padding: 5px 0; border-bottom: 1px solid #F9FAFB; font-size: 12px; }
+  .about-row:last-child { border-bottom: none; }
+  .about-key { color: #9CA3AF; width: 120px; flex-shrink: 0; }
+  .about-val { color: #111; font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+  /* Additional info card */
+  .info-row { display: flex; align-items: baseline; padding: 5px 0; border-bottom: 1px solid #F9FAFB; font-size: 12px; }
+  .info-row:last-child { border-bottom: none; }
+  .info-key { color: #9CA3AF; width: 180px; flex-shrink: 0; }
+  .info-val { color: #111; font-weight: 500; word-break: break-all; }
+  .info-val.bold { font-weight: 700; }
+  .info-val a { color: #0078D7; text-decoration: none; }
+  .info-val a:hover { text-decoration: underline; }
+
+  /* Links card */
+  .link-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #F9FAFB; font-size: 12px; }
+  .link-item:last-child { border-bottom: none; }
+  .link-icon { width: 28px; height: 28px; background: #F3F4F6; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .link-icon .material-icons { font-size: 14px; color: #6B7280; }
+  .link-title { color: #0078D7; font-weight: 600; }
+  .link-url { color: #9CA3AF; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+
+  /* Relation cards */
+  .relation-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #F9FAFB; cursor: pointer; }
+  .relation-item:hover { background: #F9FAFB; margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+  .relation-item:last-child { border-bottom: none; }
+  .relation-icon { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .relation-icon.service { background: #EEF3FD; }
+  .relation-icon.service .material-icons { color: #0078D7; font-size: 15px; }
+  .relation-icon.database { background: #D1FAE5; }
+  .relation-icon.database .material-icons { color: #059669; font-size: 15px; }
+  .relation-icon.mq { background: #FEF3C7; }
+  .relation-icon.mq .material-icons { color: #D97706; font-size: 15px; }
+  .relation-icon.cache { background: #FEE2E2; }
+  .relation-icon.cache .material-icons { color: #DC2626; font-size: 15px; }
+  .relation-icon.api { background: #F3E8FF; }
+  .relation-icon.api .material-icons { color: #7C3AED; font-size: 15px; }
+  .relation-name { font-size: 12px; font-weight: 600; color: #111; }
+  .relation-meta { font-size: 11px; color: #9CA3AF; }
+  .relation-tag { margin-left: auto; }
+
+  /* Scorecard */
+  .scorecard-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #F9FAFB; }
+  .scorecard-row:last-child { border-bottom: none; }
+  .score-label { font-size: 12px; color: #374151; flex: 1; }
+  .score-bar-wrap { width: 120px; height: 6px; background: #F3F4F6; border-radius: 3px; overflow: hidden; }
+  .score-bar { height: 100%; border-radius: 3px; }
+  .score-bar.green { background: #10B981; }
+  .score-bar.yellow { background: #F59E0B; }
+  .score-bar.red { background: #EF4444; }
+  .score-pct { font-size: 11px; font-weight: 700; width: 34px; text-align: right; }
+  .score-pct.green { color: #10B981; }
+  .score-pct.yellow { color: #F59E0B; }
+  .score-pct.red { color: #EF4444; }
+
+  /* Entity switcher */
+  .entity-switcher { display: flex; gap: 8px; padding: 16px 28px 0; background: #f5f6fa; flex-wrap: wrap; }
+  .entity-btn { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; border: 1.5px solid #E5E7EB; background: #fff; font-size: 11px; font-weight: 600; cursor: pointer; color: #6B7280; transition: all 0.15s; font-family: inherit; }
+  .entity-btn:hover { border-color: #0078D7; color: #0078D7; }
+  .entity-btn.active { background: #0078D7; border-color: #0078D7; color: #fff; }
+  .entity-btn .material-icons { font-size: 13px; }
+
+  .sim-bar { background: #1a1a2e; color: #a0a0c0; font-size: 11px; padding: 6px 20px; display: flex; gap: 12px; align-items: center; }
+  .sim-dot { width: 8px; height: 8px; border-radius: 50%; background: #0078D7; }
+  .sim-label { font-weight: 700; color: #fff; }
+
+  @media (max-width: 900px) { .col-6 { grid-column: span 12; } .sidebar { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="sim-bar">
+  <div class="sim-dot"></div>
+  <span class="sim-label">UI Preview</span>
+  <span>— Harness IDP 2.0 · Software Catalog · Entity Page Layout Simulation</span>
+</div>
+
+<div class="shell">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon"><span class="material-icons">hub</span></div>
+      <span class="sidebar-logo-text">Harness IDP</span>
+    </div>
+    <div class="sidebar-section">Catalog</div>
+    <div class="sidebar-item active"><span class="material-icons">category</span> Software Catalog</div>
+    <div class="sidebar-item"><span class="material-icons">api</span> APIs</div>
+    <div class="sidebar-item"><span class="material-icons">description</span> TechDocs</div>
+    <div class="sidebar-section" style="margin-top:12px">Self Service</div>
+    <div class="sidebar-item"><span class="material-icons">play_circle</span> Workflows</div>
+    <div class="sidebar-section" style="margin-top:12px">Platform</div>
+    <div class="sidebar-item"><span class="material-icons">settings</span> Admin</div>
+  </div>
+
+  <div class="main">
+
+    <!-- Top nav -->
+    <div class="topnav">
+      <div class="topnav-breadcrumb">
+        <span>Catalog</span>
+        <span class="material-icons">chevron_right</span>
+        <span id="breadcrumb-kind">System</span>
+        <span class="material-icons">chevron_right</span>
+        <span class="active" id="breadcrumb-name">payments-platform</span>
+      </div>
+      <div class="topnav-right">
+        <span class="material-icons" style="color:#9CA3AF;font-size:18px">notifications_none</span>
+        <div class="avatar">RD</div>
+      </div>
+    </div>
+
+    <!-- Entity switcher -->
+    <div class="entity-switcher">
+      <button class="entity-btn active" onclick="showEntity('system')">
+        <span class="material-icons">layers</span> System
+      </button>
+      <button class="entity-btn" onclick="showEntity('service')">
+        <span class="material-icons">miscellaneous_services</span> Component · service
+      </button>
+      <button class="entity-btn" onclick="showEntity('database')">
+        <span class="material-icons">storage</span> Resource · database
+      </button>
+      <button class="entity-btn" onclick="showEntity('mq')">
+        <span class="material-icons">message</span> Resource · messaging-queue
+      </button>
+      <button class="entity-btn" onclick="showEntity('cache')">
+        <span class="material-icons">speed</span> Resource · cache
+      </button>
+    </div>
+
+    <!-- ══ SYSTEM ENTITY ══════════════════════════════════════════════════════ -->
+    <div id="entity-system">
+      <div class="entity-header">
+        <div class="entity-kind-badge"><span class="material-icons">layers</span> System</div>
+        <div class="entity-title-row">
+          <div class="entity-icon system"><span class="material-icons">layers</span></div>
+          <div>
+            <div class="entity-name">Payments Platform</div>
+            <div class="entity-desc">End-to-end payments processing platform. Handles payment initiation, fraud detection, ledger posting and event publishing across all channels.</div>
+            <div class="entity-meta">
+              <div class="entity-meta-item"><span class="material-icons">group</span> team-payments</div>
+              <div class="entity-meta-item"><span class="material-icons">domain</span> banking</div>
+              <span class="tag green">production</span>
+              <span class="tag red">tier-1</span>
+              <span class="tag blue">sox</span>
+              <span class="tag">payments</span>
+              <span class="tag">core-banking</span>
+            </div>
+          </div>
+        </div>
+        <div class="entity-tabs">
+          <div class="entity-tab active" onclick="switchTab('system','overview')">Overview</div>
+          <div class="entity-tab" onclick="switchTab('system','components')">Components</div>
+          <div class="entity-tab" onclick="switchTab('system','apis')">APIs</div>
+          <div class="entity-tab" onclick="switchTab('system','resources')">Resources</div>
+        </div>
+      </div>
+      <div class="content">
+
+        <div class="tab-pane active" id="system-overview">
+          <div class="grid">
+
+            <!-- About -->
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">info</span></div><div class="card-header-title">About</div></div>
+                <div class="card-body">
+                  <div class="about-row"><span class="about-key">Kind</span><span class="about-val"><span class="tag blue">System</span></span></div>
+                  <div class="about-row"><span class="about-key">Owner</span><span class="about-val"><span class="material-icons" style="font-size:13px;color:#0078D7">group</span> team-payments</span></div>
+                  <div class="about-row"><span class="about-key">Domain</span><span class="about-val">banking</span></div>
+                  <div class="about-row"><span class="about-key">Lifecycle</span><span class="about-val"><span class="tag green">production</span></span></div>
+                  <div class="about-row"><span class="about-key">Tags</span><span class="about-val"><span class="tag">payments</span> <span class="tag">core-banking</span> <span class="tag red">tier-1</span></span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Links -->
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">link</span></div><div class="card-header-title">Links</div></div>
+                <div class="card-body">
+                  <div class="link-item"><div class="link-icon"><span class="material-icons">menu_book</span></div><div><div class="link-title">Platform Runbook</div><div class="link-url">runbooks.bank.com/payments-platform</div></div></div>
+                  <div class="link-item"><div class="link-icon"><span class="material-icons">description</span></div><div><div class="link-title">Confluence Space</div><div class="link-url">confluence.bank.com/display/PAY</div></div></div>
+                  <div class="link-item"><div class="link-icon"><span class="material-icons">schema</span></div><div><div class="link-title">Architecture Diagram</div><div class="link-url">confluence.bank.com/display/PAY/architecture</div></div></div>
+                  <div class="link-item"><div class="link-icon"><span class="material-icons">bug_report</span></div><div><div class="link-title">Jira Project</div><div class="link-url">jira.bank.com/projects/PAY</div></div></div>
+                  <div class="link-item"><div class="link-icon"><span class="material-icons">group</span></div><div><div class="link-title">On-Call Schedule</div><div class="link-url">oncall.bank.com/payments</div></div></div>
+                  <div class="link-item"><div class="link-icon"><span class="material-icons">map</span></div><div><div class="link-title">Roadmap</div><div class="link-url">confluence.bank.com/display/PAY/roadmap</div></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ownership & Compliance -->
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">verified_user</span></div><div class="card-header-title">Ownership & Compliance</div></div>
+                <div class="card-body">
+                  <div class="info-row"><span class="info-key">SYS ID</span><span class="info-val bold">SYSID-06435</span></div>
+                  <div class="info-row"><span class="info-key">App Key</span><span class="info-val">payments</span></div>
+                  <div class="info-row"><span class="info-key">Domain</span><span class="info-val">core-banking</span></div>
+                  <div class="info-row"><span class="info-key">Tier</span><span class="info-val bold">1</span></div>
+                  <div class="info-row"><span class="info-key">Product Owner</span><span class="info-val">Jane Smith</span></div>
+                  <div class="info-row"><span class="info-key">Tech Lead</span><span class="info-val">John Doe</span></div>
+                  <div class="info-row"><span class="info-key">Email DL</span><span class="info-val">payments-team@bank.com</span></div>
+                  <div class="info-row"><span class="info-key">On-Call Schedule</span><span class="info-val"><a href="#">oncall.bank.com/payments</a></span></div>
+                  <div class="info-row"><span class="info-key">Data Classification</span><span class="info-val bold" style="color:#DC2626">restricted</span></div>
+                  <div class="info-row"><span class="info-key">SOX In Scope</span><span class="info-val bold">true</span></div>
+                  <div class="info-row"><span class="info-key">GDPR In Scope</span><span class="info-val">false</span></div>
+                  <div class="info-row"><span class="info-key">Last Pen Test</span><span class="info-val">2026-01-15</span></div>
+                  <div class="info-row"><span class="info-key">Last DR Test</span><span class="info-val">2025-11-01</span></div>
+                  <div class="info-row"><span class="info-key">RTO (hours)</span><span class="info-val">4</span></div>
+                  <div class="info-row"><span class="info-key">RPO (hours)</span><span class="info-val">1</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Platform & SLA -->
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">cloud</span></div><div class="card-header-title">Platform & SLA</div></div>
+                <div class="card-body">
+                  <div class="info-row"><span class="info-key">Cloud Provider</span><span class="info-val">aws</span></div>
+                  <div class="info-row"><span class="info-key">Region</span><span class="info-val">us-east-1</span></div>
+                  <div class="info-row"><span class="info-key">Environment</span><span class="info-val"><span class="tag green">production</span></span></div>
+                  <div class="info-row"><span class="info-key">Service Count</span><span class="info-val">5</span></div>
+                  <div class="info-row"><span class="info-key">API Gateway</span><span class="info-val"><a href="#">api.bank.com/payments</a></span></div>
+                  <div class="info-row"><span class="info-key">Architecture</span><span class="info-val"><a href="#">View diagram</a></span></div>
+                  <div class="info-row"><span class="info-key">SLA Uptime</span><span class="info-val bold" style="color:#10B981">99.95%</span></div>
+                  <div class="info-row"><span class="info-key">SLA Latency P99</span><span class="info-val bold">500 ms</span></div>
+                  <div class="info-row"><span class="info-key">SLA RPS</span><span class="info-val">1,000</span></div>
+                  <div class="info-row"><span class="info-key">Jira Project</span><span class="info-val"><a href="#">PAY</a></span></div>
+                  <div class="info-row"><span class="info-key">Roadmap</span><span class="info-val"><a href="#">View roadmap</a></span></div>
+                  <div class="info-row"><span class="info-key">Changelog</span><span class="info-val"><a href="#">CHANGELOG.md</a></span></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="tab-pane" id="system-components">
+          <div class="grid">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">miscellaneous_services</span></div><div class="card-header-title">Components (5)</div></div>
+                <div class="card-body">
+                  <div class="relation-item"><div class="relation-icon service"><span class="material-icons">miscellaneous_services</span></div><div><div class="relation-name">payments-service</div><div class="relation-meta">service · production</div></div><div class="relation-tag"><span class="tag green">production</span></div></div>
+                  <div class="relation-item"><div class="relation-icon service"><span class="material-icons">miscellaneous_services</span></div><div><div class="relation-name">fraud-detection-service</div><div class="relation-meta">service · production</div></div><div class="relation-tag"><span class="tag green">production</span></div></div>
+                  <div class="relation-item"><div class="relation-icon service"><span class="material-icons">miscellaneous_services</span></div><div><div class="relation-name">ledger-service</div><div class="relation-meta">service · production</div></div><div class="relation-tag"><span class="tag green">production</span></div></div>
+                  <div class="relation-item"><div class="relation-icon service"><span class="material-icons">miscellaneous_services</span></div><div><div class="relation-name">notifications-service</div><div class="relation-meta">service · production</div></div><div class="relation-tag"><span class="tag green">production</span></div></div>
+                  <div class="relation-item"><div class="relation-icon service"><span class="material-icons">miscellaneous_services</span></div><div><div class="relation-name">audit-service</div><div class="relation-meta">service · production</div></div><div class="relation-tag"><span class="tag green">production</span></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="system-apis">
+          <div class="grid">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">api</span></div><div class="card-header-title">APIs (1)</div></div>
+                <div class="card-body">
+                  <div class="relation-item"><div class="relation-icon api"><span class="material-icons">api</span></div><div><div class="relation-name">payments-rest-api</div><div class="relation-meta">openapi · production · v2.1.0</div></div><div class="relation-tag"><span class="tag green">production</span></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="system-resources">
+          <div class="grid">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">storage</span></div><div class="card-header-title">Resources (3)</div></div>
+                <div class="card-body">
+                  <div class="relation-item"><div class="relation-icon database"><span class="material-icons">storage</span></div><div><div class="relation-name">payments-postgres</div><div class="relation-meta">database · PostgreSQL 14 · db.r6g.xlarge</div></div><div class="relation-tag"><span class="tag green">production</span></div></div>
+                  <div class="relation-item"><div class="relation-icon mq"><span class="material-icons">message</span></div><div><div class="relation-name">payments-rabbitmq</div><div class="relation-meta">messaging-queue · RabbitMQ 3.11 · payments.events</div></div><div class="relation-tag"><span class="tag green">production</span></div></div>
+                  <div class="relation-item"><div class="relation-icon cache"><span class="material-icons">speed</span></div><div><div class="relation-name">payments-redis</div><div class="relation-meta">cache · Redis 7 · cache.r6g.large</div></div><div class="relation-tag"><span class="tag green">production</span></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ SERVICE COMPONENT ENTITY ══════════════════════════════════════════ -->
+    <div id="entity-service" style="display:none">
+      <div class="entity-header">
+        <div class="entity-kind-badge"><span class="material-icons">miscellaneous_services</span> Component · service</div>
+        <div class="entity-title-row">
+          <div class="entity-icon service"><span class="material-icons">miscellaneous_services</span></div>
+          <div>
+            <div class="entity-name">payments-service</div>
+            <div class="entity-desc">Processes payment transactions, validates against fraud rules, posts to the ledger and publishes lifecycle events to RabbitMQ.</div>
+            <div class="entity-meta">
+              <div class="entity-meta-item"><span class="material-icons">group</span> team-payments</div>
+              <div class="entity-meta-item"><span class="material-icons">layers</span> payments-platform</div>
+              <span class="tag green">production</span>
+              <span class="tag red">tier-1</span>
+              <span class="tag blue">sox</span>
+              <span class="tag">java</span>
+              <span class="tag">spring-boot</span>
+            </div>
+          </div>
+        </div>
+        <div class="entity-tabs">
+          <div class="entity-tab active" onclick="switchTab('service','overview')">Overview</div>
+          <div class="entity-tab" onclick="switchTab('service','dependencies')">Dependencies</div>
+          <div class="entity-tab" onclick="switchTab('service','api')">API</div>
+          <div class="entity-tab" onclick="switchTab('service','kubernetes')">Kubernetes</div>
+          <div class="entity-tab" onclick="switchTab('service','cicd')">CI/CD</div>
+          <div class="entity-tab" onclick="switchTab('service','docs')">Docs</div>
+        </div>
+      </div>
+      <div class="content">
+
+        <div class="tab-pane active" id="service-overview">
+          <div class="grid">
+
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">info</span></div><div class="card-header-title">About</div></div>
+                <div class="card-body">
+                  <div class="about-row"><span class="about-key">Kind</span><span class="about-val"><span class="tag blue">Component</span></span></div>
+                  <div class="about-row"><span class="about-key">Type</span><span class="about-val">service</span></div>
+                  <div class="about-row"><span class="about-key">Owner</span><span class="about-val"><span class="material-icons" style="font-size:13px;color:#0078D7">group</span> team-payments</span></div>
+                  <div class="about-row"><span class="about-key">System</span><span class="about-val"><span class="material-icons" style="font-size:13px;color:#6366F1">layers</span> payments-platform</span></div>
+                  <div class="about-row"><span class="about-key">Lifecycle</span><span class="about-val"><span class="tag green">production</span></span></div>
+                  <div class="about-row"><span class="about-key">Tags</span><span class="about-val"><span class="tag">java</span> <span class="tag">spring-boot</span> <span class="tag red">tier-1</span> <span class="tag blue">sox</span></span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">link</span></div><div class="card-header-title">Links</div></div>
+                <div class="card-body">
+                  <div class="link-item"><div class="link-icon"><span class="material-icons">menu_book</span></div><div><div class="link-title">Runbook</div><div class="link-url">runbooks.bank.com/payments-service</div></div></div>
+                  <div class="link-item"><div class="link-icon"><span class="material-icons">dashboard</span></div><div><div class="link-title">Grafana</div><div class="link-url">grafana.bank.com/d/payments-service</div></div></div>
+                  <div class="link-item"><div class="link-icon"><span class="material-icons">dashboard</span></div><div><div class="link-title">Datadog</div><div class="link-url">app.datadoghq.com/dashboard/payments</div></div></div>
+                  <div class="link-item"><div class="link-icon"><span class="material-icons">bug_report</span></div><div><div class="link-title">Jira Board</div><div class="link-url">jira.bank.com/projects/PAY</div></div></div>
+                  <div class="link-item"><div class="link-icon"><span class="material-icons">verified</span></div><div><div class="link-title">SonarQube</div><div class="link-url">sonar.bank.com/project?id=payments-service</div></div></div>
+                  <div class="link-item"><div class="link-icon"><span class="material-icons">group</span></div><div><div class="link-title">On-Call Schedule</div><div class="link-url">oncall.bank.com/payments</div></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">verified_user</span></div><div class="card-header-title">Ownership & Compliance</div></div>
+                <div class="card-body">
+                  <div class="info-row"><span class="info-key">SYS ID</span><span class="info-val bold">SYSID-06435</span></div>
+                  <div class="info-row"><span class="info-key">App Key</span><span class="info-val">payments</span></div>
+                  <div class="info-row"><span class="info-key">Team</span><span class="info-val">team-payments</span></div>
+                  <div class="info-row"><span class="info-key">Tier</span><span class="info-val bold">1</span></div>
+                  <div class="info-row"><span class="info-key">Data Classification</span><span class="info-val bold" style="color:#DC2626">restricted</span></div>
+                  <div class="info-row"><span class="info-key">SOX In Scope</span><span class="info-val bold">true</span></div>
+                  <div class="info-row"><span class="info-key">Last Pen Test</span><span class="info-val">2026-01-15</span></div>
+                  <div class="info-row"><span class="info-key">Email DL</span><span class="info-val">payments-team@bank.com</span></div>
+                  <div class="info-row"><span class="info-key">On-Call Schedule</span><span class="info-val"><a href="#">oncall.bank.com/payments</a></span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">cloud</span></div><div class="card-header-title">Deployment</div></div>
+                <div class="card-body">
+                  <div class="info-row"><span class="info-key">Environment</span><span class="info-val"><span class="tag green">production</span></span></div>
+                  <div class="info-row"><span class="info-key">K8s Namespace</span><span class="info-val">payments-p</span></div>
+                  <div class="info-row"><span class="info-key">K8s Cluster</span><span class="info-val">eks-p-us-east-1</span></div>
+                  <div class="info-row"><span class="info-key">Container Image</span><span class="info-val" style="font-size:11px">bank-ecr.amazonaws.com/payments-service</span></div>
+                  <div class="info-row"><span class="info-key">Replicas</span><span class="info-val">3</span></div>
+                  <div class="info-row"><span class="info-key">Grafana Dashboard</span><span class="info-val"><a href="#">View</a></span></div>
+                  <div class="info-row"><span class="info-key">Datadog Dashboard</span><span class="info-val"><a href="#">View</a></span></div>
+                  <div class="info-row"><span class="info-key">PagerDuty Service</span><span class="info-val">PABC123</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">score</span></div><div class="card-header-title">Scorecard</div></div>
+                <div class="card-body">
+                  <div class="scorecard-row"><span class="score-label">Has owner defined</span><div class="score-bar-wrap"><div class="score-bar green" style="width:100%"></div></div><span class="score-pct green">100%</span></div>
+                  <div class="scorecard-row"><span class="score-label">Has runbook link</span><div class="score-bar-wrap"><div class="score-bar green" style="width:100%"></div></div><span class="score-pct green">100%</span></div>
+                  <div class="scorecard-row"><span class="score-label">Has TechDocs</span><div class="score-bar-wrap"><div class="score-bar green" style="width:100%"></div></div><span class="score-pct green">100%</span></div>
+                  <div class="scorecard-row"><span class="score-label">Has on-call schedule</span><div class="score-bar-wrap"><div class="score-bar green" style="width:100%"></div></div><span class="score-pct green">100%</span></div>
+                  <div class="scorecard-row"><span class="score-label">Has API definition</span><div class="score-bar-wrap"><div class="score-bar green" style="width:100%"></div></div><span class="score-pct green">100%</span></div>
+                  <div class="scorecard-row"><span class="score-label">Has Grafana dashboard</span><div class="score-bar-wrap"><div class="score-bar green" style="width:100%"></div></div><span class="score-pct green">100%</span></div>
+                  <div class="scorecard-row"><span class="score-label">Pen test within 12 months</span><div class="score-bar-wrap"><div class="score-bar green" style="width:100%"></div></div><span class="score-pct green">100%</span></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="tab-pane" id="service-dependencies">
+          <div class="grid">
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">call_made</span></div><div class="card-header-title">APIs Consumed</div></div>
+                <div class="card-body">
+                  <div class="relation-item"><div class="relation-icon api"><span class="material-icons">api</span></div><div><div class="relation-name">auth-api</div><div class="relation-meta">openapi · production</div></div></div>
+                  <div class="relation-item"><div class="relation-icon api"><span class="material-icons">api</span></div><div><div class="relation-name">fraud-detection-api</div><div class="relation-meta">openapi · production</div></div></div>
+                  <div class="relation-item"><div class="relation-icon api"><span class="material-icons">api</span></div><div><div class="relation-name">ledger-api</div><div class="relation-meta">openapi · production</div></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">storage</span></div><div class="card-header-title">Resources</div></div>
+                <div class="card-body">
+                  <div class="relation-item"><div class="relation-icon database"><span class="material-icons">storage</span></div><div><div class="relation-name">payments-postgres</div><div class="relation-meta">database · PostgreSQL 14</div></div></div>
+                  <div class="relation-item"><div class="relation-icon mq"><span class="material-icons">message</span></div><div><div class="relation-name">payments-rabbitmq</div><div class="relation-meta">messaging-queue · RabbitMQ 3.11</div></div></div>
+                  <div class="relation-item"><div class="relation-icon cache"><span class="material-icons">speed</span></div><div><div class="relation-name">payments-redis</div><div class="relation-meta">cache · Redis 7</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="service-api"><div class="grid"><div class="col-12"><div class="card"><div class="card-header"><div class="card-header-icon"><span class="material-icons">api</span></div><div class="card-header-title">Provided APIs</div></div><div class="card-body"><div class="relation-item"><div class="relation-icon api"><span class="material-icons">api</span></div><div><div class="relation-name">payments-rest-api</div><div class="relation-meta">openapi · v2.1.0 · 3 endpoints · OAuth2</div></div><div class="relation-tag"><span class="tag green">production</span></div></div></div></div></div></div></div>
+        <div class="tab-pane" id="service-kubernetes"><div class="grid"><div class="col-12"><div class="card"><div class="card-header"><div class="card-header-icon"><span class="material-icons">hub</span></div><div class="card-header-title">Kubernetes — eks-p-us-east-1 / payments-p</div></div><div class="card-body" style="text-align:center;padding:40px;color:#9CA3AF;font-size:12px"><span class="material-icons" style="font-size:40px;display:block;margin-bottom:10px">hub</span>Kubernetes plugin renders live pod/deployment/service info here</div></div></div></div></div>
+        <div class="tab-pane" id="service-cicd"><div class="grid"><div class="col-12"><div class="card"><div class="card-header"><div class="card-header-icon"><span class="material-icons">rocket_launch</span></div><div class="card-header-title">Harness CI/CD</div></div><div class="card-body" style="text-align:center;padding:40px;color:#9CA3AF;font-size:12px"><span class="material-icons" style="font-size:40px;display:block;margin-bottom:10px">rocket_launch</span>Harness CI/CD plugin renders pipeline execution history here</div></div></div></div></div>
+        <div class="tab-pane" id="service-docs"><div class="grid"><div class="col-12"><div class="card"><div class="card-header"><div class="card-header-icon"><span class="material-icons">description</span></div><div class="card-header-title">TechDocs</div></div><div class="card-body" style="text-align:center;padding:40px;color:#9CA3AF;font-size:12px"><span class="material-icons" style="font-size:40px;display:block;margin-bottom:10px">description</span>TechDocs renders docs/ folder from the repo here</div></div></div></div></div>
+
+      </div>
+    </div>
+
+    <!-- ══ DATABASE RESOURCE ENTITY ══════════════════════════════════════════ -->
+    <div id="entity-database" style="display:none">
+      <div class="entity-header">
+        <div class="entity-kind-badge"><span class="material-icons">storage</span> Resource · database</div>
+        <div class="entity-title-row">
+          <div class="entity-icon database"><span class="material-icons">storage</span></div>
+          <div>
+            <div class="entity-name">Payments PostgreSQL DB</div>
+            <div class="entity-desc">Primary transactional store for payments-service. PostgreSQL 14 on AWS RDS. Multi-AZ enabled. 35-day backup retention.</div>
+            <div class="entity-meta">
+              <div class="entity-meta-item"><span class="material-icons">group</span> team-payments</div>
+              <span class="tag green">production</span><span class="tag red">tier-1</span><span class="tag">postgresql</span><span class="tag">rds</span>
+            </div>
+          </div>
+        </div>
+        <div class="entity-tabs">
+          <div class="entity-tab active" onclick="switchTab('database','overview')">Overview</div>
+          <div class="entity-tab" onclick="switchTab('database','dependencies')">Dependencies</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="tab-pane active" id="database-overview">
+          <div class="grid">
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">info</span></div><div class="card-header-title">About</div></div>
+                <div class="card-body">
+                  <div class="about-row"><span class="about-key">Kind</span><span class="about-val"><span class="tag blue">Resource</span></span></div>
+                  <div class="about-row"><span class="about-key">Type</span><span class="about-val">database</span></div>
+                  <div class="about-row"><span class="about-key">Owner</span><span class="about-val"><span class="material-icons" style="font-size:13px;color:#0078D7">group</span> team-payments</span></div>
+                  <div class="about-row"><span class="about-key">System</span><span class="about-val"><span class="material-icons" style="font-size:13px;color:#6366F1">layers</span> payments-platform</span></div>
+                  <div class="about-row"><span class="about-key">Lifecycle</span><span class="about-val"><span class="tag green">production</span></span></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">storage</span></div><div class="card-header-title">Database Details</div></div>
+                <div class="card-body">
+                  <div class="info-row"><span class="info-key">Engine</span><span class="info-val bold">postgresql</span></div>
+                  <div class="info-row"><span class="info-key">Version</span><span class="info-val">14</span></div>
+                  <div class="info-row"><span class="info-key">Host</span><span class="info-val">payments-db.p.rds.bank.com</span></div>
+                  <div class="info-row"><span class="info-key">Port</span><span class="info-val">5432</span></div>
+                  <div class="info-row"><span class="info-key">Database Name</span><span class="info-val">payments</span></div>
+                  <div class="info-row"><span class="info-key">Node Type</span><span class="info-val">db.r6g.xlarge</span></div>
+                  <div class="info-row"><span class="info-key">Storage (GB)</span><span class="info-val">500</span></div>
+                  <div class="info-row"><span class="info-key">Multi-AZ</span><span class="info-val bold">true</span></div>
+                  <div class="info-row"><span class="info-key">Backup Retention</span><span class="info-val">35 days</span></div>
+                  <div class="info-row"><span class="info-key">Encryption</span><span class="info-val">true</span></div>
+                  <div class="info-row"><span class="info-key">Region</span><span class="info-val">us-east-1</span></div>
+                  <div class="info-row"><span class="info-key">Data Classification</span><span class="info-val bold" style="color:#DC2626">restricted</span></div>
+                  <div class="info-row"><span class="info-key">SYS ID</span><span class="info-val">SYSID-06435</span></div>
+                  <div class="info-row"><span class="info-key">Team</span><span class="info-val">team-payments</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane" id="database-dependencies"><div class="grid"><div class="col-12"><div class="card"><div class="card-header"><div class="card-header-icon"><span class="material-icons">miscellaneous_services</span></div><div class="card-header-title">Consumed By</div></div><div class="card-body"><div class="relation-item"><div class="relation-icon service"><span class="material-icons">miscellaneous_services</span></div><div><div class="relation-name">payments-service</div><div class="relation-meta">service · production</div></div></div></div></div></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══ MQ RESOURCE ENTITY ══════════════════════════════════════════════ -->
+    <div id="entity-mq" style="display:none">
+      <div class="entity-header">
+        <div class="entity-kind-badge"><span class="material-icons">message</span> Resource · messaging-queue</div>
+        <div class="entity-title-row">
+          <div class="entity-icon mq"><span class="material-icons">message</span></div>
+          <div>
+            <div class="entity-name">Payments RabbitMQ Exchange</div>
+            <div class="entity-desc">payments-service publishes PaymentCompleted, PaymentFailed and PaymentRefunded events. Consumed by notifications-service, ledger-service and audit-service.</div>
+            <div class="entity-meta">
+              <div class="entity-meta-item"><span class="material-icons">group</span> team-payments</div>
+              <span class="tag green">production</span><span class="tag">rabbitmq</span><span class="tag">messaging</span>
+            </div>
+          </div>
+        </div>
+        <div class="entity-tabs">
+          <div class="entity-tab active" onclick="switchTab('mq','overview')">Overview</div>
+          <div class="entity-tab" onclick="switchTab('mq','dependencies')">Dependencies</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="tab-pane active" id="mq-overview">
+          <div class="grid">
+            <div class="col-6">
+              <div class="card"><div class="card-header"><div class="card-header-icon"><span class="material-icons">info</span></div><div class="card-header-title">About</div></div><div class="card-body"><div class="about-row"><span class="about-key">Kind</span><span class="about-val"><span class="tag blue">Resource</span></span></div><div class="about-row"><span class="about-key">Type</span><span class="about-val">messaging-queue</span></div><div class="about-row"><span class="about-key">Owner</span><span class="about-val">team-payments</span></div><div class="about-row"><span class="about-key">System</span><span class="about-val">payments-platform</span></div></div></div>
+            </div>
+            <div class="col-6">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">message</span></div><div class="card-header-title">Message Queue Details</div></div>
+                <div class="card-body">
+                  <div class="info-row"><span class="info-key">Type</span><span class="info-val bold">rabbitmq</span></div>
+                  <div class="info-row"><span class="info-key">Version</span><span class="info-val">3.11</span></div>
+                  <div class="info-row"><span class="info-key">Host</span><span class="info-val">rabbitmq.p.bank.com</span></div>
+                  <div class="info-row"><span class="info-key">VHost</span><span class="info-val">/payments</span></div>
+                  <div class="info-row"><span class="info-key">Exchange</span><span class="info-val bold">payments.events</span></div>
+                  <div class="info-row"><span class="info-key">Exchange Type</span><span class="info-val">topic</span></div>
+                  <div class="info-row"><span class="info-key">Routing Keys</span><span class="info-val" style="font-size:11px">payment.completed, payment.failed, payment.refunded</span></div>
+                  <div class="info-row"><span class="info-key">DLQ Enabled</span><span class="info-val bold">true</span></div>
+                  <div class="info-row"><span class="info-key">DLQ Retention</span><span class="info-val">7 days</span></div>
+                  <div class="info-row"><span class="info-key">Consumed By</span><span class="info-val bold">notifications-service, ledger-service, audit-service</span></div>
+                  <div class="info-row"><span class="info-key">SYS ID</span><span class="info-val">SYSID-06435</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane" id="mq-dependencies"><div class="grid"><div class="col-12"><div class="card"><div class="card-header"><div class="card-header-icon"><span class="material-icons">miscellaneous_services</span></div><div class="card-header-title">Consumed By</div></div><div class="card-body"><div class="relation-item"><div class="relation-icon service"><span class="material-icons">miscellaneous_services</span></div><div><div class="relation-name">payments-service</div><div class="relation-meta">Producer</div></div></div><div class="relation-item"><div class="relation-icon service"><span class="material-icons">miscellaneous_services</span></div><div><div class="relation-name">notifications-service</div><div class="relation-meta">Consumer</div></div></div><div class="relation-item"><div class="relation-icon service"><span class="material-icons">miscellaneous_services</span></div><div><div class="relation-name">ledger-service</div><div class="relation-meta">Consumer</div></div></div><div class="relation-item"><div class="relation-icon service"><span class="material-icons">miscellaneous_services</span></div><div><div class="relation-name">audit-service</div><div class="relation-meta">Consumer</div></div></div></div></div></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══ CACHE RESOURCE ENTITY ══════════════════════════════════════════ -->
+    <div id="entity-cache" style="display:none">
+      <div class="entity-header">
+        <div class="entity-kind-badge"><span class="material-icons">speed</span> Resource · cache</div>
+        <div class="entity-title-row">
+          <div class="entity-icon cache"><span class="material-icons">speed</span></div>
+          <div>
+            <div class="entity-name">Payments Redis Cache</div>
+            <div class="entity-desc">Session cache and idempotency key store for payments-service. Redis 7 on AWS ElastiCache. 2 read replicas. In-transit encryption enabled.</div>
+            <div class="entity-meta">
+              <div class="entity-meta-item"><span class="material-icons">group</span> team-payments</div>
+              <span class="tag green">production</span><span class="tag">redis</span><span class="tag">cache</span>
+            </div>
+          </div>
+        </div>
+        <div class="entity-tabs">
+          <div class="entity-tab active" onclick="switchTab('cache','overview')">Overview</div>
+          <div class="entity-tab" onclick="switchTab('cache','dependencies')">Dependencies</div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="tab-pane active" id="cache-overview">
+          <div class="grid">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header"><div class="card-header-icon"><span class="material-icons">speed</span></div><div class="card-header-title">Cache Details</div></div>
+                <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+                  <div><div class="info-row"><span class="info-key">Engine</span><span class="info-val bold">redis</span></div><div class="info-row"><span class="info-key">Version</span><span class="info-val">7</span></div><div class="info-row"><span class="info-key">Host</span><span class="info-val">payments-cache.p.bank.com</span></div><div class="info-row"><span class="info-key">Port</span><span class="info-val">6379</span></div><div class="info-row"><span class="info-key">Node Type</span><span class="info-val">cache.r6g.large</span></div><div class="info-row"><span class="info-key">Replicas</span><span class="info-val">2</span></div></div>
+                  <div><div class="info-row"><span class="info-key">TTL Session (s)</span><span class="info-val">3,600</span></div><div class="info-row"><span class="info-key">TTL Idempotency (s)</span><span class="info-val">86,400</span></div><div class="info-row"><span class="info-key">Encryption In-Transit</span><span class="info-val bold">true</span></div><div class="info-row"><span class="info-key">Environment</span><span class="info-val"><span class="tag green">production</span></span></div><div class="info-row"><span class="info-key">SYS ID</span><span class="info-val">SYSID-06435</span></div><div class="info-row"><span class="info-key">Team</span><span class="info-val">team-payments</span></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane" id="cache-dependencies"><div class="grid"><div class="col-12"><div class="card"><div class="card-header"><div class="card-header-icon"><span class="material-icons">miscellaneous_services</span></div><div class="card-header-title">Consumed By</div></div><div class="card-body"><div class="relation-item"><div class="relation-icon service"><span class="material-icons">miscellaneous_services</span></div><div><div class="relation-name">payments-service</div><div class="relation-meta">service · production</div></div></div></div></div></div></div></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+  const entities = ['system','service','database','mq','cache'];
+  const entityLabels = { system:'System · payments-platform', service:'Component · payments-service', database:'Resource · payments-postgres', mq:'Resource · payments-rabbitmq', cache:'Resource · payments-redis' };
+  const entityKinds = { system:'System', service:'Component', database:'Resource', mq:'Resource', cache:'Resource' };
+
+  function showEntity(name) {
+    entities.forEach(e => {
+      document.getElementById('entity-'+e).style.display = e === name ? 'block' : 'none';
+    });
+    document.querySelectorAll('.entity-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', entities[i] === name);
+    });
+    document.getElementById('breadcrumb-name').textContent = entityLabels[name];
+    document.getElementById('breadcrumb-kind').textContent = entityKinds[name];
+  }
+
+  function switchTab(entity, tab) {
+    const panes = document.querySelectorAll(`#entity-${entity} .tab-pane`);
+    const tabs = document.querySelectorAll(`#entity-${entity} .entity-tab`);
+    panes.forEach(p => p.classList.remove('active'));
+    tabs.forEach(t => t.classList.remove('active'));
+    document.getElementById(`${entity}-${tab}`).classList.add('active');
+    event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>
