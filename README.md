@@ -1,15 +1,16 @@
 # Harness IDP — Payments Platform Catalog Setup
 
-This repo contains the catalog entity definitions and layout YAMLs for the Payments Platform.
-Follow the steps below **in order** to configure everything in the Harness IDP platform.
+This repo contains catalog entity definitions and layout YAMLs for the Payments Platform.
+Follow the steps below **in order** to configure everything in Harness IDP.
 
 ---
 
-## Step 1 — Register Catalog Entities
+## Step 1 — Import Catalog Entities from Git
 
-**IDP > Software Catalog > Register Existing Component**
+**IDP > Software Catalog > Import from Git**
 
-Register the `catalog-info.yaml` file. This creates all 6 entities in one shot:
+Import `catalog-info.yaml` from this repository. Harness IDP 2.0 automatically converts
+the Backstage YAML format into the Harness Catalog Entity Model and creates all 6 entities:
 
 | Entity | Kind | Type |
 |---|---|---|
@@ -20,15 +21,18 @@ Register the `catalog-info.yaml` file. This creates all 6 entities in one shot:
 | payments-rabbitmq | Resource | messaging-queue |
 | payments-redis | Resource | cache |
 
-After registration, verify all 6 entities appear in the catalog.
+> **Note:** In IDP 2.0 entities are **inline** — their full lifecycle (edit, delete) is managed
+> through the UI or API after import. You do not need to keep the Git file in sync.
+
+After import, verify all 6 entities appear in the Software Catalog.
 
 ---
 
 ## Step 2 — Configure Entity Layouts
 
-**IDP > Admin > Layout > Catalog Entities**
+**IDP > Admin > Configure > Layout > Catalog Entities**
 
-Paste each YAML file into the corresponding layout editor. **Save after each one.**
+Paste each YAML file into the corresponding layout editor and click **Save**.
 
 | Layout File | Where to Paste |
 |---|---|
@@ -38,78 +42,104 @@ Paste each YAML file into the corresponding layout editor. **Save after each one
 | `layout-resource-messaging-queue.yaml` | Layout > Resource > messaging-queue > Edit |
 | `layout-resource-cache.yaml` | Layout > Resource > cache > Edit |
 
-After saving, open each entity in the catalog and verify the correct tabs and info cards appear.
+After saving, open each entity in the catalog and verify the correct tabs and cards appear.
+
+**What each layout adds:**
+
+| Entity | Tabs |
+|---|---|
+| System | Overview (Ownership & Compliance, Platform & SLA), Components, APIs, Resources |
+| Component / service | Overview (About, Links, Ownership, Deployment, Scorecard card), Dependencies, API, Kubernetes, CI/CD, Scorecard, Docs |
+| Resource / database | Overview (Database Details), Dependencies |
+| Resource / messaging-queue | Overview (Queue Details, Consumers), Dependencies |
+| Resource / cache | Overview (Cache Details), Dependencies |
 
 ---
 
-## Step 3 — Configure Scorecard Checks
+## Step 3 — Connect GitHub as a Scorecard Data Source
+
+> Skip this step if GitHub is already connected.
+
+**IDP > Configure > Scorecards > Data Sources**
+
+Connect your GitHub organisation. This is required for the **Branch Protection** check (Check 7).
+All other checks use Catalog data only and work without GitHub.
+
+---
+
+## Step 4 — Create Scorecard Checks
 
 **IDP > Configure > Scorecards > Checks tab > Create Custom Check**
 
-Create the following checks one by one:
+Create the following 7 checks:
 
 ### Check 1 — Has Owner Defined
-- **Name:** Has owner defined
-- **Mode:** Basic
-- **Data Source:** Catalog
-- **Data Point:** Annotation Exists
-- **Operator:** Equal to
-- **Value:** `github.com/project-slug`
+| Field | Value |
+|---|---|
+| Name | Has owner defined |
+| Mode | Basic |
+| Data Source | Catalog |
+| Data Point | Annotation Exists |
+| Operator | Equal to |
+| Value | `github.com/project-slug` |
 
 ### Check 2 — Has Runbook Link
-- **Name:** Has runbook link
-- **Mode:** Basic
-- **Data Source:** Catalog
-- **Data Point:** Annotation Exists
-- **Operator:** Equal to
-- **Value:** `bank.com/oncall-schedule`
+| Field | Value |
+|---|---|
+| Name | Has runbook link |
+| Mode | Basic |
+| Data Source | Catalog |
+| Data Point | Annotation Exists |
+| Operator | Equal to |
+| Value | `bank.com/oncall-schedule` |
 
 ### Check 3 — Has TechDocs Configured
-- **Name:** Has TechDocs configured
-- **Mode:** Basic
-- **Data Source:** Catalog
-- **Data Point:** Annotation Exists
-- **Operator:** Equal to
-- **Value:** `backstage.io/techdocs-ref`
+| Field | Value |
+|---|---|
+| Name | Has TechDocs configured |
+| Mode | Basic |
+| Data Source | Catalog |
+| Data Point | Annotation Exists |
+| Operator | Equal to |
+| Value | `backstage.io/techdocs-ref` |
 
 ### Check 4 — Has On-Call Schedule
-- **Name:** Has on-call schedule
-- **Mode:** Basic
-- **Data Source:** Catalog
-- **Data Point:** Annotation Exists
-- **Operator:** Equal to
-- **Value:** `bank.com/oncall-schedule`
+| Field | Value |
+|---|---|
+| Name | Has on-call schedule |
+| Mode | Basic |
+| Data Source | Catalog |
+| Data Point | Annotation Exists |
+| Operator | Equal to |
+| Value | `bank.com/oncall-schedule` |
 
 ### Check 5 — Has API Definition
-- **Name:** Has API definition
-- **Mode:** Advanced (JEXL)
-- **Expression:**
-  ```
-  catalog.annotationExists."github.com/project-slug" == true
-  ```
+| Field | Value |
+|---|---|
+| Name | Has API definition |
+| Mode | Advanced (JEXL) |
+| Expression | `catalog.annotationExists."github.com/project-slug" == true` |
 
 ### Check 6 — Pen Test Within 12 Months
-- **Name:** Pen test within 12 months
-- **Mode:** Advanced (JEXL)
-- **Expression:**
-  ```
-  <+metadata.annotations['bank.com/last-pen-test']> != null
-  ```
+| Field | Value |
+|---|---|
+| Name | Pen test within 12 months |
+| Mode | Advanced (JEXL) |
+| Expression | `catalog.annotationExists."bank.com/last-pen-test" == true` |
 
 ### Check 7 — Branch Protection Enabled
-- **Name:** Branch protection enabled
-- **Mode:** Basic
-- **Data Source:** GitHub
-- **Data Point:** Is Branch Protected
-- **Operator:** Equal to
-- **Value:** `true`
-
-> **Prerequisite for Check 7:** GitHub must be connected as a data source.
-> Go to **IDP > Configure > Scorecards > Data Sources** and connect your GitHub organisation.
+| Field | Value |
+|---|---|
+| Name | Branch protection enabled |
+| Mode | Basic |
+| Data Source | GitHub |
+| Data Point | Is Branch Protected |
+| Operator | Equal to |
+| Value | `true` |
 
 ---
 
-## Step 4 — Create the Scorecard
+## Step 5 — Create the Scorecard
 
 **IDP > Configure > Scorecards > Create New Scorecard**
 
@@ -121,31 +151,35 @@ Create the following checks one by one:
 | Type | service |
 | Lifecycle | production |
 
-**Add all 7 checks** created in Step 3, then click **Publish Scorecard**.
+Add all 7 checks created in Step 4, then click **Publish Scorecard**.
+
+> Scorecard calculations run against the **default branch** of the linked Git repository
+> (`github.com/project-slug` annotation on the Component entity).
 
 ---
 
-## Step 5 — Verify
+## Step 6 — Verify
 
-Open **payments-service** in the catalog and confirm:
+Open **payments-service** in the Software Catalog and confirm:
 
-- [ ] Overview tab shows the **Production Readiness** score card (summary, half-width)
-- [ ] **Scorecard** tab shows all 7 checks with Pass/Fail results
+- [ ] **Overview tab** — Production Readiness scorecard summary card is visible (half-width)
+- [ ] **Scorecard tab** — All 7 checks listed with Pass / Fail results
 - [ ] Check 7 (Branch Protection) shows FAIL with an AI-generated fix recommendation
+- [ ] Checks 1–6 all show PASS
 
 ---
 
-## Reference
+## File Reference
 
 | File | Purpose |
 |---|---|
-| `catalog-info.yaml` | All 6 entity definitions |
-| `layout-system.yaml` | System entity layout |
-| `layout-component-service.yaml` | Component / service layout (includes Scorecard tab) |
-| `layout-resource-database.yaml` | Resource / database layout |
-| `layout-resource-messaging-queue.yaml` | Resource / messaging-queue layout |
-| `layout-resource-cache.yaml` | Resource / cache layout |
-| `preview.html` | Offline UI preview — open in browser to simulate the entity pages |
+| `catalog-info.yaml` | All 6 entity definitions (System, Component, API, 3× Resource) |
+| `layout-system.yaml` | System entity page layout |
+| `layout-component-service.yaml` | Component / service page layout (includes Scorecard tab) |
+| `layout-resource-database.yaml` | Resource / database page layout |
+| `layout-resource-messaging-queue.yaml` | Resource / messaging-queue page layout |
+| `layout-resource-cache.yaml` | Resource / cache page layout |
+| `preview.html` | Offline UI preview — open in browser to simulate all entity pages |
 
 ---
 
