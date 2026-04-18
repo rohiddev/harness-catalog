@@ -1,0 +1,186 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Catalog Entity Layout — kind: Component, spec.type: service
+#
+# Paste this YAML into Harness IDP > Admin > Layout > Component > service > Edit
+# Tabs: Overview | Dependencies | API | Kubernetes | CI/CD | Docs
+# ═══════════════════════════════════════════════════════════════════════════════
+
+page:
+  tabs:
+
+    # ── Overview ───────────────────────────────────────────────────────────────
+    - name: Overview
+      contents:
+
+        # Row 1: About card (left) + Links card (right)
+        - component: EntityAboutCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 6
+
+        - component: EntityLinksCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 6
+
+        # Row 2: Ownership & compliance info
+        - component: EntityAdditionalInfoCard
+          specs:
+            props:
+              title: Ownership & Compliance
+              items:
+                - label: SYS ID
+                  value: <+metadata.annotations['harness.io/project-id']>
+                  type: string
+                - label: App Key
+                  value: <+metadata.annotations['harness.io/app-key']>
+                  type: string
+                - label: Team
+                  value: <+metadata.annotations['bank.com/team']>
+                  type: string
+                - label: Tier
+                  value: <+metadata.annotations['bank.com/tier']>
+                  type: string
+                - label: Data Classification
+                  value: <+metadata.annotations['bank.com/data-classification']>
+                  type: string
+                  style:
+                    bold: true
+                - label: SOX In Scope
+                  value: <+metadata.annotations['bank.com/sox-in-scope']>
+                  type: string
+                - label: Last Pen Test
+                  value: <+metadata.annotations['bank.com/last-pen-test']>
+                  type: string
+                - label: Email DL
+                  value: <+metadata.annotations['bank.com/email-dl']>
+                  type: string
+                - label: On-Call Schedule
+                  value: <+metadata.annotations['bank.com/oncall-schedule']>
+                  type: link
+            gridProps:
+              md: 6
+
+        # Row 2 right: Deployment info
+        - component: EntityAdditionalInfoCard
+          specs:
+            props:
+              title: Deployment
+              items:
+                - label: Environment
+                  value: <+metadata.annotations['bank.com/deploy-env']>
+                  type: string
+                - label: Kubernetes Namespace
+                  value: <+metadata.annotations['bank.com/kubernetes-namespace']>
+                  type: string
+                - label: Kubernetes Cluster
+                  value: <+metadata.annotations['bank.com/kubernetes-cluster']>
+                  type: string
+                - label: Container Image
+                  value: <+metadata.annotations['bank.com/container-image']>
+                  type: string
+                - label: Replicas
+                  value: <+metadata.annotations['bank.com/replicas']>
+                  type: string
+                - label: Grafana Dashboard
+                  value: <+metadata.annotations['bank.com/grafana-dashboard']>
+                  type: link
+                - label: Datadog Dashboard
+                  value: <+metadata.annotations['bank.com/datadog-dashboard']>
+                  type: link
+                - label: PagerDuty Service
+                  value: <+metadata.annotations['bank.com/pagerduty-service-id']>
+                  type: string
+            gridProps:
+              md: 6
+
+        # Row 3: Scorecard full width
+        - component: EntityScorecard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 12
+
+    # ── Dependencies ───────────────────────────────────────────────────────────
+    - name: Dependencies
+      contents:
+        - component: EntityDependsOnComponentsCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 6
+
+        - component: EntityDependsOnResourcesCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 6
+
+        - component: EntityHasComponentsCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 6
+
+        - component: EntityHasApisCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 6
+
+    # ── API ────────────────────────────────────────────────────────────────────
+    - name: API
+      contents:
+        - component: EntityProvidedApisCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 12
+
+        - component: EntityConsumedApisCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 12
+
+    # ── Kubernetes ─────────────────────────────────────────────────────────────
+    - name: Kubernetes
+      contents:
+        - component: EntityKubernetesContent
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 12
+
+    # ── CI/CD ──────────────────────────────────────────────────────────────────
+    - name: CI/CD
+      contents:
+        - component: EntityHarnessCIContent
+          specs:
+            gridProps:
+              md: 12
+
+        - component: EntityHarnessCDContent
+          specs:
+            gridProps:
+              md: 12
+
+    # ── Docs ───────────────────────────────────────────────────────────────────
+    - name: Docs
+      contents:
+        - component: EntityTechdocsContent
+          specs:
+            gridProps:
+              md: 12

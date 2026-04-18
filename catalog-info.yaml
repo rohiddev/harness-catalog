@@ -1,0 +1,347 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# catalog-info.yaml — Payments Platform (full example)
+#
+# Covers: System, Component (service), API (openapi), Resource (db, mq, cache)
+# Register this file in Harness IDP to see the full catalog entity graph.
+#
+# Registration: IDP > Software Catalog > Register Existing Component
+#   URL: https://github.com/bank-org/payments-service/blob/main/catalog-info.yaml
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+# ─── System ───────────────────────────────────────────────────────────────────
+# Groups all components, APIs and resources under one product.
+# Usually lives in the platform catalog repo — shown here for reference.
+# ──────────────────────────────────────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: payments-platform
+  title: Payments Platform
+  description: >
+    End-to-end payments processing platform. Handles payment initiation,
+    fraud detection, ledger posting and event publishing across all channels.
+  annotations:
+    bank.com/sysid: SYSID-06435
+    bank.com/team: team-payments
+    bank.com/domain: core-banking
+    bank.com/tier: "1"
+    bank.com/confluence-space: https://confluence.bank.com/display/PAY
+    bank.com/runbook: https://runbooks.bank.com/payments-platform
+  tags:
+    - payments
+    - core-banking
+    - tier-1
+  links:
+    - url: https://runbooks.bank.com/payments-platform
+      title: Platform Runbook
+      icon: book
+    - url: https://confluence.bank.com/display/PAY
+      title: Confluence Space
+      icon: docs
+spec:
+  owner: group:default/team-payments
+  domain: banking
+
+---
+
+# ─── Component — Microservice ─────────────────────────────────────────────────
+# The payments microservice. Primary entity — one per repo.
+# ──────────────────────────────────────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: payments-service
+  title: Payments Service
+  description: >
+    Processes payment transactions, validates against fraud rules, posts to
+    the ledger and publishes lifecycle events to RabbitMQ.
+    Owned by team-payments. SYS ID: SYSID-06435.
+  annotations:
+    # Source control
+    github.com/project-slug: bank-org/payments-service
+    # TechDocs — renders docs/ folder as documentation tab
+    backstage.io/techdocs-ref: dir:.
+    # Internal identifiers
+    harness.io/project-id: SYSID-06435
+    harness.io/app-key: payments
+    # Monitoring & observability
+    bank.com/datadog-service: payments-service
+    bank.com/datadog-dashboard: https://app.datadoghq.com/dashboard/payments
+    bank.com/grafana-dashboard: https://grafana.bank.com/d/payments-service
+    bank.com/pagerduty-service-id: PABC123
+    bank.com/sentry-project: payments-service
+    # Deployment
+    bank.com/kubernetes-namespace: payments-p
+    bank.com/kubernetes-cluster: eks-p-us-east-1
+    bank.com/container-image: bank-ecr.amazonaws.com/payments-service
+    bank.com/deploy-env: production
+    bank.com/replicas: "3"
+    # Compliance & ownership
+    bank.com/sysid: SYSID-06435
+    bank.com/team: team-payments
+    bank.com/tier: "1"
+    bank.com/data-classification: restricted
+    bank.com/sox-in-scope: "true"
+    bank.com/last-pen-test: "2026-01-15"
+    # Communication
+    bank.com/slack-channel: "#team-payments"
+    bank.com/email-dl: payments-team@bank.com
+    bank.com/oncall-schedule: https://oncall.bank.com/payments
+  tags:
+    - java
+    - spring-boot
+    - payments
+    - tier-1
+    - sox
+  links:
+    - url: https://runbooks.bank.com/payments-service
+      title: Runbook
+      icon: book
+    - url: https://grafana.bank.com/d/payments-service
+      title: Grafana
+      icon: dashboard
+    - url: https://app.datadoghq.com/dashboard/payments
+      title: Datadog
+      icon: dashboard
+    - url: https://jira.bank.com/projects/PAY
+      title: Jira Board
+      icon: bug
+    - url: https://sonar.bank.com/project?id=payments-service
+      title: SonarQube
+      icon: quality
+    - url: https://confluence.bank.com/display/PAY/payments-service
+      title: Confluence
+      icon: docs
+    - url: https://oncall.bank.com/payments
+      title: On-Call Schedule
+      icon: group
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+
+  providesApis:
+    - payments-rest-api
+
+  consumesApis:
+    - auth-api
+    - fraud-detection-api
+    - ledger-api
+
+  dependsOn:
+    - resource:default/payments-postgres
+    - resource:default/payments-rabbitmq
+    - resource:default/payments-redis
+
+---
+
+# ─── API ──────────────────────────────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: payments-rest-api
+  title: Payments REST API
+  description: >
+    REST API for payment initiation, status queries and refunds.
+    Protected by OAuth2. Rate limited to 1000 req/min per client.
+  annotations:
+    bank.com/sysid: SYSID-06435
+    bank.com/team: team-payments
+    bank.com/api-gateway: https://api.bank.com/payments
+    bank.com/postman-collection: https://postman.bank.com/payments-api
+    bank.com/sla-uptime: "99.95"
+    bank.com/sla-latency-p99-ms: "500"
+  tags:
+    - rest
+    - openapi
+    - payments
+    - oauth2
+  links:
+    - url: https://api-docs.bank.com/payments
+      title: API Docs
+      icon: docs
+    - url: https://postman.bank.com/payments-api
+      title: Postman Collection
+      icon: scaffolder
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+  definition: |
+    openapi: "3.0.0"
+    info:
+      title: Payments API
+      version: "2.1.0"
+      description: REST API for payment initiation and management
+    servers:
+      - url: https://api.bank.com/payments
+    security:
+      - oauth2: [payments.write, payments.read]
+    paths:
+      /v2/payments:
+        post:
+          operationId: initiatePayment
+          summary: Initiate a payment
+          tags: [Payments]
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  required: [amount, currency, destinationAccount]
+                  properties:
+                    amount:
+                      type: number
+                      example: 1500.00
+                    currency:
+                      type: string
+                      example: USD
+                    destinationAccount:
+                      type: string
+                      example: "ACC-000123"
+                    reference:
+                      type: string
+          responses:
+            '202':
+              description: Payment accepted for processing
+            '400':
+              description: Invalid request
+            '422':
+              description: Business rule violation
+      /v2/payments/{id}:
+        get:
+          operationId: getPaymentStatus
+          summary: Get payment status
+          tags: [Payments]
+          parameters:
+            - name: id
+              in: path
+              required: true
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Payment details
+            '404':
+              description: Payment not found
+      /v2/payments/{id}/refund:
+        post:
+          operationId: refundPayment
+          summary: Refund a payment
+          tags: [Payments]
+          responses:
+            '202':
+              description: Refund initiated
+
+---
+
+# ─── Resource — PostgreSQL Database ───────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: payments-postgres
+  title: Payments PostgreSQL DB
+  description: >
+    Primary transactional store for payments-service.
+    PostgreSQL 14 on AWS RDS. Multi-AZ enabled. 35-day backup retention.
+  annotations:
+    bank.com/db-engine: postgresql
+    bank.com/db-version: "14"
+    bank.com/db-host: payments-db.p.rds.bank.com
+    bank.com/db-port: "5432"
+    bank.com/db-name: payments
+    bank.com/db-node-type: db.r6g.xlarge
+    bank.com/db-storage-gb: "500"
+    bank.com/db-multi-az: "true"
+    bank.com/db-backup-retention-days: "35"
+    bank.com/db-encryption: "true"
+    bank.com/db-environment: production
+    bank.com/db-region: us-east-1
+    bank.com/sysid: SYSID-06435
+    bank.com/team: team-payments
+    bank.com/tier: "1"
+    bank.com/data-classification: restricted
+  tags:
+    - postgresql
+    - rds
+    - production
+    - tier-1
+spec:
+  type: database
+  owner: group:default/team-payments
+  system: payments-platform
+
+---
+
+# ─── Resource — RabbitMQ ──────────────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: payments-rabbitmq
+  title: Payments RabbitMQ Exchange
+  description: >
+    payments-service publishes PaymentCompleted, PaymentFailed and
+    PaymentRefunded events. Consumed by notifications-service, ledger-service
+    and audit-service. DLQ enabled with 7-day retention.
+  annotations:
+    bank.com/mq-type: rabbitmq
+    bank.com/mq-version: "3.11"
+    bank.com/mq-host: rabbitmq.p.bank.com
+    bank.com/mq-port: "5672"
+    bank.com/mq-vhost: /payments
+    bank.com/mq-exchange: payments.events
+    bank.com/mq-exchange-type: topic
+    bank.com/mq-routing-keys: payment.completed,payment.failed,payment.refunded
+    bank.com/mq-dlq-enabled: "true"
+    bank.com/mq-dlq-retention-days: "7"
+    bank.com/mq-consumed-by: notifications-service,ledger-service,audit-service
+    bank.com/mq-environment: production
+    bank.com/sysid: SYSID-06435
+    bank.com/team: team-payments
+  tags:
+    - rabbitmq
+    - messaging
+    - events
+    - production
+spec:
+  type: messaging-queue
+  owner: group:default/team-payments
+  system: payments-platform
+
+---
+
+# ─── Resource — Redis Cache ────────────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: payments-redis
+  title: Payments Redis Cache
+  description: >
+    Session cache and idempotency key store for payments-service.
+    Redis 7 on AWS ElastiCache. 2 read replicas. In-transit encryption enabled.
+  annotations:
+    bank.com/cache-engine: redis
+    bank.com/cache-version: "7"
+    bank.com/cache-host: payments-cache.p.bank.com
+    bank.com/cache-port: "6379"
+    bank.com/cache-node-type: cache.r6g.large
+    bank.com/cache-replica-count: "2"
+    bank.com/cache-ttl-session-s: "3600"
+    bank.com/cache-ttl-idempotency-s: "86400"
+    bank.com/cache-encryption-transit: "true"
+    bank.com/cache-environment: production
+    bank.com/sysid: SYSID-06435
+    bank.com/team: team-payments
+  tags:
+    - redis
+    - cache
+    - elasticache
+    - production
+spec:
+  type: cache
+  owner: group:default/team-payments
+  system: payments-platform

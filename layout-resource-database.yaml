@@ -1,0 +1,102 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Catalog Entity Layout — kind: Resource, spec.type: database
+#
+# Paste into Harness IDP > Admin > Layout > Resource > database > Edit
+# ═══════════════════════════════════════════════════════════════════════════════
+
+page:
+  tabs:
+
+    - name: Overview
+      contents:
+
+        - component: EntityAboutCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 6
+
+        - component: EntityLinksCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 6
+
+        - component: EntityAdditionalInfoCard
+          specs:
+            props:
+              title: Database Details
+              items:
+                - label: Engine
+                  value: <+metadata.annotations['bank.com/db-engine']>
+                  type: string
+                  style:
+                    bold: true
+                - label: Version
+                  value: <+metadata.annotations['bank.com/db-version']>
+                  type: string
+                - label: Host
+                  value: <+metadata.annotations['bank.com/db-host']>
+                  type: string
+                - label: Port
+                  value: <+metadata.annotations['bank.com/db-port']>
+                  type: string
+                - label: Database Name
+                  value: <+metadata.annotations['bank.com/db-name']>
+                  type: string
+                - label: Node Type
+                  value: <+metadata.annotations['bank.com/db-node-type']>
+                  type: string
+                - label: Storage (GB)
+                  value: <+metadata.annotations['bank.com/db-storage-gb']>
+                  type: string
+                - label: Multi-AZ
+                  value: <+metadata.annotations['bank.com/db-multi-az']>
+                  type: string
+                - label: Backup Retention (days)
+                  value: <+metadata.annotations['bank.com/db-backup-retention-days']>
+                  type: string
+                - label: Encryption
+                  value: <+metadata.annotations['bank.com/db-encryption']>
+                  type: string
+                - label: Region
+                  value: <+metadata.annotations['bank.com/db-region']>
+                  type: string
+                - label: Environment
+                  value: <+metadata.annotations['bank.com/db-environment']>
+                  type: string
+                - label: Data Classification
+                  value: <+metadata.annotations['bank.com/data-classification']>
+                  type: string
+                  style:
+                    bold: true
+                - label: SYS ID
+                  value: <+metadata.annotations['bank.com/sysid']>
+                  type: string
+                - label: Team
+                  value: <+metadata.annotations['bank.com/team']>
+                  type: string
+            gridProps:
+              md: 6
+
+        - component: EntityAdditionalInfoCard
+          specs:
+            props:
+              title: Consumers
+              items:
+                - label: Consumed By
+                  value: <+spec.dependsOn>
+                  type: string
+            gridProps:
+              md: 6
+
+    - name: Dependencies
+      contents:
+        - component: EntityDependsOnComponentsCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 12
