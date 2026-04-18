@@ -22,22 +22,66 @@ metadata:
     End-to-end payments processing platform. Handles payment initiation,
     fraud detection, ledger posting and event publishing across all channels.
   annotations:
+    # Identity
     bank.com/sysid: SYSID-06435
-    bank.com/team: team-payments
+    bank.com/app-key: payments
     bank.com/domain: core-banking
     bank.com/tier: "1"
+    bank.com/product-owner: Jane Smith
+    bank.com/tech-lead: John Doe
+    bank.com/team: team-payments
+    bank.com/email-dl: payments-team@bank.com
+    bank.com/slack-channel: "#team-payments"
+    bank.com/oncall-schedule: https://oncall.bank.com/payments
+    # Compliance & governance
+    bank.com/data-classification: restricted
+    bank.com/sox-in-scope: "true"
+    bank.com/gdpr-in-scope: "false"
+    bank.com/last-pen-test: "2026-01-15"
+    bank.com/last-dr-test: "2025-11-01"
+    bank.com/rto-hours: "4"
+    bank.com/rpo-hours: "1"
+    # Architecture
+    bank.com/architecture-diagram: https://confluence.bank.com/display/PAY/architecture
+    bank.com/api-gateway: https://api.bank.com/payments
+    bank.com/service-count: "5"
+    bank.com/deploy-env: production
+    bank.com/cloud-provider: aws
+    bank.com/cloud-region: us-east-1
+    # Documentation & tracking
     bank.com/confluence-space: https://confluence.bank.com/display/PAY
     bank.com/runbook: https://runbooks.bank.com/payments-platform
+    bank.com/jira-project: https://jira.bank.com/projects/PAY
+    bank.com/roadmap: https://confluence.bank.com/display/PAY/roadmap
+    bank.com/changelog: https://github.com/bank-org/payments-service/blob/main/CHANGELOG.md
+    # SLAs
+    bank.com/sla-uptime: "99.95"
+    bank.com/sla-latency-p99-ms: "500"
+    bank.com/sla-rps: "1000"
   tags:
     - payments
     - core-banking
     - tier-1
+    - sox
+    - aws
   links:
     - url: https://runbooks.bank.com/payments-platform
       title: Platform Runbook
       icon: book
     - url: https://confluence.bank.com/display/PAY
       title: Confluence Space
+      icon: docs
+    - url: https://confluence.bank.com/display/PAY/architecture
+      title: Architecture Diagram
+      icon: scaffolder
+    - url: https://jira.bank.com/projects/PAY
+      title: Jira Project
+      icon: bug
+    - url: https://oncall.bank.com/payments
+      title: On-Call Schedule
+      icon: group
+    - url: https://confluence.bank.com/display/PAY/roadmap
+      title: Roadmap
       icon: docs
 spec:
   owner: group:default/team-payments
