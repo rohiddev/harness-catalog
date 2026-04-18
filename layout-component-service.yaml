@@ -98,13 +98,11 @@ page:
             gridProps:
               md: 6
 
-        # Row 3: Scorecard full width
-        - component: EntityScorecard
+        # Row 3: Scorecard summary card full width
+        - component: EntityScoreCard
           specs:
-            props:
-              variant: gridItem
             gridProps:
-              md: 12
+              md: 6
 
     # ── Dependencies ───────────────────────────────────────────────────────────
     - name: Dependencies
@@ -173,6 +171,16 @@ page:
               md: 12
 
         - component: EntityHarnessCDContent
+          specs:
+            gridProps:
+              md: 12
+
+    # ── Scorecard ──────────────────────────────────────────────────────────────
+    - name: Scorecard
+      path: /scorecard
+      title: Scorecard
+      contents:
+        - component: EntityScorecardContent
           specs:
             gridProps:
               md: 12
