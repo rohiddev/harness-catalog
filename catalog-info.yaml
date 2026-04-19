@@ -212,53 +212,160 @@ spec:
 
 ---
 
-# ─── API — FTP Outbound (producer) ───────────────────────────────────────────
+# ─── API — FTP Outbound (producer / AsyncAPI) ────────────────────────────────
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
   name: payments-ftp-outbound
   title: Payments FTP Outbound
   description: >
-    FTP interface for files produced by payments-service. Includes settlement
-    reports, reconciliation files and payment confirmation batches written to
-    the FTP server for downstream processor collection.
+    Async file exchange — files produced by payments-service and deposited on
+    the FTP server for downstream processor collection. Covers settlement
+    reports, reconciliation files and payment confirmation batches.
   annotations:
     bank.com/sysid: SYSID-06435
     github.com/project-slug: bank-org/payments-service
   tags:
     - ftp
+    - asyncapi
     - file-transfer
     - producer
 spec:
-  type: ftp
+  type: asyncapi
   lifecycle: production
   owner: group:default/team-payments
   system: payments-platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments FTP Outbound
+      version: "1.0.0"
+      description: >
+        Async file exchange produced by payments-service. Files are deposited
+        on the FTP server on a scheduled basis for downstream processors.
+    servers:
+      production:
+        url: ftp.bank.com
+        protocol: ftp
+        description: Production FTP server
+    channels:
+      /outbound/settlement/{date}:
+        description: Daily settlement report — one file per business day
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
+              example: "20260419"
+        publish:
+          summary: Deposit settlement report
+          message:
+            name: SettlementReport
+            contentType: text/csv
+            payload:
+              type: object
+              description: Fixed-width CSV. Columns — txn_id, amount, currency, status, settled_at
+      /outbound/reconciliation/{date}:
+        description: Daily reconciliation file for processor matching
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
+        publish:
+          summary: Deposit reconciliation file
+          message:
+            name: ReconciliationFile
+            contentType: text/csv
+            payload:
+              type: object
+              description: Fixed-width CSV. Columns — txn_id, processor_ref, amount, match_status
+      /outbound/confirmations/{batch}:
+        description: Intraday payment confirmation batches (every 4 hours)
+        parameters:
+          batch:
+            description: Batch sequence number
+            schema:
+              type: string
+        publish:
+          summary: Deposit payment confirmation batch
+          message:
+            name: PaymentConfirmationBatch
+            contentType: application/xml
+            payload:
+              type: object
+              description: ISO 20022 pain.002 payment status report
 
 ---
 
-# ─── API — FTP Inbound (consumer) ────────────────────────────────────────────
+# ─── API — FTP Inbound (consumer / AsyncAPI) ─────────────────────────────────
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
   name: payments-ftp-inbound
   title: Payments FTP Inbound
   description: >
-    FTP interface for files consumed by payments-service. Includes incoming
-    payment instruction files and third-party processor acknowledgement files
-    read from the FTP server for processing.
+    Async file exchange — files deposited on the FTP server by third-party
+    processors and consumed by payments-service. Covers incoming payment
+    instruction files and processor acknowledgement files.
   annotations:
     bank.com/sysid: SYSID-06435
     github.com/project-slug: bank-org/payments-service
   tags:
     - ftp
+    - asyncapi
     - file-transfer
     - consumer
 spec:
-  type: ftp
+  type: asyncapi
   lifecycle: production
   owner: group:default/team-payments
   system: payments-platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments FTP Inbound
+      version: "1.0.0"
+      description: >
+        Async file exchange consumed by payments-service. Files are deposited
+        by third-party processors and polled by payments-service for ingestion.
+    servers:
+      production:
+        url: ftp.bank.com
+        protocol: ftp
+        description: Production FTP server
+    channels:
+      /inbound/instructions/{date}:
+        description: Incoming bulk payment instruction files from processors
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
+              example: "20260419"
+        subscribe:
+          summary: Consume incoming payment instructions
+          message:
+            name: PaymentInstructionFile
+            contentType: application/xml
+            payload:
+              type: object
+              description: ISO 20022 pain.001 payment initiation message
+      /inbound/acknowledgements/{batch}:
+        description: Processor acknowledgement files confirming file receipt
+        parameters:
+          batch:
+            description: Batch sequence number
+            schema:
+              type: string
+        subscribe:
+          summary: Consume processor acknowledgements
+          message:
+            name: ProcessorAcknowledgement
+            contentType: text/csv
+            payload:
+              type: object
+              description: Columns — file_ref, received_at, record_count, status
 
 ---
 
