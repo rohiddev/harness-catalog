@@ -5,6 +5,64 @@ Follow the steps below **in order** to configure everything in Harness IDP.
 
 ---
 
+## Step 0 (Optional) — ServiceNow CMDB Integration
+
+If your organisation manages services in ServiceNow CMDB, configure this integration first.
+It auto-populates governance and compliance fields directly from CMDB — eliminating manual
+annotation maintenance in `catalog-info.yaml`.
+
+**IDP > Configure > Integrations > + New Integration > ServiceNow**
+
+### Prerequisites
+- Feature flag `IDP_CATALOG_CD_AUTO_DISCOVERY` must be enabled (contact Harness Support)
+- Harness CD enabled on the same account as IDP
+- A Kubernetes agent installed in your environment (prompted on first setup)
+- A Harness ServiceNow connector (username/password or OAuth)
+
+### Field Mappings for Payments Platform
+
+Configure the following mappings when setting up the integration.
+CMDB table: **`cmdb_ci_service`**
+
+| CMDB Column | Catalog YAML Field | Notes |
+|---|---|---|
+| `sys_id` | `metadata.name` | Used as unique identifier |
+| `u_app_key` | `spec.properties.appKey` | |
+| `u_domain` | `spec.properties.domain` | |
+| `u_tier` | `spec.properties.tier` | |
+| `u_product_owner` | `spec.properties.productOwner` | |
+| `u_tech_lead` | `spec.properties.techLead` | |
+| `u_team` | `spec.owner` | Maps to catalog owner |
+| `u_email_dl` | `spec.properties.emailDl` | |
+| `u_data_classification` | `spec.properties.dataClassification` | |
+| `u_sox_in_scope` | `spec.properties.soxInScope` | |
+| `u_gdpr_in_scope` | `spec.properties.gdprInScope` | |
+| `u_last_pen_test` | `spec.properties.lastPenTest` | |
+| `u_last_dr_test` | `spec.properties.lastDrTest` | |
+| `u_rto_hours` | `spec.properties.rtoHours` | |
+| `u_rpo_hours` | `spec.properties.rpoHours` | |
+| `lifecycle` | `spec.lifecycle` | |
+| `u_sla_uptime` | `spec.properties.slaUptime` | |
+
+**Display Name column:** `u_app_key` (or `name`)
+**Unique Identifier column:** `sys_id`
+**Correlation field:** `name` — matches existing catalog entities by name so CMDB data merges into them rather than creating duplicates
+
+### Sync Schedule
+Set to daily or on-demand depending on how frequently CMDB records change.
+
+### After Sync
+Discovered records appear in the **Discovered** tab. For the payments entities:
+- Entities already in the catalog → select **Merge** to enrich with CMDB fields
+- New entities not yet in the catalog → select **Register** to create them
+
+> **Layout note:** CMDB-sourced fields land in `spec.properties`, not `metadata.annotations`.
+> The layout YAMLs in this repo currently read from `metadata.annotations['bank.com/...']`.
+> If you use the CMDB integration, update the layout `value:` fields to use
+> `<+spec.properties.fieldName>` for any field sourced from CMDB.
+
+---
+
 ## Step 1 — Import Catalog Entities from Git
 
 **IDP > Software Catalog > Import from Git**
