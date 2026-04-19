@@ -433,12 +433,46 @@ the key progress metric for the initiative.
 > Blast radius accuracy is directly proportional to now.yaml completion rate.
 > A system with no `now.yaml` appears as a leaf node — its upstream dependents are invisible.
 
+### Dependency Visibility — Phase Plan
+
+| Phase | Approach | Graph Cards | Status |
+|---|---|---|---|
+| **1** | Manual `dependsOn` in `catalog-info.yaml` | Yes — Tier-1 systems only | Available now |
+| **2** | Ingestion pipeline: cmdb_rel_ci → catalog-info.yaml via GitHub API | Yes — all repos automated | Blocked on now.yaml schema |
+| **3** | Native Harness CMDB integration reads cmdb_rel_ci | Yes — automatic, no pipeline | Raise with Harness Support |
+
+### Phase 2 — Ingestion Pipeline (Draft)
+
+> **Blocked on now.yaml schema confirmation from RapDev.**
+
+Once now.yaml schema is confirmed, a Harness pipeline will:
+
+1. Trigger on `now.yaml` push (GitHub webhook)
+2. Query `cmdb_rel_ci` via ServiceNow REST API for that entity's dependencies
+3. Transform response to Backstage `dependsOn` format (`component:default/<name>` or `resource:default/<name>`)
+4. Read current `catalog-info.yaml` from GitHub API
+5. Patch `spec.dependsOn` section
+6. Commit updated `catalog-info.yaml` back to repo (`[skip ci]` commit message)
+7. IDP Git webhook picks up → entity refreshed → native graph cards render
+
+**Must confirm before building:**
+
+| # | Unknown | Owner |
+|---|---|---|
+| 1 | now.yaml schema finalised | RapDev |
+| 2 | sys_id exposed in webhook payload | RapDev |
+| 3 | cmdb_rel_ci relationship type names in scope | ServiceNow admin |
+| 4 | `sys_class_name` list for component vs resource mapping | ServiceNow admin |
+| 5 | Catalog Ingestion API — can it update `spec.dependsOn` | Harness Support |
+| 6 | GitHub token scope for cross-repo commits | Platform team |
+
+Full pipeline YAML: `wiki/integrations/phase2-cmdb-dependency-ingestion.md`
+
 ### Current Limitation
 
 The Harness IDP CMDB integration reads **CI field properties** only — it does not yet read
-`cmdb_rel_ci` to auto-populate `dependsOn` in the catalog. Until Harness adds this support,
-`dependsOn` in `catalog-info.yaml` must be maintained manually or via the Catalog Ingestion API.
-Raise with Harness Support as a feature request referencing the `cmdb_rel_ci` table.
+`cmdb_rel_ci` to auto-populate `dependsOn`. Raise with Harness Support as a feature request
+referencing the `cmdb_rel_ci` table — this would eliminate the Phase 2 pipeline entirely.
 
 ---
 
