@@ -241,4 +241,114 @@ Open **payments-service** in the Software Catalog and confirm:
 
 ---
 
+---
+
+## Service Mapping Initiative
+
+> **Critical company-wide initiative.** This section describes how the IDP catalog
+> integrates with the broader service mapping programme across 19,000 repositories.
+
+### Overview
+
+Every repo in the organisation will have a `now.yaml` file alongside `catalog-info.yaml`.
+The `now.yaml` declares the direct dependencies of that system (1 level deep).
+RapDev's CSDM as Code integration reads `now.yaml` on deploy and writes the relationships
+into ServiceNow's `cmdb_rel_ci` table — building a complete company-wide dependency graph.
+
+**Goal:** If System B has an outage, immediately identify every upstream system impacted —
+1 hop, 2 hops, N hops — using a recursive SQL query across `cmdb_rel_ci`.
+
+### now.yaml — Schema Status
+
+> **Schema is not yet finalised.** RapDev is working with the team to define the spec.
+> Do not create `now.yaml` files until the schema is confirmed.
+
+Each `now.yaml` will declare:
+- The system's CMDB CI class and key attributes (tier, team, classification)
+- Direct dependencies — what systems this system calls or depends on
+- Relationship type (`Depends on::Used by`, `Calls::Called by`, etc.)
+
+### cmdb_rel_ci — Relationship Table
+
+ServiceNow stores all CI-to-CI relationships here. Each row has:
+
+| Column | Meaning |
+|---|---|
+| `parent` | The system that depends on another |
+| `child` | The system being depended on |
+| `type` | Relationship type e.g. `Depends on::Used by` |
+
+The `::` in the type name splits two English readings: `[parent→child]::[child→parent]`.
+Always query **both** parent and child columns (UNION) — different tools insert from different ends.
+
+### Blast Radius — Recursive SQL
+
+To find all systems impacted by an outage in a given system:
+
+```sql
+WITH RECURSIVE blast_radius AS (
+  SELECT p.name AS impacted_system, p.sys_id AS impacted_sys_id, 1 AS hops
+  FROM cmdb_rel_ci r
+  JOIN cmdb_ci p ON r.parent = p.sys_id
+  JOIN cmdb_ci c ON r.child  = c.sys_id
+  JOIN cmdb_rel_type t ON r.type = t.sys_id
+  WHERE c.name = :failed_system AND t.name LIKE 'Depends on%'
+
+  UNION ALL
+
+  SELECT p.name, p.sys_id, br.hops + 1
+  FROM cmdb_rel_ci r
+  JOIN cmdb_ci p ON r.parent = p.sys_id
+  JOIN cmdb_ci c ON r.child  = c.sys_id
+  JOIN cmdb_rel_type t ON r.type = t.sys_id
+  JOIN blast_radius br ON c.sys_id = br.impacted_sys_id
+  WHERE t.name LIKE 'Depends on%' AND br.hops < 10
+)
+SELECT impacted_system, MIN(hops) AS blast_radius_hops
+FROM blast_radius
+GROUP BY impacted_system
+ORDER BY blast_radius_hops;
+```
+
+### IDP Catalog — Dependency Visibility
+
+When `dependsOn` is populated on a catalog entity, IDP automatically creates **reverse edges**:
+- System A's Dependencies tab shows → what A depends on (downstream)
+- System B's Dependencies tab shows → who depends on B (blast radius / upstream)
+
+No extra configuration needed. The reverse `dependencyOf` edge is created automatically.
+
+### Scorecard Check — Mapping Completeness
+
+Track initiative progress across all repos:
+
+| Field | Value |
+|---|---|
+| Name | Has dependency mapping |
+| Mode | Advanced (JEXL) |
+| Expression | `catalog.annotationExists."bank.com/sysid" == true && spec.dependsOn != null` |
+
+This surfaces as a dashboard showing which systems have completed dependency mapping —
+the key progress metric for the initiative.
+
+### Rollout Priority
+
+| Phase | Target | Rationale |
+|---|---|---|
+| 1 | Tier-1 systems | Highest blast radius, most critical for incident response |
+| 2 | Tier-2 systems | ~50% graph coverage, useful for major incidents |
+| 3 | All remaining repos | Near-complete graph, reliable for all outage scenarios |
+
+> Blast radius accuracy is directly proportional to now.yaml completion rate.
+> A system with no `now.yaml` appears as a leaf node — its upstream dependents are invisible.
+
+### Current Limitation
+
+The Harness IDP CMDB integration reads **CI field properties** only — it does not yet read
+`cmdb_rel_ci` to auto-populate `dependsOn` in the catalog. Until Harness adds this support,
+`dependsOn` in `catalog-info.yaml` must be maintained manually or via the Catalog Ingestion API.
+Raise with Harness Support as a feature request referencing the `cmdb_rel_ci` table.
+
+---
+
 *Author: Rohid Dev · github.com/rohiddev*
