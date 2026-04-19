@@ -227,6 +227,97 @@ Open **payments-service** in the Software Catalog and confirm:
 
 ---
 
+## Production Readiness Governance
+
+> **Scorecard as a production gate.** Both `catalog-info.yaml` and `now.yaml` must be
+> complete before a service can be deployed to production. The scorecard enforces this
+> automatically — incomplete files block the deployment pipeline.
+
+### How It Works
+
+```
+Developer fills catalog-info.yaml + now.yaml
+            ↓
+    Scorecard evaluates both files
+            ↓
+   Score < 100% → pipeline BLOCKED
+   Score = 100% → production deployment APPROVED
+            ↓
+  now.yaml syncs to cmdb_rel_ci via RapDev CSDM as Code
+            ↓
+  Dependency graph visible on catalog entity detail page
+```
+
+### Scorecard Checks — catalog-info.yaml
+
+| Check | Validates |
+|---|---|
+| Has SYS ID | `bank.com/sysid` annotation present |
+| Has owner defined | `spec.owner` populated |
+| Has TechDocs | `backstage.io/techdocs-ref` annotation present |
+| Has on-call schedule | `bank.com/oncall-schedule` annotation present |
+| Has data classification | `bank.com/data-classification` annotation present |
+| Has SOX scope declared | `bank.com/sox-in-scope` annotation present |
+| Has email DL | `bank.com/email-dl` annotation present |
+| Has GitHub slug | `github.com/project-slug` annotation present |
+
+### Scorecard Checks — now.yaml
+
+| Check | Validates |
+|---|---|
+| now.yaml exists in repo | File `now.yaml` present on main branch (GitHub data source) |
+| Has dependencies declared | `spec.dependsOn` populated in catalog entity |
+| Has tier declared | `bank.com/tier` annotation present |
+| Has team declared | `bank.com/team` annotation present |
+
+> **Note:** now.yaml checks require GitHub connected as a scorecard data source (Step 3).
+> now.yaml schema is not yet finalised — checks will be added once RapDev confirms the spec.
+
+### Scorecard Configuration
+
+Create a single **Production Readiness** scorecard (Step 5) with all 12 checks.
+Set the pass threshold to **100%** — partial completion does not satisfy the gate.
+
+### Pipeline Integration — Prod Deployment Gate
+
+Add this step before the production stage in every Harness CD pipeline:
+
+```yaml
+- step:
+    name: Check Production Readiness Scorecard
+    type: Http
+    spec:
+      url: https://app.harness.io/idp/api/scorecards/<entity>/score
+      method: GET
+      headers:
+        - key: x-api-key
+          value: <+secrets.getValue("harness_api_key")>
+      assertion: <+json.select("score", httpResponseBody)> == 100
+    failureStrategies:
+      - onFailure:
+          errors: [AssertionError]
+          action:
+            type: Abort
+```
+
+A failing scorecard aborts the pipeline — the developer must fix `catalog-info.yaml`
+or `now.yaml`, wait for the next scorecard evaluation, then re-trigger the deployment.
+
+### What Unlocks on the Catalog Page After Both Files Pass
+
+| Tab | What becomes visible |
+|---|---|
+| **Overview** | Production Readiness scorecard card — green 100%, all checks PASS |
+| **Scorecard** | Full check table — catalog-info.yaml and now.yaml checks with PASS/FAIL |
+| **Dependencies** | Downstream: what this system depends on (sourced from now.yaml) |
+| **Dependencies** | Upstream: who depends on this system — blast radius view |
+
+The dependency graph only populates after now.yaml syncs to cmdb_rel_ci and the
+`dependsOn` edges appear in the IDP catalog. This creates a natural incentive —
+developers complete both files to unblock production and unlock their full catalog page.
+
+---
+
 ## File Reference
 
 | File | Purpose |
