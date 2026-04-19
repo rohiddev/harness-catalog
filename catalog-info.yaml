@@ -108,6 +108,7 @@ spec:
     - resource:default/payments-postgres
     - resource:default/payments-rabbitmq
     - resource:default/payments-redis
+    - resource:default/payments-ftp
 
 ---
 
@@ -270,5 +271,26 @@ metadata:
     - elasticache
 spec:
   type: cache
+  owner: group:default/team-payments
+  system: payments-platform
+
+---
+
+# ─── Resource — FTP Server ────────────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: payments-ftp
+  title: Payments FTP Server
+  description: >
+    FTP server used by payments-service for secure file exchange with
+    third-party payment processors and settlement partners.
+  annotations:
+    bank.com/sysid: SYSID-06435
+  tags:
+    - ftp
+    - file-transfer
+spec:
+  type: ftp-server
   owner: group:default/team-payments
   system: payments-platform
