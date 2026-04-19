@@ -107,6 +107,24 @@ page:
     # ── Dependencies ───────────────────────────────────────────────────────────
     - name: Dependencies
       contents:
+
+        # Visual dependency graph — shows full blast radius as interactive graph
+        - component: EntityCatalogGraphCard
+          specs:
+            props:
+              variant: gridItem
+              title: Dependency Graph
+              maxDepth: 2
+              direction: LR
+              relations:
+                - dependsOn
+                - dependencyOf
+                - providesApis
+                - consumesApis
+            gridProps:
+              md: 12
+
+        # List cards below graph for detail
         - component: EntityDependsOnComponentsCard
           specs:
             props:
@@ -125,6 +143,7 @@ page:
           specs:
             props:
               variant: gridItem
+              title: Depended on by (Blast Radius)
             gridProps:
               md: 6
 

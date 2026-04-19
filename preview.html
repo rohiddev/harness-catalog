@@ -512,6 +512,179 @@
         <div class="tab-pane" id="service-dependencies">
           <div class="grid">
 
+            <!-- Visual dependency graph -->
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header" style="justify-content:space-between">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div class="card-header-icon"><span class="material-icons">account_tree</span></div>
+                    <div class="card-header-title">Dependency Graph</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:#6B7280">
+                    <span>Depth: 2</span>
+                    <span>·</span>
+                    <span>Direction: Left → Right</span>
+                    <span>·</span>
+                    <span style="color:#10B981;font-weight:600">● live from cmdb_rel_ci</span>
+                  </div>
+                </div>
+                <div class="card-body" style="padding:24px;overflow-x:auto">
+                  <svg viewBox="0 0 900 340" style="width:100%;min-width:800px;height:340px;font-family:Inter,sans-serif">
+
+                    <!-- Legend -->
+                    <g transform="translate(20,14)">
+                      <circle cx="6" cy="6" r="6" fill="#6366F1"/>
+                      <text x="16" y="10" font-size="10" fill="#6B7280">System</text>
+                      <circle cx="75" cy="6" r="6" fill="#0078D7"/>
+                      <text x="85" y="10" font-size="10" fill="#6B7280">Service</text>
+                      <circle cx="145" cy="6" r="6" fill="#10B981"/>
+                      <text x="155" y="10" font-size="10" fill="#6B7280">Resource</text>
+                      <circle cx="225" cy="6" r="6" fill="#EF4444"/>
+                      <text x="235" y="10" font-size="10" fill="#6B7280">Blast radius</text>
+                      <rect x="310" y="0" width="30" height="3" fill="#CBD5E1" rx="1"/>
+                      <text x="344" y="10" font-size="10" fill="#6B7280">dependsOn</text>
+                      <rect x="420" y="0" width="30" height="3" fill="#FCA5A5" rx="1" stroke-dasharray="4,2"/>
+                      <text x="454" y="10" font-size="10" fill="#6B7280">dependencyOf (blast radius)</text>
+                    </g>
+
+                    <!-- Arrowhead markers -->
+                    <defs>
+                      <marker id="arrow-gray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L8,3 z" fill="#CBD5E1"/>
+                      </marker>
+                      <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L8,3 z" fill="#FCA5A5"/>
+                      </marker>
+                    </defs>
+
+                    <!-- ── UPSTREAM (blast radius) edges — dashed red ── -->
+                    <!-- mobile-app → payments-service -->
+                    <line x1="128" y1="105" x2="370" y2="155" stroke="#FCA5A5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow-red)"/>
+                    <!-- web-checkout → payments-service -->
+                    <line x1="128" y1="170" x2="370" y2="170" stroke="#FCA5A5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow-red)"/>
+                    <!-- batch-settlement → payments-service -->
+                    <line x1="128" y1="235" x2="370" y2="185" stroke="#FCA5A5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow-red)"/>
+                    <!-- finance-reporting → payments-service -->
+                    <line x1="128" y1="300" x2="370" y2="190" stroke="#FCA5A5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrow-red)"/>
+                    <!-- customer-notifications → mobile-app (2 hop) -->
+                    <line x1="30" y1="60" x2="92" y2="95" stroke="#FCA5A5" stroke-width="1" stroke-dasharray="3,3" opacity="0.5" marker-end="url(#arrow-red)"/>
+
+                    <!-- ── DOWNSTREAM edges — solid gray ── -->
+                    <!-- payments-service → auth-service -->
+                    <line x1="530" y1="155" x2="660" y2="95" stroke="#CBD5E1" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+                    <!-- payments-service → fraud-detection-api -->
+                    <line x1="530" y1="165" x2="660" y2="155" stroke="#CBD5E1" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+                    <!-- payments-service → ledger-service -->
+                    <line x1="530" y1="175" x2="660" y2="215" stroke="#CBD5E1" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+                    <!-- payments-service → payments-postgres -->
+                    <line x1="530" y1="185" x2="660" y2="275" stroke="#CBD5E1" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+                    <!-- payments-service → payments-rabbitmq -->
+                    <line x1="530" y1="175" x2="760" y2="125" stroke="#CBD5E1" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+                    <!-- payments-service → payments-redis -->
+                    <line x1="530" y1="175" x2="760" y2="310" stroke="#CBD5E1" stroke-width="1.5" marker-end="url(#arrow-gray)"/>
+
+                    <!-- ── NODES ── -->
+
+                    <!-- 2-hop upstream: customer-notifications -->
+                    <g transform="translate(0,42)">
+                      <rect x="0" y="0" width="90" height="28" rx="14" fill="#FEE2E2" stroke="#FCA5A5" stroke-width="1.5"/>
+                      <circle cx="14" cy="14" r="6" fill="#EF4444"/>
+                      <text x="23" y="18" font-size="9" fill="#991B1B" font-weight="600">customer-notif…</text>
+                      <text x="45" y="32" font-size="8" fill="#9CA3AF" text-anchor="middle">2 hops</text>
+                    </g>
+
+                    <!-- 1-hop upstream: mobile-app -->
+                    <g transform="translate(78,88)">
+                      <rect x="0" y="0" width="90" height="28" rx="14" fill="#FEE2E2" stroke="#EF4444" stroke-width="2"/>
+                      <circle cx="14" cy="14" r="6" fill="#EF4444"/>
+                      <text x="23" y="18" font-size="9.5" fill="#991B1B" font-weight="700">mobile-app</text>
+                      <text x="45" y="34" font-size="8" fill="#9CA3AF" text-anchor="middle">tier-1 · 1 hop</text>
+                    </g>
+
+                    <!-- web-checkout -->
+                    <g transform="translate(78,153)">
+                      <rect x="0" y="0" width="90" height="28" rx="14" fill="#FEE2E2" stroke="#EF4444" stroke-width="2"/>
+                      <circle cx="14" cy="14" r="6" fill="#EF4444"/>
+                      <text x="23" y="18" font-size="9.5" fill="#991B1B" font-weight="700">web-checkout</text>
+                      <text x="45" y="34" font-size="8" fill="#9CA3AF" text-anchor="middle">tier-1 · 1 hop</text>
+                    </g>
+
+                    <!-- batch-settlement -->
+                    <g transform="translate(78,218)">
+                      <rect x="0" y="0" width="90" height="28" rx="14" fill="#FEE2E2" stroke="#FCA5A5" stroke-width="1.5"/>
+                      <circle cx="14" cy="14" r="6" fill="#EF4444"/>
+                      <text x="23" y="18" font-size="9.5" fill="#991B1B" font-weight="700">batch-settle…</text>
+                      <text x="45" y="34" font-size="8" fill="#9CA3AF" text-anchor="middle">tier-2 · 1 hop</text>
+                    </g>
+
+                    <!-- finance-reporting -->
+                    <g transform="translate(78,283)">
+                      <rect x="0" y="0" width="90" height="28" rx="14" fill="#FEE2E2" stroke="#FCA5A5" stroke-width="1.5"/>
+                      <circle cx="14" cy="14" r="6" fill="#EF4444"/>
+                      <text x="23" y="18" font-size="9.5" fill="#991B1B" font-weight="700">finance-report…</text>
+                      <text x="45" y="34" font-size="8" fill="#9CA3AF" text-anchor="middle">tier-2 · 1 hop</text>
+                    </g>
+
+                    <!-- CENTRE: payments-service -->
+                    <g transform="translate(360,145)">
+                      <rect x="0" y="0" width="140" height="44" rx="8" fill="#0078D7" stroke="#005EA8" stroke-width="2"/>
+                      <circle cx="18" cy="22" r="8" fill="rgba(255,255,255,0.25)"/>
+                      <text x="18" y="26" font-size="11" fill="#fff" text-anchor="middle">⚡</text>
+                      <text x="80" y="18" font-size="11" fill="#fff" font-weight="700" text-anchor="middle">payments-service</text>
+                      <text x="80" y="32" font-size="9" fill="rgba(255,255,255,0.75)" text-anchor="middle">Component · service · tier-1</text>
+                    </g>
+
+                    <!-- DOWNSTREAM services -->
+                    <!-- auth-service -->
+                    <g transform="translate(650,78)">
+                      <rect x="0" y="0" width="110" height="28" rx="14" fill="#EEF3FD" stroke="#0078D7" stroke-width="1.5"/>
+                      <circle cx="14" cy="14" r="6" fill="#0078D7"/>
+                      <text x="23" y="18" font-size="9.5" fill="#1D4ED8" font-weight="600">auth-service</text>
+                    </g>
+
+                    <!-- fraud-detection-api -->
+                    <g transform="translate(650,138)">
+                      <rect x="0" y="0" width="110" height="28" rx="14" fill="#EEF3FD" stroke="#0078D7" stroke-width="1.5"/>
+                      <circle cx="14" cy="14" r="6" fill="#0078D7"/>
+                      <text x="23" y="18" font-size="9" fill="#1D4ED8" font-weight="600">fraud-detect…</text>
+                    </g>
+
+                    <!-- ledger-service -->
+                    <g transform="translate(650,198)">
+                      <rect x="0" y="0" width="110" height="28" rx="14" fill="#EEF3FD" stroke="#0078D7" stroke-width="1.5"/>
+                      <circle cx="14" cy="14" r="6" fill="#0078D7"/>
+                      <text x="23" y="18" font-size="9.5" fill="#1D4ED8" font-weight="600">ledger-service</text>
+                    </g>
+
+                    <!-- payments-postgres -->
+                    <g transform="translate(650,258)">
+                      <rect x="0" y="0" width="110" height="28" rx="14" fill="#D1FAE5" stroke="#10B981" stroke-width="1.5"/>
+                      <circle cx="14" cy="14" r="6" fill="#10B981"/>
+                      <text x="23" y="18" font-size="9" fill="#065F46" font-weight="600">payments-postgres</text>
+                    </g>
+
+                    <!-- payments-rabbitmq -->
+                    <g transform="translate(750,108)">
+                      <rect x="0" y="0" width="120" height="28" rx="14" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5"/>
+                      <circle cx="14" cy="14" r="6" fill="#F59E0B"/>
+                      <text x="23" y="18" font-size="9" fill="#92400E" font-weight="600">payments-rabbitmq</text>
+                    </g>
+
+                    <!-- payments-redis -->
+                    <g transform="translate(750,293)">
+                      <rect x="0" y="0" width="110" height="28" rx="14" fill="#FEE2E2" stroke="#EF4444" stroke-width="1.5"/>
+                      <circle cx="14" cy="14" r="6" fill="#EF4444"/>
+                      <text x="23" y="18" font-size="9" fill="#991B1B" font-weight="600">payments-redis</text>
+                    </g>
+
+                    <!-- Blast radius label -->
+                    <text x="80" y="16" font-size="9" fill="#EF4444" font-weight="700" text-anchor="middle">⚠ BLAST RADIUS</text>
+
+                  </svg>
+                </div>
+              </div>
+            </div>
+
             <!-- CMDB sync status banner -->
             <div class="col-12">
               <div style="display:flex;align-items:center;gap:10px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:10px 16px;font-size:12px">
