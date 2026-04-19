@@ -100,10 +100,12 @@ spec:
   system: payments-platform
   providesApis:
     - payments-rest-api
+    - payments-ftp-outbound          # produces files to FTP (e.g. settlement reports)
   consumesApis:
     - auth-api
     - fraud-detection-api
     - ledger-api
+    - payments-ftp-inbound           # consumes files from FTP (e.g. incoming payment files)
   dependsOn:
     - resource:default/payments-postgres
     - resource:default/payments-rabbitmq
@@ -207,6 +209,56 @@ spec:
           responses:
             '202':
               description: Refund initiated
+
+---
+
+# ─── API — FTP Outbound (producer) ───────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: payments-ftp-outbound
+  title: Payments FTP Outbound
+  description: >
+    FTP interface for files produced by payments-service. Includes settlement
+    reports, reconciliation files and payment confirmation batches written to
+    the FTP server for downstream processor collection.
+  annotations:
+    bank.com/sysid: SYSID-06435
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - ftp
+    - file-transfer
+    - producer
+spec:
+  type: ftp
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+
+---
+
+# ─── API — FTP Inbound (consumer) ────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: payments-ftp-inbound
+  title: Payments FTP Inbound
+  description: >
+    FTP interface for files consumed by payments-service. Includes incoming
+    payment instruction files and third-party processor acknowledgement files
+    read from the FTP server for processing.
+  annotations:
+    bank.com/sysid: SYSID-06435
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - ftp
+    - file-transfer
+    - consumer
+spec:
+  type: ftp
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
 
 ---
 
