@@ -103,16 +103,19 @@ spec:
   providesApis:
     - payments-rest-api
     - payments-ftp-outbound          # produces files to FTP (e.g. settlement reports)
+    - payments-kafka-producer        # publishes payment lifecycle events to Kafka
   consumesApis:
     - auth-api
     - fraud-detection-api
     - ledger-api
     - payments-ftp-inbound           # consumes files from FTP (e.g. incoming payment files)
+    - payments-kafka-consumer        # subscribes to fraud decisions and ledger confirmations
   dependsOn:
     - resource:default/payments-postgres
     - resource:default/payments-rabbitmq
     - resource:default/payments-redis
     - resource:default/payments-ftp
+    - resource:default/payments-kafka
 
 ---
 
@@ -374,6 +377,234 @@ spec:
 
 ---
 
+# ─── API — Kafka Producer (AsyncAPI) ─────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: payments-kafka-producer
+  title: Payments Kafka Producer
+  description: >
+    Async event stream produced by payments-service. Publishes payment lifecycle
+    events to Kafka topics for consumption by downstream services such as
+    notifications, reporting and audit.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - kafka
+    - asyncapi
+    - events
+    - producer
+    - sysid-00000
+spec:
+  type: asyncapi
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments Kafka Producer
+      version: "1.0.0"
+      description: >
+        Payment lifecycle events published by payments-service to Kafka.
+        Consumers include notification-service, audit-service and reporting-service.
+    servers:
+      production:
+        url: kafka.bank.com:9092
+        protocol: kafka
+        description: Production Kafka cluster
+        security:
+          - saslScram: []
+    channels:
+      payments.events.payment-completed:
+        description: Published when a payment is successfully processed and settled
+        publish:
+          summary: Payment completed event
+          bindings:
+            kafka:
+              topic: payments.events.payment-completed
+              partitions: 12
+              replicas: 3
+          message:
+            name: PaymentCompleted
+            contentType: application/json
+            payload:
+              type: object
+              required: [eventId, txnId, amount, currency, completedAt]
+              properties:
+                eventId:
+                  type: string
+                  description: Unique event ID (UUID)
+                txnId:
+                  type: string
+                  description: Payment transaction ID
+                amount:
+                  type: number
+                currency:
+                  type: string
+                  example: USD
+                completedAt:
+                  type: string
+                  format: date-time
+      payments.events.payment-failed:
+        description: Published when a payment fails validation, fraud check or settlement
+        publish:
+          summary: Payment failed event
+          bindings:
+            kafka:
+              topic: payments.events.payment-failed
+              partitions: 12
+              replicas: 3
+          message:
+            name: PaymentFailed
+            contentType: application/json
+            payload:
+              type: object
+              required: [eventId, txnId, failureReason, failedAt]
+              properties:
+                eventId:
+                  type: string
+                txnId:
+                  type: string
+                failureReason:
+                  type: string
+                  enum: [FRAUD_BLOCKED, INSUFFICIENT_FUNDS, INVALID_ACCOUNT, TIMEOUT]
+                failedAt:
+                  type: string
+                  format: date-time
+      payments.events.payment-refunded:
+        description: Published when a refund is initiated and confirmed
+        publish:
+          summary: Payment refunded event
+          bindings:
+            kafka:
+              topic: payments.events.payment-refunded
+              partitions: 6
+              replicas: 3
+          message:
+            name: PaymentRefunded
+            contentType: application/json
+            payload:
+              type: object
+              required: [eventId, originalTxnId, refundTxnId, amount, refundedAt]
+              properties:
+                eventId:
+                  type: string
+                originalTxnId:
+                  type: string
+                refundTxnId:
+                  type: string
+                amount:
+                  type: number
+                refundedAt:
+                  type: string
+                  format: date-time
+    components:
+      securitySchemes:
+        saslScram:
+          type: scramSha256
+          description: SASL/SCRAM-SHA-256 authentication
+
+---
+
+# ─── API — Kafka Consumer (AsyncAPI) ─────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: payments-kafka-consumer
+  title: Payments Kafka Consumer
+  description: >
+    Async event stream consumed by payments-service. Subscribes to fraud
+    decisions from fraud-detection-service and ledger confirmations from
+    ledger-service to complete payment processing.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - kafka
+    - asyncapi
+    - events
+    - consumer
+    - sysid-00000
+spec:
+  type: asyncapi
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments Kafka Consumer
+      version: "1.0.0"
+      description: >
+        Kafka topics consumed by payments-service. Fraud decisions and ledger
+        confirmations are consumed to drive payment state transitions.
+    servers:
+      production:
+        url: kafka.bank.com:9092
+        protocol: kafka
+        description: Production Kafka cluster
+        security:
+          - saslScram: []
+    channels:
+      fraud.events.fraud-decision:
+        description: Fraud decision events published by fraud-detection-service
+        subscribe:
+          summary: Consume fraud decision
+          bindings:
+            kafka:
+              topic: fraud.events.fraud-decision
+              groupId: payments-service-fraud-consumer
+          message:
+            name: FraudDecision
+            contentType: application/json
+            payload:
+              type: object
+              required: [txnId, decision, score, decidedAt]
+              properties:
+                txnId:
+                  type: string
+                decision:
+                  type: string
+                  enum: [APPROVE, BLOCK, REVIEW]
+                score:
+                  type: number
+                  description: Fraud risk score 0.0 - 1.0
+                decidedAt:
+                  type: string
+                  format: date-time
+      ledger.events.ledger-posted:
+        description: Ledger confirmation events published by ledger-service
+        subscribe:
+          summary: Consume ledger posting confirmation
+          bindings:
+            kafka:
+              topic: ledger.events.ledger-posted
+              groupId: payments-service-ledger-consumer
+          message:
+            name: LedgerPosted
+            contentType: application/json
+            payload:
+              type: object
+              required: [txnId, ledgerRef, postedAt]
+              properties:
+                txnId:
+                  type: string
+                ledgerRef:
+                  type: string
+                  description: Ledger journal entry reference
+                postedAt:
+                  type: string
+                  format: date-time
+    components:
+      securitySchemes:
+        saslScram:
+          type: scramSha256
+          description: SASL/SCRAM-SHA-256 authentication
+
+---
+
 # ─── Resource — PostgreSQL Database ──────────────────────────────────────────
 apiVersion: backstage.io/v1alpha1
 kind: Resource
@@ -460,5 +691,29 @@ metadata:
     - sysid-00000
 spec:
   type: ftp-server
+  owner: group:default/team-payments
+  system: payments-platform
+
+---
+
+# ─── Resource — Kafka Cluster ─────────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: payments-kafka
+  title: Payments Kafka Cluster
+  description: >
+    Kafka cluster used by payments-service for publishing payment lifecycle
+    events and consuming fraud decisions and ledger confirmations.
+    SASL/SCRAM-SHA-256 auth, TLS in transit. Managed by platform team.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - kafka
+    - messaging
+    - events
+    - sysid-00000
+spec:
+  type: messaging-queue
   owner: group:default/team-payments
   system: payments-platform
