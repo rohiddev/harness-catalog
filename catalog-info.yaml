@@ -51,7 +51,7 @@ metadata:
   title: Payments Service
   description: >
     Processes payment transactions, validates against fraud rules,
-    posts to the ledger and publishes lifecycle events to RabbitMQ.
+    posts to the ledger and publishes lifecycle events to Kafka.
   annotations:
     # Source control
     github.com/project-slug: bank-org/payments-service
@@ -112,7 +112,6 @@ spec:
     - payments-kafka-consumer        # subscribes to fraud decisions and ledger confirmations
   dependsOn:
     - resource:default/payments-postgres
-    - resource:default/payments-rabbitmq
     - resource:default/payments-redis
     - resource:default/payments-ftp
     - resource:default/payments-kafka
@@ -544,29 +543,6 @@ metadata:
     - sysid-00000
 spec:
   type: database
-  owner: group:default/team-payments
-  system: payments-platform
-
----
-
-# ─── Resource — RabbitMQ ─────────────────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
-kind: Resource
-metadata:
-  name: payments-rabbitmq
-  title: Payments RabbitMQ Exchange
-  description: >
-    Event bus for payments-service. Publishes PaymentCompleted,
-    PaymentFailed and PaymentRefunded events. DLQ enabled, 7-day retention.
-  annotations:
-    bank.com/sysid: SYSID-00000
-  tags:
-    - rabbitmq
-    - messaging
-    - events
-    - sysid-00000
-spec:
-  type: messaging-queue
   owner: group:default/team-payments
   system: payments-platform
 
