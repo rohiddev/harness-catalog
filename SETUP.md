@@ -151,7 +151,16 @@ All other checks use Catalog data only and work without this step.
 | Operator | Equal to |
 | Value | `jira/project-key` |
 
-#### Check 7 — Branch Protection Enabled
+#### Check 7 — Has CI/CD Configured
+| Field | Value |
+|---|---|
+| Name | Has CI/CD configured |
+| Data Source | Catalog |
+| Data Point | Annotation Exists |
+| Operator | Equal to |
+| Value | `harness.io/project-url` |
+
+#### Check 8 — Branch Protection Enabled
 | Field | Value |
 |---|---|
 | Name | Branch protection enabled |
@@ -343,7 +352,7 @@ scores 100%.** The pipeline aborts automatically if the score is below 100%.
 
 ### 12 Checks
 
-**catalog-info.yaml checks — build these now (7 checks)**
+**catalog-info.yaml checks — build these now (8 checks)**
 
 | # | Check | Data Source | What it validates |
 |---|---|---|---|
@@ -353,7 +362,8 @@ scores 100%.** The pipeline aborts automatically if the score is below 100%.
 | 4 | Has contact details | Catalog | `pagerduty.com/service-id` present — on-call contact wired |
 | 5 | Has Datadog dashboard | Catalog | `datadoghq.com/dashboard-url` present — APM in place (optional for Tier-3) |
 | 6 | Has Jira project | Catalog | `jira/project-key` present — work tracking linked |
-| 7 | Branch protection enabled | GitHub | Main branch is protected |
+| 7 | Has CI/CD configured | Catalog | `harness.io/project-url` present — CI/CD tab will show pipeline runs |
+| 8 | Branch protection enabled | GitHub | Master branch is protected |
 
 **now.yaml checks — add once RapDev confirms schema (4 checks)**
 
@@ -369,13 +379,14 @@ scores 100%.** The pipeline aborts automatically if the score is below 100%.
 ```
 Production Readiness — payments-service          100% ✅
 
-catalog-info.yaml (7/7)
+catalog-info.yaml (8/8)
   ✅  Has SYS ID
   ✅  Has owner defined
   ✅  Has TechDocs
   ✅  Has contact details
   ✅  Has Datadog dashboard
   ✅  Has Jira project key
+  ✅  Has CI/CD configured
   ✅  Branch protection enabled
 
 now.yaml (4/4)
