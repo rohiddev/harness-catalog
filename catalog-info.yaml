@@ -69,9 +69,8 @@ metadata:
     # Kubernetes
     backstage.io/kubernetes-id: payments-service
     backstage.io/kubernetes-namespace: payments-p
-    # Observability — native plugin annotation keys
+    # Contact details & observability — native plugin annotation keys
     pagerduty.com/service-id: PABC123
-    grafana/dashboard-url: https://grafana.bank.com/d/payments-service
     datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments
     # Tracking
     jira/project-key: PAY
@@ -87,9 +86,6 @@ metadata:
     - url: https://runbooks.bank.com/payments-service
       title: Runbook
       icon: book
-    - url: https://grafana.bank.com/d/payments-service
-      title: Grafana
-      icon: dashboard
     - url: https://app.datadoghq.com/dashboard/payments
       title: Datadog
       icon: dashboard
