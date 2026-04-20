@@ -2,7 +2,7 @@
 # Catalog Entity Layout — kind: Component, spec.type: service
 #
 # Paste this YAML into Harness IDP > Admin > Layout > Component > service > Edit
-# Tabs: Overview | Dependencies | API | Kubernetes | CI/CD | Docs
+# Tabs: Overview | Dependencies | API | Kubernetes | CI/CD | Datadog | SEI | Scorecard | Docs
 # ═══════════════════════════════════════════════════════════════════════════════
 
 page:
@@ -34,7 +34,7 @@ page:
               title: Ownership & Compliance
               items:
                 - label: SYS ID
-                  value: <+metadata.annotations['harness.io/project-id']>
+                  value: <+metadata.annotations['bank.com/sysid']>
                   type: string
                 - label: App Key
                   value: <+metadata.annotations['harness.io/app-key']>
@@ -86,19 +86,23 @@ page:
                 - label: Replicas
                   value: <+metadata.annotations['bank.com/replicas']>
                   type: string
-                - label: Grafana Dashboard
-                  value: <+metadata.annotations['bank.com/grafana-dashboard']>
-                  type: link
                 - label: Datadog Dashboard
-                  value: <+metadata.annotations['bank.com/datadog-dashboard']>
+                  value: <+metadata.annotations['datadoghq.com/dashboard-url']>
                   type: link
                 - label: PagerDuty Service
-                  value: <+metadata.annotations['bank.com/pagerduty-service-id']>
+                  value: <+metadata.annotations['pagerduty.com/service-id']>
                   type: string
             gridProps:
               md: 6
 
-        # Row 3: Scorecard summary card full width
+        # Row 3: SonarQube code quality (left) + Scorecard summary (right)
+        - component: EntitySonarQubeCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 6
+
         - component: EntityScoreCard
           specs:
             gridProps:
@@ -190,6 +194,25 @@ page:
               md: 12
 
         - component: EntityHarnessCDContent
+          specs:
+            gridProps:
+              md: 12
+
+    # ── Datadog ────────────────────────────────────────────────────────────────
+    # Requires: datadoghq.com/dashboard-url annotation
+    - name: Datadog
+      contents:
+        - component: EntityDatadogContent
+          specs:
+            gridProps:
+              md: 12
+
+    # ── SEI ────────────────────────────────────────────────────────────────────
+    # DORA metrics: deployment frequency, lead time, MTTR, change failure rate
+    # Requires: harness.io/sei-project-id annotation
+    - name: SEI
+      contents:
+        - component: EntityHarnessSEIContent
           specs:
             gridProps:
               md: 12

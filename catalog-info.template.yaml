@@ -92,6 +92,12 @@ metadata:
     # Observability — OPTIONAL (include what applies)
     datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/<id>
 
+    # Code quality — OPTIONAL (drives SonarQube card on Overview tab)
+    sonarqube.org/project-key: <sonar-project-key>    # e.g. payments-service
+
+    # SEI — OPTIONAL (drives DORA metrics tab — deployment frequency, lead time, MTTR)
+    harness.io/sei-project-id: <SYSID-NNNNN>
+
     # Tracking — OPTIONAL
     jira/project-key: <PROJ>
 
