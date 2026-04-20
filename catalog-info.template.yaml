@@ -73,8 +73,14 @@ metadata:
     # TechDocs — REQUIRED (place docs/ folder in repo root)
     backstage.io/techdocs-ref: dir:.
 
+    # Source location — REQUIRED (drives Code tab)
+    backstage.io/source-location: url:https://github.com/<org>/<repo>
+
     # Harness CI/CD — REQUIRED
-    harness.io/project-id: <SYSID-NNNNN>              # same as sysid
+    # project-url: drives the CI/CD tab — paste the Harness pipelines page URL for your project
+    # pipelines:   comma-separated pipeline identifiers to show only this service's pipelines
+    harness.io/project-url: https://app.harness.io/ng/account/<account-id>/module/ci/orgs/default/projects/<SYSID-NNNNN>/pipelines
+    harness.io/pipelines: <pipeline-id-1>,<pipeline-id-2>
 
     # Kubernetes — OPTIONAL (include if service runs on Kubernetes)
     backstage.io/kubernetes-id: <service-name>
