@@ -262,7 +262,7 @@ spec:
             description: Business date in YYYYMMDD format
             schema:
               type: string
-              example: "20260419"
+              example: "20260420"
         publish:
           summary: Deposit settlement report
           message:
@@ -271,36 +271,6 @@ spec:
             payload:
               type: object
               description: Fixed-width CSV. Columns — txn_id, amount, currency, status, settled_at
-      /outbound/reconciliation/{date}:
-        description: Daily reconciliation file for processor matching
-        parameters:
-          date:
-            description: Business date in YYYYMMDD format
-            schema:
-              type: string
-        publish:
-          summary: Deposit reconciliation file
-          message:
-            name: ReconciliationFile
-            contentType: text/csv
-            payload:
-              type: object
-              description: Fixed-width CSV. Columns — txn_id, processor_ref, amount, match_status
-      /outbound/confirmations/{batch}:
-        description: Intraday payment confirmation batches (every 4 hours)
-        parameters:
-          batch:
-            description: Batch sequence number
-            schema:
-              type: string
-        publish:
-          summary: Deposit payment confirmation batch
-          message:
-            name: PaymentConfirmationBatch
-            contentType: application/xml
-            payload:
-              type: object
-              description: ISO 20022 pain.002 payment status report
 
 ---
 
@@ -349,7 +319,7 @@ spec:
             description: Business date in YYYYMMDD format
             schema:
               type: string
-              example: "20260419"
+              example: "20260420"
         subscribe:
           summary: Consume incoming payment instructions
           message:
@@ -358,21 +328,6 @@ spec:
             payload:
               type: object
               description: ISO 20022 pain.001 payment initiation message
-      /inbound/acknowledgements/{batch}:
-        description: Processor acknowledgement files confirming file receipt
-        parameters:
-          batch:
-            description: Batch sequence number
-            schema:
-              type: string
-        subscribe:
-          summary: Consume processor acknowledgements
-          message:
-            name: ProcessorAcknowledgement
-            contentType: text/csv
-            payload:
-              type: object
-              description: Columns — file_ref, received_at, record_count, status
 
 ---
 
