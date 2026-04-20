@@ -17,7 +17,7 @@ metadata:
     End-to-end payments processing platform covering payment initiation,
     fraud detection, ledger posting and event publishing.
   annotations:
-    bank.com/sysid: SYSID-06435
+    bank.com/sysid: SYSID-00000
     jira/project-key: PAY
   tags:
     - payments
@@ -57,7 +57,7 @@ metadata:
     # TechDocs
     backstage.io/techdocs-ref: dir:.
     # Harness CI/CD
-    harness.io/project-id: SYSID-06435
+    harness.io/project-id: SYSID-00000
     # Kubernetes
     backstage.io/kubernetes-id: payments-service
     backstage.io/kubernetes-namespace: payments-p
@@ -68,7 +68,7 @@ metadata:
     # Tracking
     jira/project-key: PAY
     # CMDB correlation
-    bank.com/sysid: SYSID-06435
+    bank.com/sysid: SYSID-00000
   tags:
     - java
     - spring-boot
@@ -124,7 +124,7 @@ metadata:
     REST API for payment initiation, status queries and refunds.
     Protected by OAuth2. Rate limited to 1000 req/min per client.
   annotations:
-    bank.com/sysid: SYSID-06435
+    bank.com/sysid: SYSID-00000
     github.com/project-slug: bank-org/payments-service
   tags:
     - rest
@@ -223,7 +223,7 @@ metadata:
     the FTP server for downstream processor collection. Covers settlement
     reports, reconciliation files and payment confirmation batches.
   annotations:
-    bank.com/sysid: SYSID-06435
+    bank.com/sysid: SYSID-00000
     github.com/project-slug: bank-org/payments-service
   tags:
     - ftp
@@ -309,7 +309,7 @@ metadata:
     processors and consumed by payments-service. Covers incoming payment
     instruction files and processor acknowledgement files.
   annotations:
-    bank.com/sysid: SYSID-06435
+    bank.com/sysid: SYSID-00000
     github.com/project-slug: bank-org/payments-service
   tags:
     - ftp
@@ -379,7 +379,7 @@ metadata:
     Primary transactional store for payments-service.
     PostgreSQL 14 on AWS RDS. Multi-AZ, 35-day backup retention.
   annotations:
-    bank.com/sysid: SYSID-06435
+    bank.com/sysid: SYSID-00000
   tags:
     - postgresql
     - rds
@@ -401,7 +401,7 @@ metadata:
     Event bus for payments-service. Publishes PaymentCompleted,
     PaymentFailed and PaymentRefunded events. DLQ enabled, 7-day retention.
   annotations:
-    bank.com/sysid: SYSID-06435
+    bank.com/sysid: SYSID-00000
   tags:
     - rabbitmq
     - messaging
@@ -423,7 +423,7 @@ metadata:
     Session cache and idempotency key store for payments-service.
     Redis 7 on AWS ElastiCache. 2 read replicas, in-transit encryption.
   annotations:
-    bank.com/sysid: SYSID-06435
+    bank.com/sysid: SYSID-00000
   tags:
     - redis
     - cache
@@ -445,7 +445,7 @@ metadata:
     FTP server used by payments-service for secure file exchange with
     third-party payment processors and settlement partners.
   annotations:
-    bank.com/sysid: SYSID-06435
+    bank.com/sysid: SYSID-00000
   tags:
     - ftp
     - file-transfer
