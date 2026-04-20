@@ -285,6 +285,169 @@ Share the repo with all teams:
 
 ---
 
+## How Relationships Render in IDP
+
+Once a developer adds `spec.dependsOn` to their `catalog-info.yaml` and pushes to Git,
+IDP renders three things automatically on the entity page — no extra configuration needed.
+
+### 1 — Dependency Graph
+
+**Dependencies tab → `EntityCatalogGraphCard`**
+
+An interactive visual graph showing the full dependency picture:
+
+```
+                    ┌──────────────────┐
+  web-checkout ────▶│                  │──▶ auth-service
+  mobile-app   ────▶│ payments-service │──▶ fraud-detection-api
+  batch-settle ────▶│                  │──▶ payments-postgres
+                    └──────────────────┘──▶ payments-kafka
+```
+
+- **Right side** — what this service depends on (declared in `spec.dependsOn`)
+- **Left side** — who depends on THIS service (blast radius — auto-derived by IDP)
+
+IDP automatically creates the reverse `dependencyOf` edge. If Service A declares
+`dependsOn: [payments-service]`, payments-service's graph shows Service A on the left
+with no extra work from the payments team.
+
+### 2 — Dependency List Cards
+
+**Dependencies tab — three list cards below the graph**
+
+| Card | Shows |
+|---|---|
+| `EntityDependsOnComponentsCard` | Services this entity calls — auth-service, fraud-detection-api |
+| `EntityDependsOnResourcesCard` | Infrastructure this entity uses — postgres, redis, kafka, ftp |
+| `EntityHasComponentsCard` | Services that depend on THIS entity — blast radius |
+
+### 3 — Scorecard Summary Card
+
+**Overview tab → `EntityScoreCard`**
+
+Shows the Production Readiness score at a glance. Once both `catalog-info.yaml` and
+`now.yaml` score 100%, the card shows green and production deployment is unblocked.
+
+### Developer responsibility
+
+Both files live in Git — both are the developer's responsibility to keep in sync:
+
+| File | Updated by | Drives |
+|---|---|---|
+| `now.yaml` | Developer | RapDev webhook → `cmdb_rel_ci` in ServiceNow (instant) |
+| `catalog-info.yaml` `spec.dependsOn` | Developer | IDP Git webhook → dependency graph in catalog |
+
+Git is the source of truth. No pipeline pulls from `cmdb_rel_ci` — the developer
+updates both files in the same commit when dependencies change.
+
+---
+
+## Scorecard — Production Readiness
+
+The scorecard is the production gate. **A service cannot deploy to production until it
+scores 100%.** The pipeline aborts automatically if the score is below 100%.
+
+### 12 Checks
+
+**catalog-info.yaml checks — build these now (8 checks)**
+
+| # | Check | Data Source | What it validates |
+|---|---|---|---|
+| 1 | Has SYS ID | Catalog | `bank.com/sysid` annotation present — links entity to CMDB |
+| 2 | Has owner defined | Catalog | `github.com/project-slug` present — service has a team |
+| 3 | Has TechDocs | Catalog | `backstage.io/techdocs-ref` present — documentation exists |
+| 4 | Has PagerDuty | Catalog | `pagerduty.com/service-id` present — on-call is wired |
+| 5 | Has Grafana dashboard | Catalog | `grafana/dashboard-url` present — observability in place |
+| 6 | Has Datadog dashboard | Catalog | `datadoghq.com/dashboard-url` present — APM in place |
+| 7 | Has Jira project | Catalog | `jira/project-key` present — work tracking linked |
+| 8 | Branch protection enabled | GitHub | Main branch is protected |
+
+**now.yaml checks — add once RapDev confirms schema (4 checks)**
+
+| # | Check | Data Source | What it validates |
+|---|---|---|---|
+| 9 | now.yaml exists in repo | GitHub | File present on main branch |
+| 10 | Relationships declared | GitHub | `relationships:` key present in now.yaml — cmdb_rel_ci will be populated |
+| 11 | Dependencies synced to catalog | Catalog | `spec.dependsOn` not empty — IDP graph will render |
+| 12 | Has tier declared | Catalog | `bank.com/tier` annotation present — CMDB tier captured |
+
+### What the scorecard page looks like
+
+```
+Production Readiness — payments-service          100% ✅
+
+catalog-info.yaml (8/8)
+  ✅  Has SYS ID
+  ✅  Has owner defined
+  ✅  Has TechDocs
+  ✅  Has PagerDuty service
+  ✅  Has Grafana dashboard
+  ✅  Has Datadog dashboard
+  ✅  Has Jira project key
+  ✅  Branch protection enabled
+
+now.yaml (4/4)
+  ✅  now.yaml exists in repo
+  ✅  Relationships declared in now.yaml
+  ✅  Dependencies synced to catalog
+  ✅  Has tier declared
+
+🟢  Production deployment unblocked
+```
+
+### Tier requirements
+
+| Tier | Requirement |
+|---|---|
+| Tier-1 | All 12 checks — 100% mandatory |
+| Tier-2 | All 12 checks — 100% mandatory |
+| Tier-3 | Checks 1–8 only — now.yaml checks optional until rollout complete |
+
+### How the production gate works
+
+```
+Developer raises PR to deploy to production
+        ↓
+Harness CD pipeline runs
+        ↓
+Step: Check Production Readiness Scorecard
+        ↓
+Score < 100%  →  pipeline ABORTS — developer fixes failing checks
+Score = 100%  →  deployment proceeds
+```
+
+Scorecard evaluates every 15 minutes. After fixing a failing check, the developer
+waits for the next evaluation then re-triggers the pipeline.
+
+### Pipeline gate YAML
+
+Add this step before the production stage in every Harness CD pipeline:
+
+```yaml
+- step:
+    name: Check Production Readiness Scorecard
+    identifier: CheckProductionReadinessScorecard
+    type: Http
+    spec:
+      url: https://app.harness.io/idp/api/scorecards/<+pipeline.variables.entityName>/score
+      method: GET
+      headers:
+        - key: x-api-key
+          value: <+secrets.getValue("harness_api_key")>
+        - key: Content-Type
+          value: application/json
+      assertion: <+json.select("score", httpResponseBody)> == 100
+    failureStrategies:
+      - onFailure:
+          errors: [AssertionError]
+          action:
+            type: Abort
+```
+
+Add `entityName` as a pipeline variable (e.g. `payments-service`).
+
+---
+
 ## Optional — ServiceNow CMDB Integration
 
 **IDP > Configure > Integrations > + New Integration > ServiceNow**
