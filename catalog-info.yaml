@@ -75,6 +75,10 @@ metadata:
     # Contact details & observability — native plugin annotation keys
     pagerduty.com/service-id: PABC123
     datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments
+    # Code quality — drives SonarQube card on Overview
+    sonarqube.org/project-key: payments-service
+    # SEI — DORA metrics (deployment frequency, lead time, MTTR, change failure rate)
+    harness.io/sei-project-id: SYSID-00000
     # Tracking
     jira/project-key: PAY
     # CMDB correlation
