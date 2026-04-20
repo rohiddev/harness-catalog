@@ -300,7 +300,7 @@ Developer fills catalog-info.yaml + now.yaml
 
 | Check | Validates |
 |---|---|
-| now.yaml exists in repo | File `now.yaml` present on main branch (GitHub data source) |
+| now.yaml exists in repo | File `now.yaml` present on master branch (GitHub data source) |
 | Has dependencies declared | `spec.dependsOn` populated in catalog entity |
 | Has tier declared | `bank.com/tier` annotation present |
 | Has team declared | `bank.com/team` annotation present |

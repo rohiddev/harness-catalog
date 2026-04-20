@@ -80,9 +80,10 @@ metadata:
     backstage.io/kubernetes-id: <service-name>
     backstage.io/kubernetes-namespace: <namespace>
 
+    # Contact details — OPTIONAL
+    pagerduty.com/service-id: <PD-SERVICE-ID>         # PagerDuty on-call contact ID
+
     # Observability — OPTIONAL (include what applies)
-    pagerduty.com/service-id: <PD-SERVICE-ID>         # PagerDuty service ID
-    grafana/dashboard-url: https://grafana.bank.com/d/<service-name>
     datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/<id>
 
     # Tracking — OPTIONAL
@@ -102,9 +103,6 @@ metadata:
     - url: https://runbooks.bank.com/<service-name>
       title: Runbook
       icon: book
-    - url: https://grafana.bank.com/d/<service-name>
-      title: Grafana
-      icon: dashboard                    # OPTIONAL — remove if no Grafana dashboard
     - url: https://app.datadoghq.com/dashboard/<id>
       title: Datadog
       icon: dashboard                    # OPTIONAL — remove if no Datadog dashboard

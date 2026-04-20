@@ -22,7 +22,7 @@ Run these steps once when setting up IDP for the first time.
 | Field | Value |
 |---|---|
 | Repository | `https://github.com/rohiddev/harness-catalog` |
-| Branch | `main` |
+| Branch | `master` |
 | File path | `catalog-info.yaml` |
 
 Click **Import**. Harness creates all entities from the file:
@@ -121,25 +121,16 @@ All other checks use Catalog data only and work without this step.
 | Operator | Equal to |
 | Value | `backstage.io/techdocs-ref` |
 
-#### Check 4 — Has PagerDuty
+#### Check 4 — Has Contact Details
 | Field | Value |
 |---|---|
-| Name | Has PagerDuty service |
+| Name | Has contact details |
 | Data Source | Catalog |
 | Data Point | Annotation Exists |
 | Operator | Equal to |
 | Value | `pagerduty.com/service-id` |
 
-#### Check 5 — Has Grafana Dashboard
-| Field | Value |
-|---|---|
-| Name | Has Grafana dashboard |
-| Data Source | Catalog |
-| Data Point | Annotation Exists |
-| Operator | Equal to |
-| Value | `grafana/dashboard-url` |
-
-#### Check 6 — Has Datadog Dashboard
+#### Check 5 — Has Datadog Dashboard
 | Field | Value |
 |---|---|
 | Name | Has Datadog dashboard |
@@ -148,7 +139,10 @@ All other checks use Catalog data only and work without this step.
 | Operator | Equal to |
 | Value | `datadoghq.com/dashboard-url` |
 
-#### Check 7 — Has Jira Project
+> **Optional check** — mark this as informational in the scorecard if not all teams have
+> Datadog dashboards. Mandatory for Tier-1 and Tier-2 services.
+
+#### Check 6 — Has Jira Project
 | Field | Value |
 |---|---|
 | Name | Has Jira project key |
@@ -157,7 +151,7 @@ All other checks use Catalog data only and work without this step.
 | Operator | Equal to |
 | Value | `jira/project-key` |
 
-#### Check 8 — Branch Protection Enabled
+#### Check 7 — Branch Protection Enabled
 | Field | Value |
 |---|---|
 | Name | Branch protection enabled |
@@ -179,7 +173,7 @@ All other checks use Catalog data only and work without this step.
 | Data Source | GitHub |
 | Data Point | File exists |
 | File path | `now.yaml` |
-| Branch | `main` |
+| Branch | `master` |
 
 #### Check 10 — Has Dependency Mapping
 | Field | Value |
@@ -349,24 +343,23 @@ scores 100%.** The pipeline aborts automatically if the score is below 100%.
 
 ### 12 Checks
 
-**catalog-info.yaml checks — build these now (8 checks)**
+**catalog-info.yaml checks — build these now (7 checks)**
 
 | # | Check | Data Source | What it validates |
 |---|---|---|---|
 | 1 | Has SYS ID | Catalog | `bank.com/sysid` annotation present — links entity to CMDB |
 | 2 | Has owner defined | Catalog | `github.com/project-slug` present — service has a team |
 | 3 | Has TechDocs | Catalog | `backstage.io/techdocs-ref` present — documentation exists |
-| 4 | Has PagerDuty | Catalog | `pagerduty.com/service-id` present — on-call is wired |
-| 5 | Has Grafana dashboard | Catalog | `grafana/dashboard-url` present — observability in place |
-| 6 | Has Datadog dashboard | Catalog | `datadoghq.com/dashboard-url` present — APM in place |
-| 7 | Has Jira project | Catalog | `jira/project-key` present — work tracking linked |
-| 8 | Branch protection enabled | GitHub | Main branch is protected |
+| 4 | Has contact details | Catalog | `pagerduty.com/service-id` present — on-call contact wired |
+| 5 | Has Datadog dashboard | Catalog | `datadoghq.com/dashboard-url` present — APM in place (optional for Tier-3) |
+| 6 | Has Jira project | Catalog | `jira/project-key` present — work tracking linked |
+| 7 | Branch protection enabled | GitHub | Main branch is protected |
 
 **now.yaml checks — add once RapDev confirms schema (4 checks)**
 
 | # | Check | Data Source | What it validates |
 |---|---|---|---|
-| 9 | now.yaml exists in repo | GitHub | File present on main branch |
+| 9 | now.yaml exists in repo | GitHub | File present on master branch |
 | 10 | Relationships declared | GitHub | `relationships:` key present in now.yaml — cmdb_rel_ci will be populated |
 | 11 | Dependencies synced to catalog | Catalog | `spec.dependsOn` not empty — IDP graph will render |
 | 12 | Has tier declared | Catalog | `bank.com/tier` annotation present — CMDB tier captured |
@@ -376,12 +369,11 @@ scores 100%.** The pipeline aborts automatically if the score is below 100%.
 ```
 Production Readiness — payments-service          100% ✅
 
-catalog-info.yaml (8/8)
+catalog-info.yaml (7/7)
   ✅  Has SYS ID
   ✅  Has owner defined
   ✅  Has TechDocs
-  ✅  Has PagerDuty service
-  ✅  Has Grafana dashboard
+  ✅  Has contact details
   ✅  Has Datadog dashboard
   ✅  Has Jira project key
   ✅  Branch protection enabled
