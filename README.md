@@ -38,6 +38,8 @@ This repo contains two things:
 
 ## For Platform Team — IDP Setup Guide
 
+> Full step-by-step setup instructions are in **[SETUP.md](SETUP.md)**.
+
 ## Step 0 (Optional) — ServiceNow CMDB Integration
 
 If your organisation manages services in ServiceNow CMDB, configure this integration first.
