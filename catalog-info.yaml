@@ -1,5 +1,12 @@
 # ───────────────────────────────────────────────────────────────────────────────
-# catalog-info.yaml — Payments Platform
+# catalog-info.yaml — Payments Platform  *** WORKED EXAMPLE ***
+#
+# This file is a fully worked reference example for the Payments Platform.
+# Use it to understand how a complete catalog-info.yaml should look.
+#
+# STARTING YOUR OWN SERVICE?
+#   Copy catalog-info.template.yaml — it has every field annotated as
+#   REQUIRED or OPTIONAL with placeholder values ready to fill in.
 #
 # Import: IDP > Software Catalog > Import from Git
 # Governance annotations (tier, sox, data-classification, team, oncall etc.)

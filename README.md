@@ -1,9 +1,42 @@
-# Harness IDP — Payments Platform Catalog Setup
+# Harness IDP — Catalog Reference Repo
 
-This repo contains catalog entity definitions and layout YAMLs for the Payments Platform.
-Follow the steps below **in order** to configure everything in Harness IDP.
+This repo contains two things:
+
+1. **Golden template** — copy this to register your service in Harness IDP
+2. **Platform setup guide** — steps for the platform team to configure IDP itself
 
 ---
+
+## For Service Teams — Register Your Service
+
+| File | Purpose |
+|---|---|
+| `catalog-info.template.yaml` | **Start here.** Copy to your repo root as `catalog-info.yaml`, fill in all `REQUIRED` fields, remove sections that don't apply. |
+| `catalog-info.yaml` | Fully worked example (Payments Platform). Use as reference when filling in the template. |
+
+### Steps
+
+1. Copy `catalog-info.template.yaml` to your repo root as `catalog-info.yaml`
+2. Fill every field marked `# REQUIRED`
+3. Remove optional sections that don't apply to your service (batch job? remove Kubernetes annotations. No Kafka? remove AsyncAPI sections.)
+4. Open `catalog-info.yaml` (Payments Platform) alongside as a reference
+5. Raise a PR — platform team will import your service into IDP once merged
+6. Verify your service scores 100% on the **Production Readiness** scorecard before prod deployment
+
+### What to include per service type
+
+| Service type | Sections to keep |
+|---|---|
+| REST microservice | Component + REST API + Resources |
+| Event-driven service | Component + Kafka Producer/Consumer + Resources |
+| Batch job / CLI | Component only (remove API sections, remove Kubernetes) |
+| Full platform service | All sections |
+
+> **Rule:** `now.yaml` must also be in your repo alongside `catalog-info.yaml`. Both files must score 100% on the Production Readiness scorecard before production deployment is unblocked. See the governance section below for details.
+
+---
+
+## For Platform Team — IDP Setup Guide
 
 ## Step 0 (Optional) — ServiceNow CMDB Integration
 
