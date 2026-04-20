@@ -1,143 +1,88 @@
-# ═══════════════════════════════════════════════════════════════════════════════
-# catalog-info.yaml — Payments Platform (full example)
+# ───────────────────────────────────────────────────────────────────────────────
+# catalog-info.yaml — Payments Platform  *** WORKED EXAMPLE ***
 #
-# Covers: System, Component (service), API (openapi), Resource (db, mq, cache)
-# Register this file in Harness IDP to see the full catalog entity graph.
+# This file is a fully worked reference example for the Payments Platform.
+# Use it to understand how a complete catalog-info.yaml should look.
 #
-# Registration: IDP > Software Catalog > Register Existing Component
-#   URL: https://github.com/bank-org/payments-service/blob/main/catalog-info.yaml
-# ═══════════════════════════════════════════════════════════════════════════════
+# STARTING YOUR OWN SERVICE?
+#   Copy catalog-info.template.yaml — it has every field annotated as
+#   REQUIRED or OPTIONAL with placeholder values ready to fill in.
+#
+# Import: IDP > Software Catalog > Import from Git
+# Governance annotations (tier, sox, data-classification, team, oncall etc.)
+# are sourced from ServiceNow CMDB — do not add them here.
+# ───────────────────────────────────────────────────────────────────────────────
 
 
-# ─── System ───────────────────────────────────────────────────────────────────
-# Groups all components, APIs and resources under one product.
-# Usually lives in the platform catalog repo — shown here for reference.
-# ──────────────────────────────────────────────────────────────────────────────
+# ─── System ──────────────────────────────────────────────────────────────────
 apiVersion: backstage.io/v1alpha1
 kind: System
 metadata:
   name: payments-platform
   title: Payments Platform
   description: >
-    End-to-end payments processing platform. Handles payment initiation,
-    fraud detection, ledger posting and event publishing across all channels.
+    End-to-end payments processing platform covering payment initiation,
+    fraud detection, ledger posting and event publishing.
   annotations:
-    # Identity
-    bank.com/sysid: SYSID-06435
-    bank.com/app-key: payments
-    bank.com/domain: core-banking
-    bank.com/tier: "1"
-    bank.com/product-owner: Jane Smith
-    bank.com/tech-lead: John Doe
-    bank.com/team: team-payments
-    bank.com/email-dl: payments-team@bank.com
-    bank.com/slack-channel: "#team-payments"
-    bank.com/oncall-schedule: https://oncall.bank.com/payments
-    # Compliance & governance
-    bank.com/data-classification: restricted
-    bank.com/sox-in-scope: "true"
-    bank.com/gdpr-in-scope: "false"
-    bank.com/last-pen-test: "2026-01-15"
-    bank.com/last-dr-test: "2025-11-01"
-    bank.com/rto-hours: "4"
-    bank.com/rpo-hours: "1"
-    # Architecture
-    bank.com/architecture-diagram: https://confluence.bank.com/display/PAY/architecture
-    bank.com/api-gateway: https://api.bank.com/payments
-    bank.com/service-count: "5"
-    bank.com/deploy-env: production
-    bank.com/cloud-provider: aws
-    bank.com/cloud-region: us-east-1
-    # Documentation & tracking
-    bank.com/confluence-space: https://confluence.bank.com/display/PAY
-    bank.com/runbook: https://runbooks.bank.com/payments-platform
-    bank.com/jira-project: https://jira.bank.com/projects/PAY
-    bank.com/roadmap: https://confluence.bank.com/display/PAY/roadmap
-    bank.com/changelog: https://github.com/bank-org/payments-service/blob/main/CHANGELOG.md
-    # SLAs
-    bank.com/sla-uptime: "99.95"
-    bank.com/sla-latency-p99-ms: "500"
-    bank.com/sla-rps: "1000"
+    bank.com/sysid: SYSID-00000
+    jira/project-key: PAY
   tags:
     - payments
     - core-banking
     - tier-1
-    - sox
-    - aws
+    - sysid-00000
   links:
-    - url: https://runbooks.bank.com/payments-platform
-      title: Platform Runbook
-      icon: book
     - url: https://confluence.bank.com/display/PAY
       title: Confluence Space
       icon: docs
     - url: https://confluence.bank.com/display/PAY/architecture
       title: Architecture Diagram
       icon: scaffolder
+    - url: https://runbooks.bank.com/payments-platform
+      title: Platform Runbook
+      icon: book
     - url: https://jira.bank.com/projects/PAY
       title: Jira Project
       icon: bug
-    - url: https://oncall.bank.com/payments
-      title: On-Call Schedule
-      icon: group
-    - url: https://confluence.bank.com/display/PAY/roadmap
-      title: Roadmap
-      icon: docs
 spec:
   owner: group:default/team-payments
   domain: banking
 
 ---
 
-# ─── Component — Microservice ─────────────────────────────────────────────────
-# The payments microservice. Primary entity — one per repo.
-# ──────────────────────────────────────────────────────────────────────────────
+# ─── Component — Microservice ────────────────────────────────────────────────
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: payments-service
   title: Payments Service
   description: >
-    Processes payment transactions, validates against fraud rules, posts to
-    the ledger and publishes lifecycle events to RabbitMQ.
-    Owned by team-payments. SYS ID: SYSID-06435.
+    Processes payment transactions, validates against fraud rules,
+    posts to the ledger and publishes lifecycle events to Kafka.
   annotations:
     # Source control
     github.com/project-slug: bank-org/payments-service
-    # TechDocs — renders docs/ folder as documentation tab
+    # TechDocs
     backstage.io/techdocs-ref: dir:.
-    # Internal identifiers
-    harness.io/project-id: SYSID-06435
-    harness.io/app-key: payments
-    # Monitoring & observability
-    bank.com/datadog-service: payments-service
-    bank.com/datadog-dashboard: https://app.datadoghq.com/dashboard/payments
-    bank.com/grafana-dashboard: https://grafana.bank.com/d/payments-service
-    bank.com/pagerduty-service-id: PABC123
-    bank.com/sentry-project: payments-service
-    # Deployment
-    bank.com/kubernetes-namespace: payments-p
-    bank.com/kubernetes-cluster: eks-p-us-east-1
-    bank.com/container-image: bank-ecr.amazonaws.com/payments-service
-    bank.com/deploy-env: production
-    bank.com/replicas: "3"
-    # Compliance & ownership
-    bank.com/sysid: SYSID-06435
-    bank.com/team: team-payments
-    bank.com/tier: "1"
-    bank.com/data-classification: restricted
-    bank.com/sox-in-scope: "true"
-    bank.com/last-pen-test: "2026-01-15"
-    # Communication
-    bank.com/slack-channel: "#team-payments"
-    bank.com/email-dl: payments-team@bank.com
-    bank.com/oncall-schedule: https://oncall.bank.com/payments
+    # Harness CI/CD
+    harness.io/project-id: SYSID-00000
+    # Kubernetes
+    backstage.io/kubernetes-id: payments-service
+    backstage.io/kubernetes-namespace: payments-p
+    # Observability — native plugin annotation keys
+    pagerduty.com/service-id: PABC123
+    grafana/dashboard-url: https://grafana.bank.com/d/payments-service
+    datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments
+    # Tracking
+    jira/project-key: PAY
+    # CMDB correlation
+    bank.com/sysid: SYSID-00000
   tags:
     - java
     - spring-boot
     - payments
     - tier-1
-    - sox
+    - sysid-00000
   links:
     - url: https://runbooks.bank.com/payments-service
       title: Runbook
@@ -148,9 +93,6 @@ metadata:
     - url: https://app.datadoghq.com/dashboard/payments
       title: Datadog
       icon: dashboard
-    - url: https://jira.bank.com/projects/PAY
-      title: Jira Board
-      icon: bug
     - url: https://sonar.bank.com/project?id=payments-service
       title: SonarQube
       icon: quality
@@ -165,19 +107,21 @@ spec:
   lifecycle: production
   owner: group:default/team-payments
   system: payments-platform
-
   providesApis:
     - payments-rest-api
-
+    - payments-ftp-outbound          # produces files to FTP (e.g. settlement reports)
+    - payments-kafka-producer        # publishes payment lifecycle events to Kafka
   consumesApis:
     - auth-api
     - fraud-detection-api
     - ledger-api
-
+    - payments-ftp-inbound           # consumes files from FTP (e.g. incoming payment files)
+    - payments-kafka-consumer        # subscribes to fraud decisions and ledger confirmations
   dependsOn:
     - resource:default/payments-postgres
-    - resource:default/payments-rabbitmq
     - resource:default/payments-redis
+    - resource:default/payments-ftp
+    - resource:default/payments-kafka
 
 ---
 
@@ -191,17 +135,14 @@ metadata:
     REST API for payment initiation, status queries and refunds.
     Protected by OAuth2. Rate limited to 1000 req/min per client.
   annotations:
-    bank.com/sysid: SYSID-06435
-    bank.com/team: team-payments
-    bank.com/api-gateway: https://api.bank.com/payments
-    bank.com/postman-collection: https://postman.bank.com/payments-api
-    bank.com/sla-uptime: "99.95"
-    bank.com/sla-latency-p99-ms: "500"
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
   tags:
     - rest
     - openapi
     - payments
     - oauth2
+    - sysid-00000
   links:
     - url: https://api-docs.bank.com/payments
       title: API Docs
@@ -283,7 +224,270 @@ spec:
 
 ---
 
-# ─── Resource — PostgreSQL Database ───────────────────────────────────────────
+# ─── API — FTP Outbound (producer / AsyncAPI) ────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: payments-ftp-outbound
+  title: Payments FTP Outbound
+  description: >
+    Async file exchange — files produced by payments-service and deposited on
+    the FTP server for downstream processor collection. Covers settlement
+    reports, reconciliation files and payment confirmation batches.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - ftp
+    - asyncapi
+    - file-transfer
+    - producer
+    - sysid-00000
+spec:
+  type: asyncapi
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments FTP Outbound
+      version: "1.0.0"
+      description: >
+        Async file exchange produced by payments-service. Files are deposited
+        on the FTP server on a scheduled basis for downstream processors.
+    servers:
+      production:
+        url: ftp.bank.com
+        protocol: ftp
+        description: Production FTP server
+    channels:
+      /outbound/settlement/{date}:
+        description: Daily settlement report — one file per business day
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
+              example: "20260420"
+        publish:
+          summary: Deposit settlement report
+          message:
+            name: SettlementReport
+            contentType: text/csv
+            payload:
+              type: object
+              description: Fixed-width CSV. Columns — txn_id, amount, currency, status, settled_at
+
+---
+
+# ─── API — FTP Inbound (consumer / AsyncAPI) ─────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: payments-ftp-inbound
+  title: Payments FTP Inbound
+  description: >
+    Async file exchange — files deposited on the FTP server by third-party
+    processors and consumed by payments-service. Covers incoming payment
+    instruction files and processor acknowledgement files.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - ftp
+    - asyncapi
+    - file-transfer
+    - consumer
+    - sysid-00000
+spec:
+  type: asyncapi
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments FTP Inbound
+      version: "1.0.0"
+      description: >
+        Async file exchange consumed by payments-service. Files are deposited
+        by third-party processors and polled by payments-service for ingestion.
+    servers:
+      production:
+        url: ftp.bank.com
+        protocol: ftp
+        description: Production FTP server
+    channels:
+      /inbound/instructions/{date}:
+        description: Incoming bulk payment instruction files from processors
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
+              example: "20260420"
+        subscribe:
+          summary: Consume incoming payment instructions
+          message:
+            name: PaymentInstructionFile
+            contentType: application/xml
+            payload:
+              type: object
+              description: ISO 20022 pain.001 payment initiation message
+
+---
+
+# ─── API — Kafka Producer (AsyncAPI) ─────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: payments-kafka-producer
+  title: Payments Kafka Producer
+  description: >
+    Async event stream produced by payments-service. Publishes payment lifecycle
+    events to Kafka topics for consumption by downstream services such as
+    notifications, reporting and audit.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - kafka
+    - asyncapi
+    - events
+    - producer
+    - sysid-00000
+spec:
+  type: asyncapi
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments Kafka Producer
+      version: "1.0.0"
+      description: >
+        Payment lifecycle events published by payments-service to Kafka.
+        Consumers include notification-service, audit-service and reporting-service.
+    servers:
+      production:
+        url: kafka.bank.com:9092
+        protocol: kafka
+        description: Production Kafka cluster
+        security:
+          - saslScram: []
+    channels:
+      payments.events.payment-completed:
+        description: Published when a payment is successfully processed and settled
+        publish:
+          summary: Payment completed event
+          bindings:
+            kafka:
+              topic: payments.events.payment-completed
+              partitions: 12
+              replicas: 3
+          message:
+            name: PaymentCompleted
+            contentType: application/json
+            payload:
+              type: object
+              required: [eventId, txnId, amount, currency, completedAt]
+              properties:
+                eventId:
+                  type: string
+                txnId:
+                  type: string
+                amount:
+                  type: number
+                currency:
+                  type: string
+                  example: USD
+                completedAt:
+                  type: string
+                  format: date-time
+    components:
+      securitySchemes:
+        saslScram:
+          type: scramSha256
+          description: SASL/SCRAM-SHA-256 authentication
+
+---
+
+# ─── API — Kafka Consumer (AsyncAPI) ─────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: payments-kafka-consumer
+  title: Payments Kafka Consumer
+  description: >
+    Async event stream consumed by payments-service. Subscribes to fraud
+    decisions from fraud-detection-service and ledger confirmations from
+    ledger-service to complete payment processing.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - kafka
+    - asyncapi
+    - events
+    - consumer
+    - sysid-00000
+spec:
+  type: asyncapi
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments Kafka Consumer
+      version: "1.0.0"
+      description: >
+        Kafka topics consumed by payments-service. Fraud decisions and ledger
+        confirmations are consumed to drive payment state transitions.
+    servers:
+      production:
+        url: kafka.bank.com:9092
+        protocol: kafka
+        description: Production Kafka cluster
+        security:
+          - saslScram: []
+    channels:
+      fraud.events.fraud-decision:
+        description: Fraud decision events published by fraud-detection-service
+        subscribe:
+          summary: Consume fraud decision
+          bindings:
+            kafka:
+              topic: fraud.events.fraud-decision
+              groupId: payments-service-fraud-consumer
+          message:
+            name: FraudDecision
+            contentType: application/json
+            payload:
+              type: object
+              required: [txnId, decision, score, decidedAt]
+              properties:
+                txnId:
+                  type: string
+                decision:
+                  type: string
+                  enum: [APPROVE, BLOCK, REVIEW]
+                score:
+                  type: number
+                decidedAt:
+                  type: string
+                  format: date-time
+    components:
+      securitySchemes:
+        saslScram:
+          type: scramSha256
+          description: SASL/SCRAM-SHA-256 authentication
+
+---
+
+# ─── Resource — PostgreSQL Database ──────────────────────────────────────────
 apiVersion: backstage.io/v1alpha1
 kind: Resource
 metadata:
@@ -291,29 +495,14 @@ metadata:
   title: Payments PostgreSQL DB
   description: >
     Primary transactional store for payments-service.
-    PostgreSQL 14 on AWS RDS. Multi-AZ enabled. 35-day backup retention.
+    PostgreSQL 14 on AWS RDS. Multi-AZ, 35-day backup retention.
   annotations:
-    bank.com/db-engine: postgresql
-    bank.com/db-version: "14"
-    bank.com/db-host: payments-db.p.rds.bank.com
-    bank.com/db-port: "5432"
-    bank.com/db-name: payments
-    bank.com/db-node-type: db.r6g.xlarge
-    bank.com/db-storage-gb: "500"
-    bank.com/db-multi-az: "true"
-    bank.com/db-backup-retention-days: "35"
-    bank.com/db-encryption: "true"
-    bank.com/db-environment: production
-    bank.com/db-region: us-east-1
-    bank.com/sysid: SYSID-06435
-    bank.com/team: team-payments
-    bank.com/tier: "1"
-    bank.com/data-classification: restricted
+    bank.com/sysid: SYSID-00000
   tags:
     - postgresql
     - rds
-    - production
-    - tier-1
+    - database
+    - sysid-00000
 spec:
   type: database
   owner: group:default/team-payments
@@ -321,44 +510,7 @@ spec:
 
 ---
 
-# ─── Resource — RabbitMQ ──────────────────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
-kind: Resource
-metadata:
-  name: payments-rabbitmq
-  title: Payments RabbitMQ Exchange
-  description: >
-    payments-service publishes PaymentCompleted, PaymentFailed and
-    PaymentRefunded events. Consumed by notifications-service, ledger-service
-    and audit-service. DLQ enabled with 7-day retention.
-  annotations:
-    bank.com/mq-type: rabbitmq
-    bank.com/mq-version: "3.11"
-    bank.com/mq-host: rabbitmq.p.bank.com
-    bank.com/mq-port: "5672"
-    bank.com/mq-vhost: /payments
-    bank.com/mq-exchange: payments.events
-    bank.com/mq-exchange-type: topic
-    bank.com/mq-routing-keys: payment.completed,payment.failed,payment.refunded
-    bank.com/mq-dlq-enabled: "true"
-    bank.com/mq-dlq-retention-days: "7"
-    bank.com/mq-consumed-by: notifications-service,ledger-service,audit-service
-    bank.com/mq-environment: production
-    bank.com/sysid: SYSID-06435
-    bank.com/team: team-payments
-  tags:
-    - rabbitmq
-    - messaging
-    - events
-    - production
-spec:
-  type: messaging-queue
-  owner: group:default/team-payments
-  system: payments-platform
-
----
-
-# ─── Resource — Redis Cache ────────────────────────────────────────────────────
+# ─── Resource — Redis Cache ───────────────────────────────────────────────────
 apiVersion: backstage.io/v1alpha1
 kind: Resource
 metadata:
@@ -366,26 +518,61 @@ metadata:
   title: Payments Redis Cache
   description: >
     Session cache and idempotency key store for payments-service.
-    Redis 7 on AWS ElastiCache. 2 read replicas. In-transit encryption enabled.
+    Redis 7 on AWS ElastiCache. 2 read replicas, in-transit encryption.
   annotations:
-    bank.com/cache-engine: redis
-    bank.com/cache-version: "7"
-    bank.com/cache-host: payments-cache.p.bank.com
-    bank.com/cache-port: "6379"
-    bank.com/cache-node-type: cache.r6g.large
-    bank.com/cache-replica-count: "2"
-    bank.com/cache-ttl-session-s: "3600"
-    bank.com/cache-ttl-idempotency-s: "86400"
-    bank.com/cache-encryption-transit: "true"
-    bank.com/cache-environment: production
-    bank.com/sysid: SYSID-06435
-    bank.com/team: team-payments
+    bank.com/sysid: SYSID-00000
   tags:
     - redis
     - cache
     - elasticache
-    - production
+    - sysid-00000
 spec:
   type: cache
+  owner: group:default/team-payments
+  system: payments-platform
+
+---
+
+# ─── Resource — FTP Server ────────────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: payments-ftp
+  title: Payments FTP Server
+  description: >
+    FTP server used by payments-service for secure file exchange with
+    third-party payment processors and settlement partners.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - ftp
+    - file-transfer
+    - sysid-00000
+spec:
+  type: ftp-server
+  owner: group:default/team-payments
+  system: payments-platform
+
+---
+
+# ─── Resource — Kafka Cluster ─────────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: payments-kafka
+  title: Payments Kafka Cluster
+  description: >
+    Kafka cluster used by payments-service for publishing payment lifecycle
+    events and consuming fraud decisions and ledger confirmations.
+    SASL/SCRAM-SHA-256 auth, TLS in transit. Managed by platform team.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - kafka
+    - messaging
+    - events
+    - sysid-00000
+spec:
+  type: messaging-queue
   owner: group:default/team-payments
   system: payments-platform

@@ -1,0 +1,552 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# catalog-info.yaml — Golden Template  v1.0
+# Owner: Platform Engineering | Last updated: 2026-04-20
+#
+# HOW TO USE
+#   1. Copy this file to your repo root as catalog-info.yaml
+#   2. Fill every field marked # REQUIRED
+#   3. Remove sections marked OPTIONAL that do not apply to your service
+#   4. Import: Harness IDP > Software Catalog > Import from Git
+#   5. Verify 100% on the Production Readiness scorecard before prod deployment
+#
+# RULES
+#   - Governance (tier, sox, data-classification, team, oncall) lives in now.yaml — NOT here
+#   - bank.com/sysid is the ONLY CMDB field in this file — it is the join key
+#   - One catalog-info.yaml per repo
+#     Monorepos: multiple --- separated docs in one file, one Component per service
+#
+# REFERENCE EXAMPLE
+#   See catalog-info.yaml (payments-service) for a fully worked example
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+# ─── SECTION 1: System ────────────────────────────────────────────────────────
+# OPTIONAL — Create a System only if your service belongs to a NEW platform
+# that does not yet exist in IDP. If your platform is already registered,
+# skip this section and reference it in spec.system below.
+# One System per platform — not one per service.
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: <platform-name>                  # REQUIRED  e.g. payments-platform
+  title: <Platform Display Name>         # REQUIRED  e.g. Payments Platform
+  description: >
+    <One paragraph describing what this platform does and what services         # REQUIRED
+    it groups together.>
+  annotations:
+    bank.com/sysid: <SYSID-NNNNN>        # REQUIRED  ServiceNow CMDB sys_id
+    jira/project-key: <PROJ>             # OPTIONAL  e.g. PAY
+  tags:
+    - <domain>                           # REQUIRED  e.g. payments, lending, risk
+    - <tier>                             # REQUIRED  tier-1 | tier-2 | tier-3
+    - sysid-<NNNNN>                      # REQUIRED  repeat sysid for search — e.g. sysid-00000
+  links:
+    - url: https://confluence.bank.com/display/<PROJ>
+      title: Confluence Space
+      icon: docs
+    - url: https://runbooks.bank.com/<platform-name>
+      title: Platform Runbook
+      icon: book
+spec:
+  owner: group:default/<team-name>       # REQUIRED  e.g. group:default/team-payments
+  domain: <domain>                       # REQUIRED  e.g. banking, risk, lending
+
+---
+
+# ─── SECTION 2: Component ─────────────────────────────────────────────────────
+# REQUIRED — Every repo must have exactly one Component entry.
+# This is the core entity — all other sections link back to this.
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: <service-name>                   # REQUIRED  must match GitHub repo name
+  title: <Service Display Name>          # REQUIRED  e.g. Payments Service
+  description: >
+    <One paragraph: what this service does, what it is responsible for,         # REQUIRED
+    and what it does NOT do. Include key integrations.>
+  annotations:
+    # Source control — REQUIRED
+    github.com/project-slug: <org>/<repo>              # e.g. bank-org/payments-service
+
+    # TechDocs — REQUIRED (place docs/ folder in repo root)
+    backstage.io/techdocs-ref: dir:.
+
+    # Harness CI/CD — REQUIRED
+    harness.io/project-id: <SYSID-NNNNN>              # same as sysid
+
+    # Kubernetes — OPTIONAL (include if service runs on Kubernetes)
+    backstage.io/kubernetes-id: <service-name>
+    backstage.io/kubernetes-namespace: <namespace>
+
+    # Observability — OPTIONAL (include what applies)
+    pagerduty.com/service-id: <PD-SERVICE-ID>         # PagerDuty service ID
+    grafana/dashboard-url: https://grafana.bank.com/d/<service-name>
+    datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/<id>
+
+    # Tracking — OPTIONAL
+    jira/project-key: <PROJ>
+
+    # CMDB correlation — REQUIRED
+    bank.com/sysid: <SYSID-NNNNN>
+
+  tags:
+    - <language>                         # REQUIRED  e.g. java, python, golang, dotnet
+    - <framework>                        # OPTIONAL  e.g. spring-boot, fastapi, gin
+    - <domain>                           # REQUIRED  e.g. payments, lending, risk
+    - <tier>                             # REQUIRED  tier-1 | tier-2 | tier-3
+    - sysid-<NNNNN>                      # REQUIRED  e.g. sysid-00000
+
+  links:
+    - url: https://runbooks.bank.com/<service-name>
+      title: Runbook
+      icon: book
+    - url: https://grafana.bank.com/d/<service-name>
+      title: Grafana
+      icon: dashboard                    # OPTIONAL — remove if no Grafana dashboard
+    - url: https://app.datadoghq.com/dashboard/<id>
+      title: Datadog
+      icon: dashboard                    # OPTIONAL — remove if no Datadog dashboard
+    - url: https://oncall.bank.com/<service-name>
+      title: On-Call Schedule
+      icon: group
+
+spec:
+  type: service                          # REQUIRED  service | library | website | batch-job
+  lifecycle: production                  # REQUIRED  production | experimental | deprecated
+  owner: group:default/<team-name>       # REQUIRED  e.g. group:default/team-payments
+  system: <platform-name>               # REQUIRED  must match a System entity name in IDP
+
+  providesApis:                          # OPTIONAL — list APIs this service exposes
+    - <service-name>-rest-api            # REST API defined in Section 3
+    - <service-name>-kafka-producer      # AsyncAPI producer defined in Section 4
+    - <service-name>-ftp-outbound        # AsyncAPI FTP outbound defined in Section 4
+
+  consumesApis:                          # OPTIONAL — list APIs this service calls or reads
+    - <upstream-service>-api             # Defined in upstream service's catalog-info.yaml
+    - <service-name>-kafka-consumer      # AsyncAPI consumer defined in Section 5
+    - <service-name>-ftp-inbound         # AsyncAPI FTP inbound defined in Section 5
+
+  dependsOn:                             # OPTIONAL — list infrastructure this service owns/uses
+    - resource:default/<service-name>-db
+    - resource:default/<service-name>-cache
+    - resource:default/<service-name>-kafka
+    - resource:default/<service-name>-ftp
+
+---
+
+# ─── SECTION 3: REST API ──────────────────────────────────────────────────────
+# OPTIONAL — Include if your service exposes an HTTP/REST API.
+# Remove if your service is a consumer-only worker, batch job, or CLI.
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: <service-name>-rest-api          # REQUIRED
+  title: <Service> REST API             # REQUIRED
+  description: >
+    <What this API does, who calls it, auth mechanism, rate limits.>            # REQUIRED
+  annotations:
+    bank.com/sysid: <SYSID-NNNNN>        # REQUIRED
+    github.com/project-slug: <org>/<repo>
+  tags:
+    - rest
+    - openapi
+    - <domain>
+    - sysid-<NNNNN>                      # REQUIRED
+  links:
+    - url: https://api-docs.bank.com/<service-name>
+      title: API Docs
+      icon: docs
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:default/<team-name>
+  system: <platform-name>
+  definition: |
+    openapi: "3.0.0"
+    info:
+      title: <Service> API
+      version: "1.0.0"
+      description: <Short description>
+    servers:
+      - url: https://api.bank.com/<service-name>
+    paths:
+      /v1/<resource>:
+        post:
+          operationId: create<Resource>
+          summary: <What this endpoint does>
+          tags: [<Resource>]
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  required: [<field1>, <field2>]
+                  properties:
+                    <field1>:
+                      type: string
+                    <field2>:
+                      type: number
+          responses:
+            '202':
+              description: Accepted
+            '400':
+              description: Invalid request
+
+---
+
+# ─── SECTION 4: AsyncAPI — Producer ──────────────────────────────────────────
+# OPTIONAL — Include if your service publishes messages to Kafka, publishes
+# files to FTP, or produces to any async channel.
+# One entry per protocol (Kafka producer, FTP outbound etc.).
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Kafka Producer ────────────────────────────────────────────────────────────
+# OPTIONAL — Include if your service publishes events to Kafka.
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: <service-name>-kafka-producer    # REQUIRED
+  title: <Service> Kafka Producer       # REQUIRED
+  description: >
+    <What events this service publishes, who consumes them.>                    # REQUIRED
+  annotations:
+    bank.com/sysid: <SYSID-NNNNN>
+    github.com/project-slug: <org>/<repo>
+  tags:
+    - kafka
+    - asyncapi
+    - events
+    - producer
+    - sysid-<NNNNN>                      # REQUIRED
+spec:
+  type: asyncapi
+  lifecycle: production
+  owner: group:default/<team-name>
+  system: <platform-name>
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: <Service> Kafka Producer
+      version: "1.0.0"
+      description: <What events are published and why>
+    servers:
+      production:
+        url: kafka.bank.com:9092
+        protocol: kafka
+        description: Production Kafka cluster
+        security:
+          - saslScram: []
+    channels:
+      <domain>.events.<event-name>:      # e.g. payments.events.payment-completed
+        description: <When this event is published>
+        publish:
+          summary: <Event summary>
+          bindings:
+            kafka:
+              topic: <domain>.events.<event-name>
+              partitions: 12
+              replicas: 3
+          message:
+            name: <EventName>
+            contentType: application/json
+            payload:
+              type: object
+              required: [eventId, <key-field>, occurredAt]
+              properties:
+                eventId:
+                  type: string
+                  description: Unique event ID (UUID)
+                <key-field>:
+                  type: string
+                  description: <What this field represents>
+                occurredAt:
+                  type: string
+                  format: date-time
+    components:
+      securitySchemes:
+        saslScram:
+          type: scramSha256
+          description: SASL/SCRAM-SHA-256 authentication
+
+---
+
+# ── FTP Outbound ──────────────────────────────────────────────────────────────
+# OPTIONAL — Include if your service deposits files onto an FTP server.
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: <service-name>-ftp-outbound      # REQUIRED
+  title: <Service> FTP Outbound         # REQUIRED
+  description: >
+    <What files this service produces, where they go, who picks them up.>      # REQUIRED
+  annotations:
+    bank.com/sysid: <SYSID-NNNNN>
+    github.com/project-slug: <org>/<repo>
+  tags:
+    - ftp
+    - asyncapi
+    - file-transfer
+    - producer
+    - sysid-<NNNNN>                      # REQUIRED
+spec:
+  type: asyncapi
+  lifecycle: production
+  owner: group:default/<team-name>
+  system: <platform-name>
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: <Service> FTP Outbound
+      version: "1.0.0"
+      description: <What files are deposited and when>
+    servers:
+      production:
+        url: ftp.bank.com
+        protocol: ftp
+        description: Production FTP server
+    channels:
+      /outbound/<file-type>/{date}:      # e.g. /outbound/settlement/{date}
+        description: <What this file contains and its schedule>
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
+        publish:
+          summary: <File summary>
+          message:
+            name: <FileName>
+            contentType: text/csv        # text/csv | application/xml | application/json
+            payload:
+              type: object
+              description: <Column list or schema description>
+
+---
+
+# ─── SECTION 5: AsyncAPI — Consumer ──────────────────────────────────────────
+# OPTIONAL — Include if your service subscribes to Kafka topics or reads
+# files from FTP.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Kafka Consumer ────────────────────────────────────────────────────────────
+# OPTIONAL — Include if your service subscribes to Kafka topics.
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: <service-name>-kafka-consumer    # REQUIRED
+  title: <Service> Kafka Consumer       # REQUIRED
+  description: >
+    <What topics this service subscribes to and why.>                           # REQUIRED
+  annotations:
+    bank.com/sysid: <SYSID-NNNNN>
+    github.com/project-slug: <org>/<repo>
+  tags:
+    - kafka
+    - asyncapi
+    - events
+    - consumer
+    - sysid-<NNNNN>                      # REQUIRED
+spec:
+  type: asyncapi
+  lifecycle: production
+  owner: group:default/<team-name>
+  system: <platform-name>
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: <Service> Kafka Consumer
+      version: "1.0.0"
+      description: <What topics are consumed and what drives that consumption>
+    servers:
+      production:
+        url: kafka.bank.com:9092
+        protocol: kafka
+        description: Production Kafka cluster
+        security:
+          - saslScram: []
+    channels:
+      <domain>.events.<event-name>:      # e.g. fraud.events.fraud-decision
+        description: <What this event is and who publishes it>
+        subscribe:
+          summary: <What this service does with this event>
+          bindings:
+            kafka:
+              topic: <domain>.events.<event-name>
+              groupId: <service-name>-<event-type>-consumer
+          message:
+            name: <EventName>
+            contentType: application/json
+            payload:
+              type: object
+              required: [<key-field>, occurredAt]
+              properties:
+                <key-field>:
+                  type: string
+                occurredAt:
+                  type: string
+                  format: date-time
+    components:
+      securitySchemes:
+        saslScram:
+          type: scramSha256
+          description: SASL/SCRAM-SHA-256 authentication
+
+---
+
+# ── FTP Inbound ───────────────────────────────────────────────────────────────
+# OPTIONAL — Include if your service reads files from an FTP server.
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: <service-name>-ftp-inbound       # REQUIRED
+  title: <Service> FTP Inbound          # REQUIRED
+  description: >
+    <What files this service reads from FTP, who deposits them.>               # REQUIRED
+  annotations:
+    bank.com/sysid: <SYSID-NNNNN>
+    github.com/project-slug: <org>/<repo>
+  tags:
+    - ftp
+    - asyncapi
+    - file-transfer
+    - consumer
+    - sysid-<NNNNN>                      # REQUIRED
+spec:
+  type: asyncapi
+  lifecycle: production
+  owner: group:default/<team-name>
+  system: <platform-name>
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: <Service> FTP Inbound
+      version: "1.0.0"
+      description: <What files are consumed and how often>
+    servers:
+      production:
+        url: ftp.bank.com
+        protocol: ftp
+        description: Production FTP server
+    channels:
+      /inbound/<file-type>/{date}:       # e.g. /inbound/instructions/{date}
+        description: <What this file contains and who deposits it>
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
+        subscribe:
+          summary: <File summary>
+          message:
+            name: <FileName>
+            contentType: application/xml # text/csv | application/xml | application/json
+            payload:
+              type: object
+              description: <Column list or schema description>
+
+---
+
+# ─── SECTION 6: Resources ─────────────────────────────────────────────────────
+# OPTIONAL — Declare infrastructure your service owns or is responsible for.
+# Include only resources owned by THIS service.
+# Shared infrastructure (central Kafka cluster, shared FTP) is declared once
+# in the platform team's catalog-info.yaml and referenced via dependsOn above.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Database ──────────────────────────────────────────────────────────────────
+# OPTIONAL — Include if your service owns a database.
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: <service-name>-db               # REQUIRED
+  title: <Service> Database             # REQUIRED
+  description: >
+    <Engine, version, hosting, backup retention, HA setup.>                    # REQUIRED
+    e.g. PostgreSQL 14 on AWS RDS. Multi-AZ, 35-day backup retention.
+  annotations:
+    bank.com/sysid: <SYSID-NNNNN>
+  tags:
+    - <engine>                           # e.g. postgresql, mysql, oracle, mssql
+    - <hosting>                          # e.g. rds, azure-sql, on-premise
+    - database
+    - sysid-<NNNNN>                      # REQUIRED
+spec:
+  type: database
+  owner: group:default/<team-name>
+  system: <platform-name>
+
+---
+
+# ── Cache ─────────────────────────────────────────────────────────────────────
+# OPTIONAL — Include if your service owns a cache.
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: <service-name>-cache            # REQUIRED
+  title: <Service> Cache                # REQUIRED
+  description: >
+    <Engine, version, purpose, hosting, replication.>                          # REQUIRED
+    e.g. Redis 7 on AWS ElastiCache. 2 read replicas, in-transit encryption.
+  annotations:
+    bank.com/sysid: <SYSID-NNNNN>
+  tags:
+    - <engine>                           # e.g. redis, memcached
+    - cache
+    - sysid-<NNNNN>                      # REQUIRED
+spec:
+  type: cache
+  owner: group:default/<team-name>
+  system: <platform-name>
+
+---
+
+# ── Kafka Cluster ─────────────────────────────────────────────────────────────
+# OPTIONAL — Include only if your team OWNS the Kafka cluster.
+# If using the shared company Kafka cluster, reference it via dependsOn only.
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: <service-name>-kafka            # REQUIRED
+  title: <Service> Kafka Cluster        # REQUIRED
+  description: >
+    <Purpose, auth method, management.>                                        # REQUIRED
+    e.g. SASL/SCRAM-SHA-256 auth, TLS in transit. Managed by platform team.
+  annotations:
+    bank.com/sysid: <SYSID-NNNNN>
+  tags:
+    - kafka
+    - messaging
+    - events
+    - sysid-<NNNNN>                      # REQUIRED
+spec:
+  type: messaging-queue
+  owner: group:default/<team-name>
+  system: <platform-name>
+
+---
+
+# ── FTP Server ────────────────────────────────────────────────────────────────
+# OPTIONAL — Include only if your team OWNS the FTP server.
+# If using a shared FTP server, reference it via dependsOn only.
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: <service-name>-ftp              # REQUIRED
+  title: <Service> FTP Server           # REQUIRED
+  description: >
+    <Purpose, partners, security.>                                             # REQUIRED
+    e.g. Secure file exchange with third-party processors and settlement partners.
+  annotations:
+    bank.com/sysid: <SYSID-NNNNN>
+  tags:
+    - ftp
+    - file-transfer
+    - sysid-<NNNNN>                      # REQUIRED
+spec:
+  type: ftp-server
+  owner: group:default/<team-name>
+  system: <platform-name>
