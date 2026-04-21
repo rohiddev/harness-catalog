@@ -1,18 +1,16 @@
-# ═══════════════════════════════════════════════════════════════════════════════
-# Catalog Entity Layout — kind: Component, spec.type: service
-#
-# Paste this YAML into Harness IDP > Admin > Layout > Component > service > Edit
-# Tabs: Overview | Dependencies | API | CI/CD | Scorecard | Docs
-# ═══════════════════════════════════════════════════════════════════════════════
-
 page:
+  name: EntityLayout
   tabs:
 
     # ── Overview ───────────────────────────────────────────────────────────────
     - name: Overview
+      path: /
+      title: Overview
       contents:
+        - component: EntityOrphanWarning
+        - component: EntityRelationWarning
+        - component: EntityProcessingErrorsPanel
 
-        # Row 1: About card (left) + Links card (right)
         - component: EntityAboutCard
           specs:
             props:
@@ -27,82 +25,72 @@ page:
             gridProps:
               md: 6
 
-        # Row 2: Ownership & compliance info
-        - component: EntityAdditionalInfoCard
+        - component: EntityCatalogGraphCard
           specs:
             props:
-              title: Ownership & Compliance
-              items:
-                - label: SYS ID
-                  value: <+metadata.additionalInfo.sysId>
-                  type: string
-                - label: Team
-                  value: <+metadata.additionalInfo.team>
-                  type: string
-                - label: Tier
-                  value: <+metadata.additionalInfo.tier>
-                  type: string
-                - label: Data Classification
-                  value: <+metadata.additionalInfo.dataClassification>
-                  type: string
-                  style:
-                    bold: true
-                - label: SOX In Scope
-                  value: <+metadata.additionalInfo.soxInScope>
-                  type: string
-                - label: Email DL
-                  value: <+metadata.additionalInfo.emailDl>
-                  type: string
+              variant: gridItem
+              height: 400
             gridProps:
               md: 6
+              xs: 12
 
-        # Row 2 right: Deployment info
-        - component: EntityAdditionalInfoCard
-          specs:
-            props:
-              title: Deployment
-              items:
-                - label: Environment
-                  value: <+metadata.additionalInfo.deployEnv>
-                  type: string
-                - label: Kubernetes Namespace
-                  value: <+metadata.additionalInfo.kubernetesNamespace>
-                  type: string
-                - label: Kubernetes Cluster
-                  value: <+metadata.additionalInfo.kubernetesCluster>
-                  type: string
-                - label: Container Image
-                  value: <+metadata.additionalInfo.containerImage>
-                  type: string
-            gridProps:
-              md: 6
-
-        # Row 3: Scorecard summary (full width)
         - component: EntityScoreCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 6
+              xs: 12
+
+    # ── CI/CD ──────────────────────────────────────────────────────────────────
+    - name: CI/CD
+      path: /ci-cd
+      title: CI/CD
+      contents:
+        - component: EntitySwitch
+          specs:
+            cases:
+              - if: isHarnessCICdAvailable
+                content:
+                  - component: EntityHarnessCiCdContent
+              - content:
+                  - component: EmptyState
+                    specs:
+                      props:
+                        title: No CI/CD available for this entity
+                        missing: info
+                        description: Add the harness.io/project-url annotation to enable CI/CD.
+
+    # ── Scorecard ──────────────────────────────────────────────────────────────
+    - name: Scorecard
+      path: /scorecard
+      title: Scorecard
+      contents:
+        - component: EntityScorecardContent
+          specs:
+            gridProps:
+              md: 12
+
+    # ── API ────────────────────────────────────────────────────────────────────
+    - name: API
+      path: /api
+      title: API
+      contents:
+        - component: EntityProvidedApisCard
+          specs:
+            gridProps:
+              md: 12
+
+        - component: EntityConsumedApisCard
           specs:
             gridProps:
               md: 12
 
     # ── Dependencies ───────────────────────────────────────────────────────────
     - name: Dependencies
+      path: /dependencies
+      title: Dependencies
       contents:
-
-        # Visual dependency graph — shows full blast radius as interactive graph
-        - component: EntityCatalogGraphCard
-          specs:
-            props:
-              variant: gridItem
-              title: Dependency Graph
-              maxDepth: 2
-              direction: LR
-              relations:
-                - dependsOn
-                - dependencyOf
-                - providesApis
-                - consumesApis
-            gridProps:
-              md: 12
-
         - component: EntityDependsOnComponentsCard
           specs:
             props:
@@ -132,48 +120,13 @@ page:
             gridProps:
               md: 6
 
-    # ── API ────────────────────────────────────────────────────────────────────
-    - name: API
-      contents:
-        - component: EntityProvidedApisCard
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 12
-
-        - component: EntityConsumedApisCard
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 12
-
-    # ── CI/CD ──────────────────────────────────────────────────────────────────
-    - name: CI/CD
-      contents:
-        - component: EntityHarnessCIContent
-          specs:
-            gridProps:
-              md: 12
-
-        - component: EntityHarnessCDContent
-          specs:
-            gridProps:
-              md: 12
-
-    # ── Scorecard ──────────────────────────────────────────────────────────────
-    - name: Scorecard
-      contents:
-        - component: EntityScorecardContent
-          specs:
-            gridProps:
-              md: 12
-
     # ── Docs ───────────────────────────────────────────────────────────────────
-    - name: Docs
+    - name: TechDocs
+      path: /docs
+      title: Docs
       contents:
         - component: EntityTechdocsContent
           specs:
-            gridProps:
-              md: 12
+            children:
+              - component: TechDocsAddons
+              - component: ReportIssue
