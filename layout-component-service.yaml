@@ -2,7 +2,7 @@
 # Catalog Entity Layout — kind: Component, spec.type: service
 #
 # Paste this YAML into Harness IDP > Admin > Layout > Component > service > Edit
-# Tabs: Overview | Dependencies | API | Kubernetes | CI/CD | Datadog | Scorecard | Docs
+# Tabs: Overview | Dependencies | API | Kubernetes | CI/CD | Scorecard | Docs
 # ═══════════════════════════════════════════════════════════════════════════════
 
 page:
@@ -77,18 +77,11 @@ page:
             gridProps:
               md: 6
 
-        # Row 3: SonarQube (left) + Scorecard summary (right)
-        - component: EntitySonarQubeCard
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 6
-
+        # Row 3: Scorecard summary (full width)
         - component: EntityScoreCard
           specs:
             gridProps:
-              md: 6
+              md: 12
 
     # ── Dependencies ───────────────────────────────────────────────────────────
     - name: Dependencies
@@ -175,15 +168,6 @@ page:
               md: 12
 
         - component: EntityHarnessCDContent
-          specs:
-            gridProps:
-              md: 12
-
-    # ── Datadog ────────────────────────────────────────────────────────────────
-    # Requires: datadoghq.com/dashboard-url annotation
-    - name: Datadog
-      contents:
-        - component: EntityDatadogContent
           specs:
             gridProps:
               md: 12
