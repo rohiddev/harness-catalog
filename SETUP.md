@@ -171,9 +171,10 @@ All other checks use Catalog data only and work without this step.
 
 ---
 
-### now.yaml Checks (add once RapDev confirms schema)
+### now.yaml Checks
 
-> Do not create these until now.yaml schema is finalised. See `wiki/integrations/now-yaml-draft-schema.md`.
+> Schema is production-ready. Create these checks now.
+> Reference: `now.yaml` (payments-service worked example) and `now.template.yaml` (golden template).
 
 #### Check 9 — now.yaml Exists in Repo
 | Field | Value |
@@ -264,7 +265,7 @@ Add `entityName` as a pipeline variable (value = catalog entity name, e.g. `paym
 
 Open **payments-service** in the catalog and confirm:
 
-- [ ] **Overview tab** — Scorecard summary card visible showing 8/12 checks (4 now.yaml checks pending)
+- [ ] **Overview tab** — Scorecard summary card visible showing 12/12 checks
 - [ ] **Dependencies tab** — Dependency graph renders, blast radius cards visible
 - [ ] **API tab** — REST API, Kafka producer/consumer, FTP inbound/outbound all listed
 - [ ] **Kubernetes tab** — K8s workload visible (requires Kubernetes connector)
@@ -279,12 +280,22 @@ Share the repo with all teams:
 
 > **`https://github.com/rohiddev/harness-catalog`**
 >
-> Each team:
-> 1. Copies `catalog-info.template.yaml` → saves as `catalog-info.yaml` in their repo root
-> 2. Fills all `# REQUIRED` fields, removes sections that don't apply
-> 3. References `catalog-info.yaml` (payments-service) as a worked example
-> 4. Raises a PR — platform team imports the service into IDP once merged
-> 5. Achieves 100% Production Readiness scorecard before deploying to production
+> Each team — two files, both required for 100% scorecard:
+>
+> **catalog-info.yaml** (IDP catalog)
+> 1. Copy `catalog-info.template.yaml` → save as `catalog-info.yaml` in repo root
+> 2. Fill all `# REQUIRED` fields, remove sections that don't apply
+> 3. Reference `catalog-info.yaml` (payments-service) as a worked example
+>
+> **now.yaml** (ServiceNow CMDB + blast radius)
+> 4. Copy `now.template.yaml` → save as `now.yaml` in repo root
+> 5. Fill `sysId`, `name`, `projectName`
+> 6. Declare every dependency: APIs called, databases, Kafka topics, FTP paths
+> 7. Reference `now.yaml` (payments-service) as a worked example
+>
+> **Go live**
+> 8. Raise a PR — platform team imports the service into IDP once merged
+> 9. Achieve 100% Production Readiness scorecard before deploying to production
 
 ---
 
@@ -490,13 +501,15 @@ CMDB table: `cmdb_ci_service`
 
 | File | Purpose |
 |---|---|
-| `catalog-info.template.yaml` | Golden template — teams copy this |
-| `catalog-info.yaml` | Worked example — Payments Platform |
+| `catalog-info.template.yaml` | Golden template — teams copy this for catalog-info.yaml |
+| `catalog-info.yaml` | Worked example — Payments Platform (catalog-info) |
+| `now.template.yaml` | Golden template — teams copy this for now.yaml |
+| `now.yaml` | Worked example — Payments Platform (now.yaml) |
 | `layout-component-service.yaml` | Component / service page layout |
 | `layout-system.yaml` | System page layout |
 | `layout-resource-*.yaml` | Resource page layouts |
 | `preview.html` | Offline UI preview — open in browser |
-| `wiki/integrations/` | ServiceNow, now.yaml, Phase 2 pipeline docs |
+| `wiki/integrations/` | ServiceNow, blast radius runbook, dependency ingestion docs |
 
 ---
 
