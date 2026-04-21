@@ -1,20 +1,3 @@
-# ───────────────────────────────────────────────────────────────────────────────
-# catalog-info.yaml — Payments Platform  *** WORKED EXAMPLE ***
-#
-# This file is a fully worked reference example for the Payments Platform.
-# Use it to understand how a complete catalog-info.yaml should look.
-#
-# STARTING YOUR OWN SERVICE?
-#   Copy catalog-info.template.yaml — it has every field annotated as
-#   REQUIRED or OPTIONAL with placeholder values ready to fill in.
-#
-# Import: IDP > Software Catalog > Import from Git
-# Governance annotations (tier, sox, data-classification, team, oncall etc.)
-# are sourced from ServiceNow CMDB — do not add them here.
-# ───────────────────────────────────────────────────────────────────────────────
-
-
-# ─── System ──────────────────────────────────────────────────────────────────
 apiVersion: harness.io/v1
 kind: System
 metadata:
@@ -50,7 +33,7 @@ spec:
 
 ---
 
-# ─── Component — Microservice ────────────────────────────────────────────────
+# --- Component - Microservice ------------------------------------------------
 apiVersion: harness.io/v1
 kind: Component
 metadata:
@@ -64,20 +47,20 @@ metadata:
     github.com/project-slug: bank-org/payments-service
     # TechDocs
     backstage.io/techdocs-ref: dir:.
-    # Source location — drives Code tab
+    # Source location - drives Code tab
     backstage.io/source-location: url:https://github.com/bank-org/payments-service
-    # Harness CI/CD — project-url drives CI/CD tab; pipelines filters to this service's pipelines
+    # Harness CI/CD - project-url drives CI/CD tab; pipelines filters to this service's pipelines
     harness.io/project-url: https://app.harness.io/ng/account/<account-id>/module/ci/orgs/default/projects/SYSID-00000/pipelines
     harness.io/pipelines: payments-deploy,payments-ci
     # Kubernetes
     backstage.io/kubernetes-id: payments-service
     backstage.io/kubernetes-namespace: payments-p
-    # Contact details & observability — native plugin annotation keys
+    # Contact details & observability - native plugin annotation keys
     pagerduty.com/service-id: PABC123
     datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments
-    # Code quality — drives SonarQube card on Overview
+    # Code quality - drives SonarQube card on Overview
     sonarqube.org/project-key: payments-service
-    # SEI — DORA metrics (deployment frequency, lead time, MTTR, change failure rate)
+    # SEI - DORA metrics (deployment frequency, lead time, MTTR, change failure rate)
     harness.io/sei-project-id: SYSID-00000
     # Tracking
     jira/project-key: PAY
@@ -128,7 +111,7 @@ spec:
 
 ---
 
-# ─── API ──────────────────────────────────────────────────────────────────────
+# --- API ----------------------------------------------------------------------
 apiVersion: harness.io/v1
 kind: API
 metadata:
@@ -227,14 +210,14 @@ spec:
 
 ---
 
-# ─── API — FTP Outbound (producer / AsyncAPI) ────────────────────────────────
+# --- API - FTP Outbound (producer / AsyncAPI) --------------------------------
 apiVersion: harness.io/v1
 kind: API
 metadata:
   name: payments-ftp-outbound
   title: Payments FTP Outbound
   description: >
-    Async file exchange — files produced by payments-service and deposited on
+    Async file exchange - files produced by payments-service and deposited on
     the FTP server for downstream processor collection. Covers settlement
     reports, reconciliation files and payment confirmation batches.
   annotations:
@@ -266,7 +249,7 @@ spec:
         description: Production FTP server
     channels:
       /outbound/settlement/{date}:
-        description: Daily settlement report — one file per business day
+        description: Daily settlement report - one file per business day
         parameters:
           date:
             description: Business date in YYYYMMDD format
@@ -280,18 +263,18 @@ spec:
             contentType: text/csv
             payload:
               type: object
-              description: Fixed-width CSV. Columns — txn_id, amount, currency, status, settled_at
+              description: Fixed-width CSV. Columns - txn_id, amount, currency, status, settled_at
 
 ---
 
-# ─── API — FTP Inbound (consumer / AsyncAPI) ─────────────────────────────────
+# --- API - FTP Inbound (consumer / AsyncAPI) ---------------------------------
 apiVersion: harness.io/v1
 kind: API
 metadata:
   name: payments-ftp-inbound
   title: Payments FTP Inbound
   description: >
-    Async file exchange — files deposited on the FTP server by third-party
+    Async file exchange - files deposited on the FTP server by third-party
     processors and consumed by payments-service. Covers incoming payment
     instruction files and processor acknowledgement files.
   annotations:
@@ -341,7 +324,7 @@ spec:
 
 ---
 
-# ─── API — Kafka Producer (AsyncAPI) ─────────────────────────────────────────
+# --- API - Kafka Producer (AsyncAPI) -----------------------------------------
 apiVersion: harness.io/v1
 kind: API
 metadata:
@@ -417,7 +400,7 @@ spec:
 
 ---
 
-# ─── API — Kafka Consumer (AsyncAPI) ─────────────────────────────────────────
+# --- API - Kafka Consumer (AsyncAPI) -----------------------------------------
 apiVersion: harness.io/v1
 kind: API
 metadata:
@@ -490,7 +473,7 @@ spec:
 
 ---
 
-# ─── Resource — PostgreSQL Database ──────────────────────────────────────────
+# --- Resource - PostgreSQL Database ------------------------------------------
 apiVersion: harness.io/v1
 kind: Resource
 metadata:
@@ -513,7 +496,7 @@ spec:
 
 ---
 
-# ─── Resource — Redis Cache ───────────────────────────────────────────────────
+# --- Resource - Redis Cache ---------------------------------------------------
 apiVersion: harness.io/v1
 kind: Resource
 metadata:
@@ -536,7 +519,7 @@ spec:
 
 ---
 
-# ─── Resource — FTP Server ────────────────────────────────────────────────────
+# --- Resource - FTP Server ----------------------------------------------------
 apiVersion: harness.io/v1
 kind: Resource
 metadata:
@@ -558,7 +541,7 @@ spec:
 
 ---
 
-# ─── Resource — Kafka Cluster ─────────────────────────────────────────────────
+# --- Resource - Kafka Cluster -------------------------------------------------
 apiVersion: harness.io/v1
 kind: Resource
 metadata:
