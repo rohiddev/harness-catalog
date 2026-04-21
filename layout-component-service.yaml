@@ -2,7 +2,9 @@
 # Catalog Entity Layout — kind: Component, spec.type: service
 #
 # Paste this YAML into Harness IDP > Admin > Layout > Component > service > Edit
-# Tabs: Overview | Dependencies | API | Kubernetes | CI/CD | Datadog | SEI | Scorecard | Docs
+# Tabs: Overview | Dependencies | API | Kubernetes | CI/CD | Scorecard | Docs
+#
+# Plugin tabs (Datadog, SEI, SonarQube) — add once plugins are enabled in IDP
 # ═══════════════════════════════════════════════════════════════════════════════
 
 page:
@@ -77,18 +79,11 @@ page:
             gridProps:
               md: 6
 
-        # Row 3: SonarQube code quality (left) + Scorecard summary (right)
-        - component: EntitySonarQubeCard
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 6
-
+        # Row 3: Scorecard summary (full width)
         - component: EntityScoreCard
           specs:
             gridProps:
-              md: 6
+              md: 12
 
     # ── Dependencies ───────────────────────────────────────────────────────────
     - name: Dependencies
@@ -110,7 +105,6 @@ page:
             gridProps:
               md: 12
 
-        # List cards below graph for detail
         - component: EntityDependsOnComponentsCard
           specs:
             props:
@@ -176,25 +170,6 @@ page:
               md: 12
 
         - component: EntityHarnessCDContent
-          specs:
-            gridProps:
-              md: 12
-
-    # ── Datadog ────────────────────────────────────────────────────────────────
-    # Requires: datadoghq.com/dashboard-url annotation
-    - name: Datadog
-      contents:
-        - component: EntityDatadogContent
-          specs:
-            gridProps:
-              md: 12
-
-    # ── SEI ────────────────────────────────────────────────────────────────────
-    # DORA metrics: deployment frequency, lead time, MTTR, change failure rate
-    # Requires: harness.io/sei-project-id annotation
-    - name: SEI
-      contents:
-        - component: EntityHarnessSEIContent
           specs:
             gridProps:
               md: 12
