@@ -18,10 +18,8 @@ page:
             gridProps:
               md: 6
 
-        - component: EntityLinksCard
+        - component: EntityScoreCard
           specs:
-            props:
-              variant: gridItem
             gridProps:
               md: 6
 
@@ -34,13 +32,13 @@ page:
               md: 6
               xs: 12
 
-        - component: EntityScoreCard
+        - component: EntityLinksCard
           specs:
             props:
               variant: gridItem
+              height: 400
             gridProps:
               md: 6
-              xs: 12
 
     # ── CI/CD ──────────────────────────────────────────────────────────────────
     - name: CI/CD
@@ -96,29 +94,14 @@ page:
             props:
               variant: gridItem
             gridProps:
-              md: 6
+              md: 12
 
         - component: EntityDependsOnResourcesCard
           specs:
             props:
               variant: gridItem
             gridProps:
-              md: 6
-
-        - component: EntityHasComponentsCard
-          specs:
-            props:
-              variant: gridItem
-              title: Depended on by (Blast Radius)
-            gridProps:
-              md: 6
-
-        - component: EntityHasApisCard
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 6
+              md: 12
 
     # ── Docs ───────────────────────────────────────────────────────────────────
     - name: TechDocs
@@ -126,7 +109,3 @@ page:
       title: Docs
       contents:
         - component: EntityTechdocsContent
-          specs:
-            children:
-              - component: TechDocsAddons
-              - component: ReportIssue
