@@ -38,7 +38,12 @@ page:
       path: /ci-cd
       title: CI/CD
       contents:
-        - component: EntityHarnessCiCdContent
+        - component: EntitySwitch
+          specs:
+            cases:
+              - if: isHarnessCICdAvailable
+                content:
+                  - component: EntityHarnessCiCdContent
 
     - name: Scorecard
       path: /scorecard
