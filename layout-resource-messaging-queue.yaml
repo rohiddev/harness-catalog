@@ -1,14 +1,14 @@
-# ═══════════════════════════════════════════════════════════════════════════════
-# Catalog Entity Layout — kind: Resource, spec.type: messaging-queue
-#
-# Paste into Harness IDP > Admin > Layout > Resource > messaging-queue > Edit
-# ═══════════════════════════════════════════════════════════════════════════════
-
 page:
+  name: EntityLayout
   tabs:
 
     - name: Overview
+      path: /
+      title: Overview
       contents:
+        - component: EntityOrphanWarning
+        - component: EntityRelationWarning
+        - component: EntityProcessingErrorsPanel
 
         - component: EntityAboutCard
           specs:
@@ -24,69 +24,9 @@ page:
             gridProps:
               md: 6
 
-        - component: EntityAdditionalInfoCard
-          specs:
-            props:
-              title: Message Queue Details
-              items:
-                - label: Type
-                  value: <+metadata.annotations['bank.com/mq-type']>
-                  type: string
-                  style:
-                    bold: true
-                - label: Version
-                  value: <+metadata.annotations['bank.com/mq-version']>
-                  type: string
-                - label: Host
-                  value: <+metadata.annotations['bank.com/mq-host']>
-                  type: string
-                - label: Port
-                  value: <+metadata.annotations['bank.com/mq-port']>
-                  type: string
-                - label: VHost
-                  value: <+metadata.annotations['bank.com/mq-vhost']>
-                  type: string
-                - label: Exchange
-                  value: <+metadata.annotations['bank.com/mq-exchange']>
-                  type: string
-                - label: Exchange Type
-                  value: <+metadata.annotations['bank.com/mq-exchange-type']>
-                  type: string
-                - label: Routing Keys
-                  value: <+metadata.annotations['bank.com/mq-routing-keys']>
-                  type: string
-                - label: DLQ Enabled
-                  value: <+metadata.annotations['bank.com/mq-dlq-enabled']>
-                  type: string
-                - label: DLQ Retention (days)
-                  value: <+metadata.annotations['bank.com/mq-dlq-retention-days']>
-                  type: string
-                - label: Environment
-                  value: <+metadata.annotations['bank.com/mq-environment']>
-                  type: string
-                - label: SYS ID
-                  value: <+metadata.annotations['bank.com/sysid']>
-                  type: string
-                - label: Team
-                  value: <+metadata.annotations['bank.com/team']>
-                  type: string
-            gridProps:
-              md: 6
-
-        - component: EntityAdditionalInfoCard
-          specs:
-            props:
-              title: Consumers
-              items:
-                - label: Consumed By
-                  value: <+metadata.annotations['bank.com/mq-consumed-by']>
-                  type: string
-                  style:
-                    bold: true
-            gridProps:
-              md: 6
-
     - name: Dependencies
+      path: /dependencies
+      title: Dependencies
       contents:
         - component: EntityDependsOnComponentsCard
           specs:

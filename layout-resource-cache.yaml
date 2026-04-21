@@ -1,14 +1,14 @@
-# ═══════════════════════════════════════════════════════════════════════════════
-# Catalog Entity Layout — kind: Resource, spec.type: cache
-#
-# Paste into Harness IDP > Admin > Layout > Resource > cache > Edit
-# ═══════════════════════════════════════════════════════════════════════════════
-
 page:
+  name: EntityLayout
   tabs:
 
     - name: Overview
+      path: /
+      title: Overview
       contents:
+        - component: EntityOrphanWarning
+        - component: EntityRelationWarning
+        - component: EntityProcessingErrorsPanel
 
         - component: EntityAboutCard
           specs:
@@ -24,53 +24,9 @@ page:
             gridProps:
               md: 6
 
-        - component: EntityAdditionalInfoCard
-          specs:
-            props:
-              title: Cache Details
-              items:
-                - label: Engine
-                  value: <+metadata.annotations['bank.com/cache-engine']>
-                  type: string
-                  style:
-                    bold: true
-                - label: Version
-                  value: <+metadata.annotations['bank.com/cache-version']>
-                  type: string
-                - label: Host
-                  value: <+metadata.annotations['bank.com/cache-host']>
-                  type: string
-                - label: Port
-                  value: <+metadata.annotations['bank.com/cache-port']>
-                  type: string
-                - label: Node Type
-                  value: <+metadata.annotations['bank.com/cache-node-type']>
-                  type: string
-                - label: Replicas
-                  value: <+metadata.annotations['bank.com/cache-replica-count']>
-                  type: string
-                - label: TTL Session (s)
-                  value: <+metadata.annotations['bank.com/cache-ttl-session-s']>
-                  type: string
-                - label: TTL Idempotency (s)
-                  value: <+metadata.annotations['bank.com/cache-ttl-idempotency-s']>
-                  type: string
-                - label: Encryption In Transit
-                  value: <+metadata.annotations['bank.com/cache-encryption-transit']>
-                  type: string
-                - label: Environment
-                  value: <+metadata.annotations['bank.com/cache-environment']>
-                  type: string
-                - label: SYS ID
-                  value: <+metadata.annotations['bank.com/sysid']>
-                  type: string
-                - label: Team
-                  value: <+metadata.annotations['bank.com/team']>
-                  type: string
-            gridProps:
-              md: 12
-
     - name: Dependencies
+      path: /dependencies
+      title: Dependencies
       contents:
         - component: EntityDependsOnComponentsCard
           specs:

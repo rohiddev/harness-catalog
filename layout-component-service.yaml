@@ -2,7 +2,6 @@ page:
   name: EntityLayout
   tabs:
 
-    # ── Overview ───────────────────────────────────────────────────────────────
     - name: Overview
       path: /
       title: Overview
@@ -18,8 +17,11 @@ page:
             gridProps:
               md: 6
 
-        - component: EntityScoreCard
+        - component: EntityLinksCard
           specs:
+            props:
+              variant: gridItem
+              height: 400
             gridProps:
               md: 6
 
@@ -29,18 +31,9 @@ page:
               variant: gridItem
               height: 400
             gridProps:
-              md: 6
+              md: 12
               xs: 12
 
-        - component: EntityLinksCard
-          specs:
-            props:
-              variant: gridItem
-              height: 400
-            gridProps:
-              md: 6
-
-    # ── CI/CD ──────────────────────────────────────────────────────────────────
     - name: CI/CD
       path: /ci-cd
       title: CI/CD
@@ -59,7 +52,6 @@ page:
                         missing: info
                         description: Add the harness.io/project-url annotation to enable CI/CD.
 
-    # ── Scorecard ──────────────────────────────────────────────────────────────
     - name: Scorecard
       path: /scorecard
       title: Scorecard
@@ -69,7 +61,6 @@ page:
             gridProps:
               md: 12
 
-    # ── API ────────────────────────────────────────────────────────────────────
     - name: API
       path: /api
       title: API
@@ -84,7 +75,6 @@ page:
             gridProps:
               md: 12
 
-    # ── Dependencies ───────────────────────────────────────────────────────────
     - name: Dependencies
       path: /dependencies
       title: Dependencies
@@ -94,16 +84,15 @@ page:
             props:
               variant: gridItem
             gridProps:
-              md: 12
+              md: 6
 
         - component: EntityDependsOnResourcesCard
           specs:
             props:
               variant: gridItem
             gridProps:
-              md: 12
+              md: 6
 
-    # ── Docs ───────────────────────────────────────────────────────────────────
     - name: TechDocs
       path: /docs
       title: Docs
