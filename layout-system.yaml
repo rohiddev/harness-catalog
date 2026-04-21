@@ -1,14 +1,14 @@
-# ═══════════════════════════════════════════════════════════════════════════════
-# Catalog Entity Layout — kind: System
-#
-# Paste into Harness IDP > Admin > Layout > System > Edit
-# ═══════════════════════════════════════════════════════════════════════════════
-
 page:
+  name: EntityLayout
   tabs:
 
     - name: Overview
+      path: /
+      title: Overview
       contents:
+        - component: EntityOrphanWarning
+        - component: EntityRelationWarning
+        - component: EntityProcessingErrorsPanel
 
         - component: EntityAboutCard
           specs:
@@ -21,120 +21,22 @@ page:
           specs:
             props:
               variant: gridItem
+              height: 400
             gridProps:
               md: 6
 
-        # Ownership & compliance
-        - component: EntityAdditionalInfoCard
+        - component: EntityCatalogGraphCard
           specs:
             props:
-              title: Ownership & Compliance
-              items:
-                - label: SYS ID
-                  value: <+metadata.annotations['bank.com/sysid']>
-                  type: string
-                  style:
-                    bold: true
-                - label: App Key
-                  value: <+metadata.annotations['bank.com/app-key']>
-                  type: string
-                - label: Domain
-                  value: <+metadata.annotations['bank.com/domain']>
-                  type: string
-                - label: Tier
-                  value: <+metadata.annotations['bank.com/tier']>
-                  type: string
-                  style:
-                    bold: true
-                - label: Product Owner
-                  value: <+metadata.annotations['bank.com/product-owner']>
-                  type: string
-                - label: Tech Lead
-                  value: <+metadata.annotations['bank.com/tech-lead']>
-                  type: string
-                - label: Team
-                  value: <+metadata.annotations['bank.com/team']>
-                  type: string
-                - label: Email DL
-                  value: <+metadata.annotations['bank.com/email-dl']>
-                  type: string
-                - label: On-Call Schedule
-                  value: <+metadata.annotations['bank.com/oncall-schedule']>
-                  type: link
-                - label: Data Classification
-                  value: <+metadata.annotations['bank.com/data-classification']>
-                  type: string
-                  style:
-                    bold: true
-                - label: SOX In Scope
-                  value: <+metadata.annotations['bank.com/sox-in-scope']>
-                  type: string
-                - label: GDPR In Scope
-                  value: <+metadata.annotations['bank.com/gdpr-in-scope']>
-                  type: string
-                - label: Last Pen Test
-                  value: <+metadata.annotations['bank.com/last-pen-test']>
-                  type: string
-                - label: Last DR Test
-                  value: <+metadata.annotations['bank.com/last-dr-test']>
-                  type: string
-                - label: RTO (hours)
-                  value: <+metadata.annotations['bank.com/rto-hours']>
-                  type: string
-                - label: RPO (hours)
-                  value: <+metadata.annotations['bank.com/rpo-hours']>
-                  type: string
+              variant: gridItem
+              height: 400
             gridProps:
-              md: 6
-
-        # Platform & SLA info
-        - component: EntityAdditionalInfoCard
-          specs:
-            props:
-              title: Platform & SLA
-              items:
-                - label: Cloud Provider
-                  value: <+metadata.annotations['bank.com/cloud-provider']>
-                  type: string
-                - label: Region
-                  value: <+metadata.annotations['bank.com/cloud-region']>
-                  type: string
-                - label: Environment
-                  value: <+metadata.annotations['bank.com/deploy-env']>
-                  type: string
-                - label: Service Count
-                  value: <+metadata.annotations['bank.com/service-count']>
-                  type: string
-                - label: API Gateway
-                  value: <+metadata.annotations['bank.com/api-gateway']>
-                  type: link
-                - label: Architecture Diagram
-                  value: <+metadata.annotations['bank.com/architecture-diagram']>
-                  type: link
-                - label: SLA Uptime
-                  value: <+metadata.annotations['bank.com/sla-uptime']>
-                  type: string
-                  style:
-                    bold: true
-                - label: SLA Latency P99 (ms)
-                  value: <+metadata.annotations['bank.com/sla-latency-p99-ms']>
-                  type: string
-                - label: SLA RPS
-                  value: <+metadata.annotations['bank.com/sla-rps']>
-                  type: string
-                - label: Jira Project
-                  value: <+metadata.annotations['bank.com/jira-project']>
-                  type: link
-                - label: Roadmap
-                  value: <+metadata.annotations['bank.com/roadmap']>
-                  type: link
-                - label: Changelog
-                  value: <+metadata.annotations['bank.com/changelog']>
-                  type: link
-            gridProps:
-              md: 6
+              md: 12
+              xs: 12
 
     - name: Components
+      path: /components
+      title: Components
       contents:
         - component: EntityHasComponentsCard
           specs:
@@ -144,6 +46,8 @@ page:
               md: 12
 
     - name: APIs
+      path: /apis
+      title: APIs
       contents:
         - component: EntityHasApisCard
           specs:
@@ -153,6 +57,8 @@ page:
               md: 12
 
     - name: Resources
+      path: /resources
+      title: Resources
       contents:
         - component: EntityHasResourcesCard
           specs:
@@ -160,3 +66,9 @@ page:
               variant: gridItem
             gridProps:
               md: 12
+
+    - name: TechDocs
+      path: /docs
+      title: Docs
+      contents:
+        - component: EntityTechdocsContent

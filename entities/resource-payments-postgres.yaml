@@ -1,0 +1,19 @@
+apiVersion: harness.io/v1
+kind: Resource
+metadata:
+  name: payments-postgres
+  title: Payments PostgreSQL DB
+  description: >
+    Primary transactional store for payments-service.
+    PostgreSQL 14 on AWS RDS. Multi-AZ, 35-day backup retention.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - postgresql
+    - rds
+    - database
+    - sysid-00000
+spec:
+  type: database
+  owner: group:default/team-payments
+  system: payments-platform

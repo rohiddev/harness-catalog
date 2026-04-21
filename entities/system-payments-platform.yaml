@@ -1,0 +1,32 @@
+apiVersion: harness.io/v1
+kind: System
+metadata:
+  name: payments-platform
+  title: Payments Platform
+  description: >
+    End-to-end payments processing platform covering payment initiation,
+    fraud detection, ledger posting and event publishing.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    jira/project-key: PAY
+  tags:
+    - payments
+    - core-banking
+    - tier-1
+    - sysid-00000
+  links:
+    - url: https://confluence.bank.com/display/PAY
+      title: Confluence Space
+      icon: docs
+    - url: https://confluence.bank.com/display/PAY/architecture
+      title: Architecture Diagram
+      icon: scaffolder
+    - url: https://runbooks.bank.com/payments-platform
+      title: Platform Runbook
+      icon: book
+    - url: https://jira.bank.com/projects/PAY
+      title: Jira Project
+      icon: bug
+spec:
+  owner: group:default/team-payments
+  domain: banking

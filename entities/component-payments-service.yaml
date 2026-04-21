@@ -1,0 +1,64 @@
+apiVersion: harness.io/v1
+kind: Component
+metadata:
+  name: payments-service
+  title: Payments Service
+  description: >
+    Processes payment transactions, validates against fraud rules,
+    posts to the ledger and publishes lifecycle events to Kafka.
+  annotations:
+    github.com/project-slug: bank-org/payments-service
+    backstage.io/techdocs-ref: dir:.
+    backstage.io/source-location: url:https://github.com/bank-org/payments-service
+    harness.io/project-url: https://app.harness.io/ng/account/<account-id>/module/ci/orgs/default/projects/SYSID-00000/pipelines
+    harness.io/pipelines: payments-deploy,payments-ci
+    backstage.io/kubernetes-id: payments-service
+    backstage.io/kubernetes-namespace: payments-p
+    pagerduty.com/service-id: PABC123
+    datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments
+    sonarqube.org/project-key: payments-service
+    harness.io/sei-project-id: SYSID-00000
+    jira/project-key: PAY
+    bank.com/sysid: SYSID-00000
+  tags:
+    - java
+    - spring-boot
+    - payments
+    - tier-1
+    - sysid-00000
+  links:
+    - url: https://runbooks.bank.com/payments-service
+      title: Runbook
+      icon: book
+    - url: https://app.datadoghq.com/dashboard/payments
+      title: Datadog
+      icon: dashboard
+    - url: https://sonar.bank.com/project?id=payments-service
+      title: SonarQube
+      icon: quality
+    - url: https://confluence.bank.com/display/PAY/payments-service
+      title: Confluence
+      icon: docs
+    - url: https://oncall.bank.com/payments
+      title: On-Call Schedule
+      icon: group
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+  providesApis:
+    - payments-rest-api
+    - payments-ftp-outbound
+    - payments-kafka-producer
+  consumesApis:
+    - auth-api
+    - fraud-detection-api
+    - ledger-api
+    - payments-ftp-inbound
+    - payments-kafka-consumer
+  dependsOn:
+    - resource:default/payments-postgres
+    - resource:default/payments-redis
+    - resource:default/payments-ftp
+    - resource:default/payments-kafka

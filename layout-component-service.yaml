@@ -1,18 +1,15 @@
-# ═══════════════════════════════════════════════════════════════════════════════
-# Catalog Entity Layout — kind: Component, spec.type: service
-#
-# Paste this YAML into Harness IDP > Admin > Layout > Component > service > Edit
-# Tabs: Overview | Dependencies | API | Kubernetes | CI/CD | Datadog | SEI | Scorecard | Docs
-# ═══════════════════════════════════════════════════════════════════════════════
-
 page:
+  name: EntityLayout
   tabs:
 
-    # ── Overview ───────────────────────────────────────────────────────────────
     - name: Overview
+      path: /
+      title: Overview
       contents:
+        - component: EntityOrphanWarning
+        - component: EntityRelationWarning
+        - component: EntityProcessingErrorsPanel
 
-        # Row 1: About card (left) + Links card (right)
         - component: EntityAboutCard
           specs:
             props:
@@ -24,111 +21,68 @@ page:
           specs:
             props:
               variant: gridItem
+              height: 400
             gridProps:
               md: 6
 
-        # Row 2: Ownership & compliance info
-        - component: EntityAdditionalInfoCard
+        - component: EntityCatalogGraphCard
           specs:
             props:
-              title: Ownership & Compliance
-              items:
-                - label: SYS ID
-                  value: <+metadata.annotations['bank.com/sysid']>
-                  type: string
-                - label: App Key
-                  value: <+metadata.annotations['harness.io/app-key']>
-                  type: string
-                - label: Team
-                  value: <+metadata.annotations['bank.com/team']>
-                  type: string
-                - label: Tier
-                  value: <+metadata.annotations['bank.com/tier']>
-                  type: string
-                - label: Data Classification
-                  value: <+metadata.annotations['bank.com/data-classification']>
-                  type: string
-                  style:
-                    bold: true
-                - label: SOX In Scope
-                  value: <+metadata.annotations['bank.com/sox-in-scope']>
-                  type: string
-                - label: Last Pen Test
-                  value: <+metadata.annotations['bank.com/last-pen-test']>
-                  type: string
-                - label: Email DL
-                  value: <+metadata.annotations['bank.com/email-dl']>
-                  type: string
-                - label: On-Call Schedule
-                  value: <+metadata.annotations['bank.com/oncall-schedule']>
-                  type: link
+              variant: gridItem
+              height: 400
             gridProps:
-              md: 6
+              md: 12
+              xs: 12
 
-        # Row 2 right: Deployment info
-        - component: EntityAdditionalInfoCard
-          specs:
-            props:
-              title: Deployment
-              items:
-                - label: Environment
-                  value: <+metadata.annotations['bank.com/deploy-env']>
-                  type: string
-                - label: Kubernetes Namespace
-                  value: <+metadata.annotations['bank.com/kubernetes-namespace']>
-                  type: string
-                - label: Kubernetes Cluster
-                  value: <+metadata.annotations['bank.com/kubernetes-cluster']>
-                  type: string
-                - label: Container Image
-                  value: <+metadata.annotations['bank.com/container-image']>
-                  type: string
-                - label: Replicas
-                  value: <+metadata.annotations['bank.com/replicas']>
-                  type: string
-                - label: Datadog Dashboard
-                  value: <+metadata.annotations['datadoghq.com/dashboard-url']>
-                  type: link
-                - label: PagerDuty Service
-                  value: <+metadata.annotations['pagerduty.com/service-id']>
-                  type: string
-            gridProps:
-              md: 6
-
-        # Row 3: SonarQube code quality (left) + Scorecard summary (right)
         - component: EntitySonarQubeCard
           specs:
             props:
               variant: gridItem
             gridProps:
-              md: 6
+              md: 12
 
-        - component: EntityScoreCard
-          specs:
-            gridProps:
-              md: 6
-
-    # ── Dependencies ───────────────────────────────────────────────────────────
-    - name: Dependencies
+    - name: CI/CD
+      path: /ci-cd
+      title: CI/CD
       contents:
+        - component: EntityHarnessCiCdContent
 
-        # Visual dependency graph — shows full blast radius as interactive graph
-        - component: EntityCatalogGraphCard
+    - name: Datadog
+      path: /datadog
+      title: Datadog
+      contents:
+        - component: EntityDatadogContent
           specs:
-            props:
-              variant: gridItem
-              title: Dependency Graph
-              maxDepth: 2
-              direction: LR
-              relations:
-                - dependsOn
-                - dependencyOf
-                - providesApis
-                - consumesApis
             gridProps:
               md: 12
 
-        # List cards below graph for detail
+    - name: Scorecard
+      path: /scorecard
+      title: Scorecard
+      contents:
+        - component: EntityScorecardContent
+          specs:
+            gridProps:
+              md: 12
+
+    - name: API
+      path: /api
+      title: API
+      contents:
+        - component: EntityProvidedApisCard
+          specs:
+            gridProps:
+              md: 12
+
+        - component: EntityConsumedApisCard
+          specs:
+            gridProps:
+              md: 12
+
+    - name: Dependencies
+      path: /dependencies
+      title: Dependencies
+      contents:
         - component: EntityDependsOnComponentsCard
           specs:
             props:
@@ -143,94 +97,8 @@ page:
             gridProps:
               md: 6
 
-        - component: EntityHasComponentsCard
-          specs:
-            props:
-              variant: gridItem
-              title: Depended on by (Blast Radius)
-            gridProps:
-              md: 6
-
-        - component: EntityHasApisCard
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 6
-
-    # ── API ────────────────────────────────────────────────────────────────────
-    - name: API
-      contents:
-        - component: EntityProvidedApisCard
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 12
-
-        - component: EntityConsumedApisCard
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 12
-
-    # ── Kubernetes ─────────────────────────────────────────────────────────────
-    - name: Kubernetes
-      contents:
-        - component: EntityKubernetesContent
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 12
-
-    # ── CI/CD ──────────────────────────────────────────────────────────────────
-    - name: CI/CD
-      contents:
-        - component: EntityHarnessCIContent
-          specs:
-            gridProps:
-              md: 12
-
-        - component: EntityHarnessCDContent
-          specs:
-            gridProps:
-              md: 12
-
-    # ── Datadog ────────────────────────────────────────────────────────────────
-    # Requires: datadoghq.com/dashboard-url annotation
-    - name: Datadog
-      contents:
-        - component: EntityDatadogContent
-          specs:
-            gridProps:
-              md: 12
-
-    # ── SEI ────────────────────────────────────────────────────────────────────
-    # DORA metrics: deployment frequency, lead time, MTTR, change failure rate
-    # Requires: harness.io/sei-project-id annotation
-    - name: SEI
-      contents:
-        - component: EntityHarnessSEIContent
-          specs:
-            gridProps:
-              md: 12
-
-    # ── Scorecard ──────────────────────────────────────────────────────────────
-    - name: Scorecard
-      path: /scorecard
-      title: Scorecard
-      contents:
-        - component: EntityScorecardContent
-          specs:
-            gridProps:
-              md: 12
-
-    # ── Docs ───────────────────────────────────────────────────────────────────
-    - name: Docs
+    - name: TechDocs
+      path: /docs
+      title: Docs
       contents:
         - component: EntityTechdocsContent
-          specs:
-            gridProps:
-              md: 12

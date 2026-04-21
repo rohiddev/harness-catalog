@@ -1,0 +1,18 @@
+apiVersion: harness.io/v1
+kind: Resource
+metadata:
+  name: payments-ftp
+  title: Payments FTP Server
+  description: >
+    FTP server used by payments-service for secure file exchange with
+    third-party payment processors and settlement partners.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - ftp
+    - file-transfer
+    - sysid-00000
+spec:
+  type: ftp-server
+  owner: group:default/team-payments
+  system: payments-platform
