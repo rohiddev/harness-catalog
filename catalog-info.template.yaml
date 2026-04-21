@@ -26,7 +26,7 @@
 # skip this section and reference it in spec.system below.
 # One System per platform — not one per service.
 # ─────────────────────────────────────────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: System
 metadata:
   name: <platform-name>                  # REQUIRED  e.g. payments-platform
@@ -58,7 +58,7 @@ spec:
 # REQUIRED — Every repo must have exactly one Component entry.
 # This is the core entity — all other sections link back to this.
 # ─────────────────────────────────────────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: Component
 metadata:
   name: <service-name>                   # REQUIRED  must match GitHub repo name
@@ -150,7 +150,7 @@ spec:
 # OPTIONAL — Include if your service exposes an HTTP/REST API.
 # Remove if your service is a consumer-only worker, batch job, or CLI.
 # ─────────────────────────────────────────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: API
 metadata:
   name: <service-name>-rest-api          # REQUIRED
@@ -216,7 +216,7 @@ spec:
 
 # ── Kafka Producer ────────────────────────────────────────────────────────────
 # OPTIONAL — Include if your service publishes events to Kafka.
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: API
 metadata:
   name: <service-name>-kafka-producer    # REQUIRED
@@ -286,7 +286,7 @@ spec:
 
 # ── FTP Outbound ──────────────────────────────────────────────────────────────
 # OPTIONAL — Include if your service deposits files onto an FTP server.
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: API
 metadata:
   name: <service-name>-ftp-outbound      # REQUIRED
@@ -344,7 +344,7 @@ spec:
 
 # ── Kafka Consumer ────────────────────────────────────────────────────────────
 # OPTIONAL — Include if your service subscribes to Kafka topics.
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: API
 metadata:
   name: <service-name>-kafka-consumer    # REQUIRED
@@ -409,7 +409,7 @@ spec:
 
 # ── FTP Inbound ───────────────────────────────────────────────────────────────
 # OPTIONAL — Include if your service reads files from an FTP server.
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: API
 metadata:
   name: <service-name>-ftp-inbound       # REQUIRED
@@ -469,7 +469,7 @@ spec:
 
 # ── Database ──────────────────────────────────────────────────────────────────
 # OPTIONAL — Include if your service owns a database.
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: Resource
 metadata:
   name: <service-name>-db               # REQUIRED
@@ -493,7 +493,7 @@ spec:
 
 # ── Cache ─────────────────────────────────────────────────────────────────────
 # OPTIONAL — Include if your service owns a cache.
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: Resource
 metadata:
   name: <service-name>-cache            # REQUIRED
@@ -517,7 +517,7 @@ spec:
 # ── Kafka Cluster ─────────────────────────────────────────────────────────────
 # OPTIONAL — Include only if your team OWNS the Kafka cluster.
 # If using the shared company Kafka cluster, reference it via dependsOn only.
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: Resource
 metadata:
   name: <service-name>-kafka            # REQUIRED
@@ -542,7 +542,7 @@ spec:
 # ── FTP Server ────────────────────────────────────────────────────────────────
 # OPTIONAL — Include only if your team OWNS the FTP server.
 # If using a shared FTP server, reference it via dependsOn only.
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: Resource
 metadata:
   name: <service-name>-ftp              # REQUIRED

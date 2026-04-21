@@ -15,7 +15,7 @@
 
 
 # ─── System ──────────────────────────────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: System
 metadata:
   name: payments-platform
@@ -51,7 +51,7 @@ spec:
 ---
 
 # ─── Component — Microservice ────────────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: Component
 metadata:
   name: payments-service
@@ -129,7 +129,7 @@ spec:
 ---
 
 # ─── API ──────────────────────────────────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: API
 metadata:
   name: payments-rest-api
@@ -228,7 +228,7 @@ spec:
 ---
 
 # ─── API — FTP Outbound (producer / AsyncAPI) ────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: API
 metadata:
   name: payments-ftp-outbound
@@ -285,7 +285,7 @@ spec:
 ---
 
 # ─── API — FTP Inbound (consumer / AsyncAPI) ─────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: API
 metadata:
   name: payments-ftp-inbound
@@ -342,7 +342,7 @@ spec:
 ---
 
 # ─── API — Kafka Producer (AsyncAPI) ─────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: API
 metadata:
   name: payments-kafka-producer
@@ -418,7 +418,7 @@ spec:
 ---
 
 # ─── API — Kafka Consumer (AsyncAPI) ─────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: API
 metadata:
   name: payments-kafka-consumer
@@ -491,7 +491,7 @@ spec:
 ---
 
 # ─── Resource — PostgreSQL Database ──────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: Resource
 metadata:
   name: payments-postgres
@@ -514,7 +514,7 @@ spec:
 ---
 
 # ─── Resource — Redis Cache ───────────────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: Resource
 metadata:
   name: payments-redis
@@ -537,7 +537,7 @@ spec:
 ---
 
 # ─── Resource — FTP Server ────────────────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: Resource
 metadata:
   name: payments-ftp
@@ -559,7 +559,7 @@ spec:
 ---
 
 # ─── Resource — Kafka Cluster ─────────────────────────────────────────────────
-apiVersion: backstage.io/v1alpha1
+apiVersion: harness.io/v1
 kind: Resource
 metadata:
   name: payments-kafka
