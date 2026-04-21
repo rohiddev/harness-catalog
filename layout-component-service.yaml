@@ -34,34 +34,25 @@ page:
               title: Ownership & Compliance
               items:
                 - label: SYS ID
-                  value: <+metadata.annotations['bank.com/sysid']>
-                  type: string
-                - label: App Key
-                  value: <+metadata.annotations['harness.io/app-key']>
+                  value: <+metadata.additionalInfo.sysId>
                   type: string
                 - label: Team
-                  value: <+metadata.annotations['bank.com/team']>
+                  value: <+metadata.additionalInfo.team>
                   type: string
                 - label: Tier
-                  value: <+metadata.annotations['bank.com/tier']>
+                  value: <+metadata.additionalInfo.tier>
                   type: string
                 - label: Data Classification
-                  value: <+metadata.annotations['bank.com/data-classification']>
+                  value: <+metadata.additionalInfo.dataClassification>
                   type: string
                   style:
                     bold: true
                 - label: SOX In Scope
-                  value: <+metadata.annotations['bank.com/sox-in-scope']>
-                  type: string
-                - label: Last Pen Test
-                  value: <+metadata.annotations['bank.com/last-pen-test']>
+                  value: <+metadata.additionalInfo.soxInScope>
                   type: string
                 - label: Email DL
-                  value: <+metadata.annotations['bank.com/email-dl']>
+                  value: <+metadata.additionalInfo.emailDl>
                   type: string
-                - label: On-Call Schedule
-                  value: <+metadata.annotations['bank.com/oncall-schedule']>
-                  type: link
             gridProps:
               md: 6
 
@@ -72,25 +63,16 @@ page:
               title: Deployment
               items:
                 - label: Environment
-                  value: <+metadata.annotations['bank.com/deploy-env']>
+                  value: <+metadata.additionalInfo.deployEnv>
                   type: string
                 - label: Kubernetes Namespace
-                  value: <+metadata.annotations['bank.com/kubernetes-namespace']>
+                  value: <+metadata.additionalInfo.kubernetesNamespace>
                   type: string
                 - label: Kubernetes Cluster
-                  value: <+metadata.annotations['bank.com/kubernetes-cluster']>
+                  value: <+metadata.additionalInfo.kubernetesCluster>
                   type: string
                 - label: Container Image
-                  value: <+metadata.annotations['bank.com/container-image']>
-                  type: string
-                - label: Replicas
-                  value: <+metadata.annotations['bank.com/replicas']>
-                  type: string
-                - label: Datadog Dashboard
-                  value: <+metadata.annotations['datadoghq.com/dashboard-url']>
-                  type: link
-                - label: PagerDuty Service
-                  value: <+metadata.annotations['pagerduty.com/service-id']>
+                  value: <+metadata.additionalInfo.containerImage>
                   type: string
             gridProps:
               md: 6
@@ -219,8 +201,6 @@ page:
 
     # ── Scorecard ──────────────────────────────────────────────────────────────
     - name: Scorecard
-      path: /scorecard
-      title: Scorecard
       contents:
         - component: EntityScorecardContent
           specs:
