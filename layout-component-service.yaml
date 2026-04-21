@@ -34,11 +34,27 @@ page:
               md: 12
               xs: 12
 
+        - component: EntitySonarQubeCard
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 12
+
     - name: CI/CD
       path: /ci-cd
       title: CI/CD
       contents:
         - component: EntityHarnessCiCdContent
+
+    - name: Datadog
+      path: /datadog
+      title: Datadog
+      contents:
+        - component: EntityDatadogContent
+          specs:
+            gridProps:
+              md: 12
 
     - name: Scorecard
       path: /scorecard
