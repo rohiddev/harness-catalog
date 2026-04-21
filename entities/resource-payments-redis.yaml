@@ -1,0 +1,19 @@
+apiVersion: harness.io/v1
+kind: Resource
+metadata:
+  name: payments-redis
+  title: Payments Redis Cache
+  description: >
+    Session cache and idempotency key store for payments-service.
+    Redis 7 on AWS ElastiCache. 2 read replicas, in-transit encryption.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - redis
+    - cache
+    - elasticache
+    - sysid-00000
+spec:
+  type: cache
+  owner: group:default/team-payments
+  system: payments-platform

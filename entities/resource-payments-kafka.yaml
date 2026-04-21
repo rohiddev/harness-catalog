@@ -1,0 +1,20 @@
+apiVersion: harness.io/v1
+kind: Resource
+metadata:
+  name: payments-kafka
+  title: Payments Kafka Cluster
+  description: >
+    Kafka cluster used by payments-service for publishing payment lifecycle
+    events and consuming fraud decisions and ledger confirmations.
+    SASL/SCRAM-SHA-256 auth, TLS in transit. Managed by platform team.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - kafka
+    - messaging
+    - events
+    - sysid-00000
+spec:
+  type: messaging-queue
+  owner: group:default/team-payments
+  system: payments-platform

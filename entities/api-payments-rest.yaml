@@ -1,0 +1,95 @@
+apiVersion: harness.io/v1
+kind: API
+metadata:
+  name: payments-rest-api
+  title: Payments REST API
+  description: >
+    REST API for payment initiation, status queries and refunds.
+    Protected by OAuth2. Rate limited to 1000 req/min per client.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - rest
+    - openapi
+    - payments
+    - oauth2
+    - sysid-00000
+  links:
+    - url: https://api-docs.bank.com/payments
+      title: API Docs
+      icon: docs
+    - url: https://postman.bank.com/payments-api
+      title: Postman Collection
+      icon: scaffolder
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+  definition: |
+    openapi: "3.0.0"
+    info:
+      title: Payments API
+      version: "2.1.0"
+      description: REST API for payment initiation and management
+    servers:
+      - url: https://api.bank.com/payments
+    security:
+      - oauth2: [payments.write, payments.read]
+    paths:
+      /v2/payments:
+        post:
+          operationId: initiatePayment
+          summary: Initiate a payment
+          tags: [Payments]
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  required: [amount, currency, destinationAccount]
+                  properties:
+                    amount:
+                      type: number
+                      example: 1500.00
+                    currency:
+                      type: string
+                      example: USD
+                    destinationAccount:
+                      type: string
+                      example: "ACC-000123"
+                    reference:
+                      type: string
+          responses:
+            '202':
+              description: Payment accepted for processing
+            '400':
+              description: Invalid request
+            '422':
+              description: Business rule violation
+      /v2/payments/{id}:
+        get:
+          operationId: getPaymentStatus
+          summary: Get payment status
+          tags: [Payments]
+          parameters:
+            - name: id
+              in: path
+              required: true
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Payment details
+            '404':
+              description: Payment not found
+      /v2/payments/{id}/refund:
+        post:
+          operationId: refundPayment
+          summary: Refund a payment
+          tags: [Payments]
+          responses:
+            '202':
+              description: Refund initiated

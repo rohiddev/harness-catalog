@@ -1,0 +1,69 @@
+apiVersion: harness.io/v1
+kind: API
+metadata:
+  name: payments-kafka-consumer
+  title: Payments Kafka Consumer
+  description: >
+    Async event stream consumed by payments-service. Subscribes to fraud
+    decisions from fraud-detection-service and ledger confirmations from
+    ledger-service to complete payment processing.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - kafka
+    - asyncapi
+    - events
+    - consumer
+    - sysid-00000
+spec:
+  type: asyncapi
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments Kafka Consumer
+      version: "1.0.0"
+      description: >
+        Kafka topics consumed by payments-service. Fraud decisions and ledger
+        confirmations are consumed to drive payment state transitions.
+    servers:
+      production:
+        url: kafka.bank.com:9092
+        protocol: kafka
+        description: Production Kafka cluster
+        security:
+          - saslScram: []
+    channels:
+      fraud.events.fraud-decision:
+        description: Fraud decision events published by fraud-detection-service
+        subscribe:
+          summary: Consume fraud decision
+          bindings:
+            kafka:
+              topic: fraud.events.fraud-decision
+              groupId: payments-service-fraud-consumer
+          message:
+            name: FraudDecision
+            contentType: application/json
+            payload:
+              type: object
+              required: [txnId, decision, score, decidedAt]
+              properties:
+                txnId:
+                  type: string
+                decision:
+                  type: string
+                  enum: [APPROVE, BLOCK, REVIEW]
+                score:
+                  type: number
+                decidedAt:
+                  type: string
+                  format: date-time
+    components:
+      securitySchemes:
+        saslScram:
+          type: scramSha256
+          description: SASL/SCRAM-SHA-256 authentication

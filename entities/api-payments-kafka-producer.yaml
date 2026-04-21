@@ -1,0 +1,72 @@
+apiVersion: harness.io/v1
+kind: API
+metadata:
+  name: payments-kafka-producer
+  title: Payments Kafka Producer
+  description: >
+    Async event stream produced by payments-service. Publishes payment lifecycle
+    events to Kafka topics for consumption by downstream services such as
+    notifications, reporting and audit.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - kafka
+    - asyncapi
+    - events
+    - producer
+    - sysid-00000
+spec:
+  type: asyncapi
+  lifecycle: production
+  owner: group:default/team-payments
+  system: payments-platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments Kafka Producer
+      version: "1.0.0"
+      description: >
+        Payment lifecycle events published by payments-service to Kafka.
+        Consumers include notification-service, audit-service and reporting-service.
+    servers:
+      production:
+        url: kafka.bank.com:9092
+        protocol: kafka
+        description: Production Kafka cluster
+        security:
+          - saslScram: []
+    channels:
+      payments.events.payment-completed:
+        description: Published when a payment is successfully processed and settled
+        publish:
+          summary: Payment completed event
+          bindings:
+            kafka:
+              topic: payments.events.payment-completed
+              partitions: 12
+              replicas: 3
+          message:
+            name: PaymentCompleted
+            contentType: application/json
+            payload:
+              type: object
+              required: [eventId, txnId, amount, currency, completedAt]
+              properties:
+                eventId:
+                  type: string
+                txnId:
+                  type: string
+                amount:
+                  type: number
+                currency:
+                  type: string
+                  example: USD
+                completedAt:
+                  type: string
+                  format: date-time
+    components:
+      securitySchemes:
+        saslScram:
+          type: scramSha256
+          description: SASL/SCRAM-SHA-256 authentication
