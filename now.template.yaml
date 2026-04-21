@@ -1,97 +1,75 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# now.yaml — Golden Template  v1.0
+# now.yaml — Golden Template  v2.0
 # Owner: Platform Engineering | Last updated: 2026-04-20
 #
 # HOW TO USE
-#   1. Copy this file to your repo root as now.yaml
-#   2. Fill every field marked # REQUIRED
-#   3. Remove relationship sections that do not apply to your service
-#   4. Commit and push to master — RapDev webhook fires automatically
-#   5. Verify cmdb_rel_ci rows appear in ServiceNow within 60 seconds
+#   1. Copy this file → save as now.yaml in your repo root
+#   2. Fill sysId, name, projectName
+#   3. Under each section, list only what applies — remove sections you don't use
+#   4. Push to master — RapDev fires automatically, ServiceNow updated within 60s
 #
 # RULES
 #   - Declare what WE depend on — not who depends on us
-#   - 1-hop only — direct dependencies only, no transitive chains
-#   - One now.yaml per repo
-#   - sysId here MUST match bank.com/sysid in catalog-info.yaml
+#   - 1 hop only — direct dependencies only
+#   - sysId must match bank.com/sysid in catalog-info.yaml
 #
-# REFERENCE EXAMPLE
-#   See now.yaml (payments-service) for a fully worked example
+# REFERENCE EXAMPLE  →  now.yaml (payments-service)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 apiVersion: csdm/v1
 kind: BusinessService
 
-# ── Service Identity ──────────────────────────────────────────────────────────
 metadata:
-  sysId: <SYSID-NNNNN>             # REQUIRED  e.g. SYSID-00000 — must match catalog-info.yaml bank.com/sysid
-  name: <service-name>             # REQUIRED  e.g. payments-service — must match GitHub repo name
-  projectName: <Project Name>      # REQUIRED  e.g. Payments Service — human-readable display name
+  sysId: <SYSID-NNNNN>             # REQUIRED  e.g. SYSID-00000
+  name: <service-name>             # REQUIRED  e.g. payments-service
+  projectName: <Project Name>      # REQUIRED  e.g. Payments Service
 
-relationships:
+dependencies:
 
-  # ── APIs — outbound REST/SOAP calls ─────────────────────────────────────────
-  # INCLUDE: every service this service calls over HTTP/REST/SOAP
-  # EXCLUDE: services that call US (they declare us in their own now.yaml)
-  # REMOVE THIS SECTION if this service makes no outbound API calls
+  # ── APIs — services this service calls over REST/SOAP ────────────────────────
+  # Remove this section if this service makes no outbound API calls.
 
-  - target: <target-service-name>            # REQUIRED  CI name in ServiceNow cmdb_ci
-    type: "Calls::Called by"
-    targetClass: cmdb_ci_service
-    protocol: REST                           # OPTIONAL  REST | SOAP | GraphQL | gRPC
-    description: "<what this call does>"     # OPTIONAL  e.g. "OAuth2 token validation"
-
-  # Add more API entries as needed — one entry per service called
+  apis:
+    - target: <service-name>       # REQUIRED  name of the service being called
+      description: "<why>"         # OPTIONAL  e.g. "OAuth2 token validation"
 
   # ── Databases ────────────────────────────────────────────────────────────────
-  # INCLUDE: every database, data store, or cache this service reads/writes
-  # REMOVE THIS SECTION if this service has no direct database connections
+  # Remove this section if this service has no direct database connections.
 
-  - target: <db-name>                        # REQUIRED  e.g. payments-postgres
-    type: "Depends on::Used by"
-    targetClass: cmdb_ci_db_instance         # REQUIRED  cmdb_ci_db_instance | cmdb_ci_cache | cmdb_ci_nosql_instance
-    description: "<what this DB stores>"     # OPTIONAL  e.g. "Primary transactional store"
+  databases:
+    - target: <db-name>            # REQUIRED  e.g. payments-postgres
+      engine: <engine>             # OPTIONAL  postgresql | mysql | oracle | mssql | redis | mongodb
+      description: "<what it stores>"
 
-  # targetClass options by DB type:
-  #   PostgreSQL, MySQL, Oracle, MSSQL  → cmdb_ci_db_instance
-  #   Redis, Memcached                  → cmdb_ci_cache
-  #   MongoDB, DynamoDB, Cosmos         → cmdb_ci_nosql_instance
-  #   Elasticsearch, OpenSearch         → cmdb_ci_db_instance
+  # ── Kafka ────────────────────────────────────────────────────────────────────
+  # Remove produces or consumes if not applicable.
+  # Remove this section if this service does not use Kafka.
 
-  # ── Message Queue / Kafka ────────────────────────────────────────────────────
-  # INCLUDE: every Kafka cluster, RabbitMQ, SQS, or MQ broker this service connects to
-  # List ALL topics this service produces AND consumes under a single entry per broker
-  # REMOVE THIS SECTION if this service does not use message queuing
+  kafka:
+    - target: <kafka-cluster-name> # REQUIRED  e.g. payments-kafka
+      produces:                    # OPTIONAL  topics this service publishes to
+        - <topic-name>
+      consumes:                    # OPTIONAL  topics this service subscribes to
+        - <topic-name>
+      description: "<what events>"
 
-  - target: <kafka-cluster-name>             # REQUIRED  e.g. payments-kafka
-    type: "Depends on::Used by"
-    targetClass: cmdb_ci_message_broker      # REQUIRED  cmdb_ci_message_broker | cmdb_ci_mq_server
-    producerTopics:                          # OPTIONAL  topics this service publishes to
-      - <topic-name>                         # e.g. payments.events.payment-completed
-    consumerTopics:                          # OPTIONAL  topics this service subscribes to
-      - <topic-name>                         # e.g. fraud.events.fraud-decision
-    consumerGroup: <consumer-group-id>       # OPTIONAL  e.g. payments-service-fraud-consumer
-    description: "<what events flow>"        # OPTIONAL
+  # ── Message Queue (IBM MQ / RabbitMQ) ────────────────────────────────────────
+  # Remove this section if this service does not use a traditional MQ broker.
 
-  # targetClass options:
-  #   Kafka                → cmdb_ci_message_broker
-  #   RabbitMQ, IBM MQ     → cmdb_ci_mq_server
-  #   AWS SQS / SNS        → cmdb_ci_message_broker
+  mq:
+    - target: <mq-broker-name>     # REQUIRED  e.g. payments-ibmmq
+      sends:                       # OPTIONAL  queues this service puts messages on
+        - <queue-name>
+      receives:                    # OPTIONAL  queues this service reads from
+        - <queue-name>
+      description: "<what messages>"
 
-  # If producer-only (no subscriptions): omit consumerTopics and consumerGroup
-  # If consumer-only (no publishing):    omit producerTopics
+  # ── FTP / SFTP ───────────────────────────────────────────────────────────────
+  # Remove outbound or inbound if not applicable.
+  # Remove this section if this service does not use FTP file exchange.
 
-  # ── FTP / SFTP — file exchange ───────────────────────────────────────────────
-  # INCLUDE: every FTP/SFTP server this service reads from or writes to
-  # List ALL paths — both outbound and inbound — under a single entry per server
-  # REMOVE THIS SECTION if this service does not use FTP file exchange
-
-  - target: <ftp-server-name>                # REQUIRED  e.g. payments-ftp
-    type: "Depends on::Used by"
-    targetClass: cmdb_ci_ftp_server
-    outboundPath: <path>                     # OPTIONAL  path where this service deposits files
-    inboundPath: <path>                      # OPTIONAL  path where this service collects files
-    description: "<what files exchange>"     # OPTIONAL
-
-  # If outbound-only (writes only):  omit inboundPath
-  # If inbound-only (reads only):    omit outboundPath
+  ftp:
+    - target: <ftp-server-name>    # REQUIRED  e.g. payments-ftp
+      outbound: <path>             # OPTIONAL  path where this service deposits files
+      inbound: <path>              # OPTIONAL  path where this service collects files
+      description: "<what files>"
