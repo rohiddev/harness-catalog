@@ -38,19 +38,7 @@ page:
       path: /ci-cd
       title: CI/CD
       contents:
-        - component: EntitySwitch
-          specs:
-            cases:
-              - if: isHarnessCICdAvailable
-                content:
-                  - component: EntityHarnessCiCdContent
-              - content:
-                  - component: EmptyState
-                    specs:
-                      props:
-                        title: No CI/CD available for this entity
-                        missing: info
-                        description: Add the harness.io/project-url annotation to enable CI/CD.
+        - component: EntityHarnessCiCdContent
 
     - name: Scorecard
       path: /scorecard
