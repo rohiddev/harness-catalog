@@ -1,0 +1,114 @@
+Testing complex applications (e.g., OLB, Payments) is difficult because:
+* They depend on multiple subsystems (API Gateway, MQ, downstream services)
+* QA environments do not reflect real integration complexity
+* Shared environments cause conflicts and slow testing
+
+
+Create on-demand ephemeral environments that:
+* Spin up a full version of the application stack
+* Include all required dependencies:
+    * API Gateway
+    * MQ
+    * dependent services
+* Are isolated from QA and Production
+
+Example (OLB Use Case)
+For OLB testing:
+* Create a namespaced version of OLB
+* Route traffic via:
+    * PAICX / Glue Gateway
+* Deploy all dependent applications
+* Ensure it connects to:
+    * a dedicated test version, not QA
+
+Key Capabilities
+* 🔁 Full orchestration
+    * Entire stack deployed together
+* ⚡ Fail-fast testing
+    * Detect issues early across dependencies
+* 🔍 Dedicated observability
+    * Environment-specific dashboards
+    * Isolated metrics/logs
+* ☁️ Ephemeral lifecycle
+    * Create on demand
+    * Destroy after use
+
+Architecture Principle
+Each test environment is:
+* Independent
+* Version-specific
+* Isolated from QA/Prod
+* Fully observable
+
+
+Execution Model
+* Developer/Test team requests environment
+* Platform provisions full stack automatically
+* Testing executed
+* Environment destroyed after completion
+
+
+Outcome
+* Faster testing cycles
+* Reduced dependency conflicts
+* Better production parity
+* Improved reliability of releases
+
+========
+This maps directly to what IDP already does. No new tooling needed.
+
+Developer submits "Create Test Environment" IDP workflow
+↓  fields: application, branch, dependency set, TTL (2h/4h/8h)
+Harness Pipeline — Provision stage
+- Create Kubernetes namespace  ns-{app}-{user}-{timestamp}
+- Deploy service images from branch
+- Deploy dependency stack (containerised services + MQ + DB)
+- Seed test data from approved dataset
+- Configure gateway routing for namespace
+- Register entity in IDP Catalog (status: Provisioning → Running)
+- Send email: environment ready + access URLs + TTL reminder
+↓
+Developer runs tests
+↓
+Destroy trigger (whichever comes first):
+- Developer submits "Destroy Environment" workflow
+- TTL auto-expire (scheduled pipeline)
+↓
+Harness Pipeline — Destroy stage
+- Delete namespace + all resources
+- Remove routing config
+- Update IDP Catalog entity (status: Destroyed)
+- Send email: destroyed + resource usage summary (cost, duration)
+
+The harness-idp-tems-reserve-env work already in the repo is the closest existing pattern. This is an evolution of that — from reserving a shared environment to provisioning a dedicated one.
+
+====
+1. Data strategy — the hardest unsolved problem
+
+The proposal says "connects to a dedicated test version, not QA" but does not say what state that test database is in. This is the critical gap.
+
+┌─────────────────────────────┬──────────────────────────────────────────────────────┬─────────────────────────────────────────────────────────┐
+│           Option            │                    What it means                     │                          Risk                           │
+├─────────────────────────────┼──────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+│ Fresh empty schema          │ Fast to provision, but tests need to seed all data   │ Test setup complexity moves to developer                │
+├─────────────────────────────┼──────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+│ Snapshot from QA            │ Realistic data, but PII exposure risk                │ Requires anonymization pipeline before each environment │
+├─────────────────────────────┼──────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+│ Synthetic data set          │ Safe and repeatable, but upfront investment to build │ One-time cost, best long-term option                    │
+├─────────────────────────────┼──────────────────────────────────────────────────────┼─────────────────────────────────────────────────────────┤
+│ Subset of prod (anonymized) │ Best parity, but compliance review required          │ Legal/security approval gate                            │
+└─────────────────────────────┴──────────────────────────────────────────────────────┴─────────────────────────────────────────────────────────┘
+
+Without a data strategy, ephemeral environments either expose PII or require developers to manually seed data before every test run — which eliminates most of the time saving.
+
+====
+What the Proposal Gets Right
+
+The problem is accurately diagnosed. Shared QA environments for complex applications like OLB and Payments are a genuine delivery bottleneck. The three pain points stated — subsystem dependencies, QA
+parity gaps, shared environment conflicts — are the exact reasons release cycles slow down at integration test phase. This is well-understood industry pain.
+
+The solution concept is architecturally sound. Ephemeral, namespace-isolated, full-stack environments are the industry standard answer. This is not speculative — it is how Netflix, Spotify, and major
+banks run integration testing at scale.
+
+The execution model maps directly to Harness IDP. Request → provision → test → destroy is precisely the IDP workflow → pipeline → catalog → pipeline pattern already running in this environment. The
+platform already built for Jarvis migration delivers this with no additional tooling purchase.
