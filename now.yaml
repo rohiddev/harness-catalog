@@ -1,0 +1,113 @@
+# ───────────────────────────────────────────────────────────────────────────────
+# now.yaml — CSDM as Code (RapDev)  *** WORKED EXAMPLE ***
+#
+# One file per repo, alongside catalog-info.yaml.
+# Declares this service's CMDB identity and all direct (1-hop) dependencies.
+#
+# HOW IT WORKS
+#   On every push to master, RapDev reads this file and writes to ServiceNow:
+#   1. Creates/updates the cmdb_ci record for this service
+#   2. Creates/updates cmdb_rel_ci rows for every relationship declared below
+#
+# BLAST RADIUS
+#   When a dependency goes down, production support queries cmdb_rel_ci
+#   to find all impacted services at any depth.
+#   Runbook: wiki/integrations/blast-radius-runbook.md
+#
+# RULES
+#   - Declare what WE depend on — not who depends on us
+#   - They declare us in THEIR now.yaml (reverse edges are auto-derived)
+#   - 1-hop only — do not chain transitive dependencies here
+#   - One now.yaml per repo
+#
+# STARTING YOUR OWN SERVICE?
+#   Copy now.template.yaml — fill every REQUIRED field
+#   Reference: now.yaml (payments-service) as a worked example
+# ───────────────────────────────────────────────────────────────────────────────
+
+apiVersion: csdm/v1
+kind: BusinessService
+
+# ── Service Identity ──────────────────────────────────────────────────────────
+# sysId and name are the join keys that link this file to:
+#   - cmdb_ci in ServiceNow (sysId = primary key)
+#   - catalog-info.yaml in IDP (bank.com/sysid annotation must match)
+metadata:
+  sysId: SYSID-00000
+  name: payments-service
+  projectName: Payments Service
+
+# ── Relationships ─────────────────────────────────────────────────────────────
+# Each entry below creates one row in cmdb_rel_ci:
+#   parent = this service (payments-service)
+#   child  = target
+#   type   = relationship type (from cmdb_rel_type)
+#
+# Relationship types used:
+#   "Calls::Called by"    — this service makes outbound API calls to target
+#   "Depends on::Used by" — this service depends on infrastructure (DB, MQ, FTP)
+# ─────────────────────────────────────────────────────────────────────────────
+relationships:
+
+  # ── APIs — outbound REST calls ───────────────────────────────────────────────
+  # When any of these services goes down, payments-service is directly impacted.
+  # Do NOT declare services that call US — they declare us in THEIR now.yaml.
+
+  - target: auth-service
+    type: "Calls::Called by"
+    targetClass: cmdb_ci_service
+    protocol: REST
+    description: "OAuth2 token validation on every inbound payment request"
+
+  - target: fraud-detection-api
+    type: "Calls::Called by"
+    targetClass: cmdb_ci_service
+    protocol: REST
+    description: "Real-time fraud scoring — called synchronously per transaction before approval"
+
+  - target: ledger-service
+    type: "Calls::Called by"
+    targetClass: cmdb_ci_service
+    protocol: REST
+    description: "Ledger posting after payment is approved — critical path"
+
+  # ── Databases ────────────────────────────────────────────────────────────────
+  # When either DB goes down, payments-service loses all read/write capability.
+
+  - target: payments-postgres
+    type: "Depends on::Used by"
+    targetClass: cmdb_ci_db_instance
+    description: "Primary transactional store — PostgreSQL 14, AWS RDS Multi-AZ"
+
+  - target: payments-redis
+    type: "Depends on::Used by"
+    targetClass: cmdb_ci_cache
+    description: "Session cache and idempotency key store — Redis 7, AWS ElastiCache"
+
+  # ── Kafka — event streaming ──────────────────────────────────────────────────
+  # payments-service is BOTH a producer and a consumer on the same Kafka cluster.
+  # One entry per cluster — producerTopics and consumerTopics capture direction.
+  # When Kafka goes down: events cannot be published AND fraud decisions stall.
+
+  - target: payments-kafka
+    type: "Depends on::Used by"
+    targetClass: cmdb_ci_message_broker
+    producerTopics:
+      - payments.events.payment-completed       # consumed by: notification-service, audit-service, reporting-service
+    consumerTopics:
+      - fraud.events.fraud-decision             # produced by: fraud-detection-service
+      - ledger.events.ledger-confirmation       # produced by: ledger-service
+    consumerGroup: payments-service-fraud-consumer
+    description: "Event streaming backbone — publishes payment lifecycle events, consumes fraud decisions and ledger confirmations"
+
+  # ── FTP — file exchange ──────────────────────────────────────────────────────
+  # payments-service both writes outbound files and reads inbound files.
+  # One entry per FTP server — outboundPath and inboundPath capture direction.
+  # When FTP goes down: settlement delivery fails AND instruction ingestion stops.
+
+  - target: payments-ftp
+    type: "Depends on::Used by"
+    targetClass: cmdb_ci_ftp_server
+    outboundPath: /outbound/settlement          # daily settlement reports deposited for processors
+    inboundPath: /inbound/instructions          # bulk payment instructions received from processors
+    description: "Secure file exchange with third-party payment processors and settlement partners"
