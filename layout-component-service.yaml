@@ -2,7 +2,7 @@
 # Catalog Entity Layout — kind: Component, spec.type: service
 #
 # Paste this YAML into Harness IDP > Admin > Layout > Component > service > Edit
-# Tabs: Overview | Dependencies | API | Kubernetes | CI/CD | Scorecard | Docs
+# Tabs: Overview | Dependencies | API | CI/CD | Scorecard | Docs
 # ═══════════════════════════════════════════════════════════════════════════════
 
 page:
@@ -143,16 +143,6 @@ page:
               md: 12
 
         - component: EntityConsumedApisCard
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 12
-
-    # ── Kubernetes ─────────────────────────────────────────────────────────────
-    - name: Kubernetes
-      contents:
-        - component: EntityKubernetesContent
           specs:
             props:
               variant: gridItem
