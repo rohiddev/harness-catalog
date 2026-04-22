@@ -17,4 +17,4 @@ metadata:
     - elasticache
     - sysid-00000
 spec:
-  system: payments-platform
+  system: system:payments-platform
