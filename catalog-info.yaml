@@ -1,7 +1,27 @@
+# =============================================================================
+# catalog-info.yaml — Payments Platform
+#
+# Complete payments platform entity set in Harness IDP 2.0 format.
+# This file is documentation only — import each entity individually via
+# "Create Component > Import from Git" (single-document per import).
+#
+# Import order:
+#   1. System
+#   2. Resources (postgres, redis, ftp, kafka)
+#   3. Component
+#   4. APIs (rest, ftp-outbound, ftp-inbound, kafka-producer, kafka-consumer)
+# =============================================================================
+
+# =============================================================================
+# SYSTEM
+# =============================================================================
 apiVersion: harness.io/v1
 kind: System
+identifier: payments_platform
+name: payments-platform
+type: system
+owner: group:account/team-payments
 metadata:
-  name: payments-platform
   title: Payments Platform
   description: >
     End-to-end payments processing platform covering payment initiation,
@@ -28,16 +48,128 @@ metadata:
       title: Jira Project
       icon: bug
 spec:
-  owner: group:default/team-payments
   domain: banking
 
 ---
 
-# --- Component - Microservice ------------------------------------------------
+# =============================================================================
+# RESOURCE — PostgreSQL Database
+# =============================================================================
+apiVersion: harness.io/v1
+kind: Resource
+identifier: payments_postgres
+name: payments-postgres
+type: database
+owner: group:account/team-payments
+metadata:
+  title: Payments PostgreSQL DB
+  description: >
+    Primary transactional store for payments-service.
+    PostgreSQL 14 on AWS RDS. Multi-AZ, 35-day backup retention.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - postgresql
+    - rds
+    - database
+    - sysid-00000
+spec:
+  system:
+    - system:account/payments_platform
+
+---
+
+# =============================================================================
+# RESOURCE — Redis Cache
+# =============================================================================
+apiVersion: harness.io/v1
+kind: Resource
+identifier: payments_redis
+name: payments-redis
+type: cache
+owner: group:account/team-payments
+metadata:
+  title: Payments Redis Cache
+  description: >
+    Session cache and idempotency key store for payments-service.
+    Redis 7 on AWS ElastiCache. 2 read replicas, in-transit encryption.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - redis
+    - cache
+    - elasticache
+    - sysid-00000
+spec:
+  system:
+    - system:account/payments_platform
+
+---
+
+# =============================================================================
+# RESOURCE — FTP Server
+# =============================================================================
+apiVersion: harness.io/v1
+kind: Resource
+identifier: payments_ftp
+name: payments-ftp
+type: ftp-server
+owner: group:account/team-payments
+metadata:
+  title: Payments FTP Server
+  description: >
+    FTP server used by payments-service for secure file exchange with
+    third-party payment processors and settlement partners.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - ftp
+    - file-transfer
+    - sysid-00000
+spec:
+  system:
+    - system:account/payments_platform
+
+---
+
+# =============================================================================
+# RESOURCE — Kafka Cluster
+# =============================================================================
+apiVersion: harness.io/v1
+kind: Resource
+identifier: payments_kafka
+name: payments-kafka
+type: messaging-queue
+owner: group:account/team-payments
+metadata:
+  title: Payments Kafka Cluster
+  description: >
+    Kafka cluster used by payments-service for publishing payment lifecycle
+    events and consuming fraud decisions and ledger confirmations.
+    SASL/SCRAM-SHA-256 auth, TLS in transit. Managed by platform team.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - kafka
+    - messaging
+    - events
+    - sysid-00000
+spec:
+  system:
+    - system:account/payments_platform
+
+---
+
+# =============================================================================
+# COMPONENT — Payments Service
+# =============================================================================
 apiVersion: harness.io/v1
 kind: Component
+identifier: payments_service
+name: payments-service
+type: service
+owner: group:account/team-payments
 metadata:
-  name: payments-service
   title: Payments Service
   description: >
     Processes payment transactions, validates against fraud rules,
@@ -45,26 +177,26 @@ metadata:
   annotations:
     # Source control
     github.com/project-slug: bank-org/payments-service
+    backstage.io/source-location: url:https://github.com/bank-org/payments-service
     # TechDocs
     backstage.io/techdocs-ref: dir:.
-    # Source location - drives Code tab
-    backstage.io/source-location: url:https://github.com/bank-org/payments-service
-    # Harness CI/CD - project-url drives CI/CD tab; pipelines filters to this service's pipelines
+    # Harness CI/CD
     harness.io/project-url: https://app.harness.io/ng/account/<account-id>/module/ci/orgs/default/projects/SYSID-00000/pipelines
     harness.io/pipelines: payments-deploy,payments-ci
+    # Harness SEI - DORA metrics
+    harness.io/sei-project-id: SYSID-00000
     # Kubernetes
     backstage.io/kubernetes-id: payments-service
     backstage.io/kubernetes-namespace: payments-p
-    # Contact details & observability - native plugin annotation keys
+    # PagerDuty
     pagerduty.com/service-id: PABC123
+    # Datadog
     datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments
-    # Code quality - drives SonarQube card on Overview
+    # SonarQube
     sonarqube.org/project-key: payments-service
-    # SEI - DORA metrics (deployment frequency, lead time, MTTR, change failure rate)
-    harness.io/sei-project-id: SYSID-00000
-    # Tracking
+    # Jira
     jira/project-key: PAY
-    # CMDB correlation
+    # CMDB
     bank.com/sysid: SYSID-00000
   tags:
     - java
@@ -89,33 +221,37 @@ metadata:
       title: On-Call Schedule
       icon: group
 spec:
-  type: service
   lifecycle: production
-  owner: group:default/team-payments
-  system: payments-platform
+  system:
+    - system:account/payments_platform
   providesApis:
-    - payments-rest-api
-    - payments-ftp-outbound          # produces files to FTP (e.g. settlement reports)
-    - payments-kafka-producer        # publishes payment lifecycle events to Kafka
+    - payments_rest_api
+    - payments_ftp_outbound
+    - payments_kafka_producer
   consumesApis:
-    - auth-api
-    - fraud-detection-api
-    - ledger-api
-    - payments-ftp-inbound           # consumes files from FTP (e.g. incoming payment files)
-    - payments-kafka-consumer        # subscribes to fraud decisions and ledger confirmations
+    - auth_api
+    - fraud_detection_api
+    - ledger_api
+    - payments_ftp_inbound
+    - payments_kafka_consumer
   dependsOn:
-    - resource:default/payments-postgres
-    - resource:default/payments-redis
-    - resource:default/payments-ftp
-    - resource:default/payments-kafka
+    - resource:account/payments_postgres
+    - resource:account/payments_redis
+    - resource:account/payments_ftp
+    - resource:account/payments_kafka
 
 ---
 
-# --- API ----------------------------------------------------------------------
+# =============================================================================
+# API — REST (OpenAPI)
+# =============================================================================
 apiVersion: harness.io/v1
 kind: API
+identifier: payments_rest_api
+name: payments-rest-api
+type: openapi
+owner: group:account/team-payments
 metadata:
-  name: payments-rest-api
   title: Payments REST API
   description: >
     REST API for payment initiation, status queries and refunds.
@@ -137,10 +273,9 @@ metadata:
       title: Postman Collection
       icon: scaffolder
 spec:
-  type: openapi
   lifecycle: production
-  owner: group:default/team-payments
-  system: payments-platform
+  system:
+    - system:account/payments_platform
   definition: |
     openapi: "3.0.0"
     info:
@@ -210,11 +345,17 @@ spec:
 
 ---
 
-# --- API - FTP Outbound (producer / AsyncAPI) --------------------------------
+# =============================================================================
+# API — FTP Outbound / Producer (AsyncAPI)
+# payments-service produces files → FTP server → downstream processors
+# =============================================================================
 apiVersion: harness.io/v1
 kind: API
+identifier: payments_ftp_outbound
+name: payments-ftp-outbound
+type: asyncapi
+owner: group:account/team-payments
 metadata:
-  name: payments-ftp-outbound
   title: Payments FTP Outbound
   description: >
     Async file exchange - files produced by payments-service and deposited on
@@ -230,10 +371,9 @@ metadata:
     - producer
     - sysid-00000
 spec:
-  type: asyncapi
   lifecycle: production
-  owner: group:default/team-payments
-  system: payments-platform
+  system:
+    - system:account/payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:
@@ -267,11 +407,17 @@ spec:
 
 ---
 
-# --- API - FTP Inbound (consumer / AsyncAPI) ---------------------------------
+# =============================================================================
+# API — FTP Inbound / Consumer (AsyncAPI)
+# Third-party processors produce files → FTP server → payments-service consumes
+# =============================================================================
 apiVersion: harness.io/v1
 kind: API
+identifier: payments_ftp_inbound
+name: payments-ftp-inbound
+type: asyncapi
+owner: group:account/team-payments
 metadata:
-  name: payments-ftp-inbound
   title: Payments FTP Inbound
   description: >
     Async file exchange - files deposited on the FTP server by third-party
@@ -287,10 +433,9 @@ metadata:
     - consumer
     - sysid-00000
 spec:
-  type: asyncapi
   lifecycle: production
-  owner: group:default/team-payments
-  system: payments-platform
+  system:
+    - system:account/payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:
@@ -324,11 +469,17 @@ spec:
 
 ---
 
-# --- API - Kafka Producer (AsyncAPI) -----------------------------------------
+# =============================================================================
+# API — Kafka Producer (AsyncAPI)
+# payments-service publishes payment lifecycle events → Kafka
+# =============================================================================
 apiVersion: harness.io/v1
 kind: API
+identifier: payments_kafka_producer
+name: payments-kafka-producer
+type: asyncapi
+owner: group:account/team-payments
 metadata:
-  name: payments-kafka-producer
   title: Payments Kafka Producer
   description: >
     Async event stream produced by payments-service. Publishes payment lifecycle
@@ -344,10 +495,9 @@ metadata:
     - producer
     - sysid-00000
 spec:
-  type: asyncapi
   lifecycle: production
-  owner: group:default/team-payments
-  system: payments-platform
+  system:
+    - system:account/payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:
@@ -400,11 +550,17 @@ spec:
 
 ---
 
-# --- API - Kafka Consumer (AsyncAPI) -----------------------------------------
+# =============================================================================
+# API — Kafka Consumer (AsyncAPI)
+# payments-service subscribes to fraud decisions and ledger confirmations
+# =============================================================================
 apiVersion: harness.io/v1
 kind: API
+identifier: payments_kafka_consumer
+name: payments-kafka-consumer
+type: asyncapi
+owner: group:account/team-payments
 metadata:
-  name: payments-kafka-consumer
   title: Payments Kafka Consumer
   description: >
     Async event stream consumed by payments-service. Subscribes to fraud
@@ -420,10 +576,9 @@ metadata:
     - consumer
     - sysid-00000
 spec:
-  type: asyncapi
   lifecycle: production
-  owner: group:default/team-payments
-  system: payments-platform
+  system:
+    - system:account/payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:
@@ -470,95 +625,3 @@ spec:
         saslScram:
           type: scramSha256
           description: SASL/SCRAM-SHA-256 authentication
-
----
-
-# --- Resource - PostgreSQL Database ------------------------------------------
-apiVersion: harness.io/v1
-kind: Resource
-metadata:
-  name: payments-postgres
-  title: Payments PostgreSQL DB
-  description: >
-    Primary transactional store for payments-service.
-    PostgreSQL 14 on AWS RDS. Multi-AZ, 35-day backup retention.
-  annotations:
-    bank.com/sysid: SYSID-00000
-  tags:
-    - postgresql
-    - rds
-    - database
-    - sysid-00000
-spec:
-  type: database
-  owner: group:default/team-payments
-  system: payments-platform
-
----
-
-# --- Resource - Redis Cache ---------------------------------------------------
-apiVersion: harness.io/v1
-kind: Resource
-metadata:
-  name: payments-redis
-  title: Payments Redis Cache
-  description: >
-    Session cache and idempotency key store for payments-service.
-    Redis 7 on AWS ElastiCache. 2 read replicas, in-transit encryption.
-  annotations:
-    bank.com/sysid: SYSID-00000
-  tags:
-    - redis
-    - cache
-    - elasticache
-    - sysid-00000
-spec:
-  type: cache
-  owner: group:default/team-payments
-  system: payments-platform
-
----
-
-# --- Resource - FTP Server ----------------------------------------------------
-apiVersion: harness.io/v1
-kind: Resource
-metadata:
-  name: payments-ftp
-  title: Payments FTP Server
-  description: >
-    FTP server used by payments-service for secure file exchange with
-    third-party payment processors and settlement partners.
-  annotations:
-    bank.com/sysid: SYSID-00000
-  tags:
-    - ftp
-    - file-transfer
-    - sysid-00000
-spec:
-  type: ftp-server
-  owner: group:default/team-payments
-  system: payments-platform
-
----
-
-# --- Resource - Kafka Cluster -------------------------------------------------
-apiVersion: harness.io/v1
-kind: Resource
-metadata:
-  name: payments-kafka
-  title: Payments Kafka Cluster
-  description: >
-    Kafka cluster used by payments-service for publishing payment lifecycle
-    events and consuming fraud decisions and ledger confirmations.
-    SASL/SCRAM-SHA-256 auth, TLS in transit. Managed by platform team.
-  annotations:
-    bank.com/sysid: SYSID-00000
-  tags:
-    - kafka
-    - messaging
-    - events
-    - sysid-00000
-spec:
-  type: messaging-queue
-  owner: group:default/team-payments
-  system: payments-platform
