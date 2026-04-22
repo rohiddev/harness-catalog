@@ -1,5 +1,6 @@
 apiVersion: harness.io/v1
 kind: API
+identifier: payments_ftp_outbound
 metadata:
   name: payments-ftp-outbound
   title: Payments FTP Outbound

@@ -1,5 +1,6 @@
 apiVersion: harness.io/v1
 kind: API
+identifier: payments_kafka_consumer
 metadata:
   name: payments-kafka-consumer
   title: Payments Kafka Consumer

@@ -1,5 +1,6 @@
 apiVersion: harness.io/v1
 kind: System
+identifier: payments_platform
 metadata:
   name: payments-platform
   title: Payments Platform

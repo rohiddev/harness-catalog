@@ -1,5 +1,6 @@
 apiVersion: harness.io/v1
 kind: API
+identifier: payments_kafka_producer
 metadata:
   name: payments-kafka-producer
   title: Payments Kafka Producer

@@ -1,5 +1,6 @@
 apiVersion: harness.io/v1
 kind: Resource
+identifier: payments_postgres
 metadata:
   name: payments-postgres
   title: Payments PostgreSQL DB
