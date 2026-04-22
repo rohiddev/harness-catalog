@@ -1,8 +1,10 @@
 apiVersion: harness.io/v1
 kind: Resource
 identifier: payments_redis
+name: payments-redis
+type: cache
+owner: team-payments
 metadata:
-  name: payments-redis
   title: Payments Redis Cache
   description: >
     Session cache and idempotency key store for payments-service.
@@ -15,6 +17,4 @@ metadata:
     - elasticache
     - sysid-00000
 spec:
-  type: cache
-  owner: group:default/team-payments
   system: payments-platform

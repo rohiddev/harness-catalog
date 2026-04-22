@@ -1,8 +1,10 @@
 apiVersion: harness.io/v1
 kind: Resource
 identifier: payments_ftp
+name: payments-ftp
+type: ftp-server
+owner: team-payments
 metadata:
-  name: payments-ftp
   title: Payments FTP Server
   description: >
     FTP server used by payments-service for secure file exchange with
@@ -14,6 +16,4 @@ metadata:
     - file-transfer
     - sysid-00000
 spec:
-  type: ftp-server
-  owner: group:default/team-payments
   system: payments-platform

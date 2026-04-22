@@ -1,8 +1,10 @@
 apiVersion: harness.io/v1
 kind: Resource
 identifier: payments_kafka
+name: payments-kafka
+type: messaging-queue
+owner: team-payments
 metadata:
-  name: payments-kafka
   title: Payments Kafka Cluster
   description: >
     Kafka cluster used by payments-service for publishing payment lifecycle
@@ -16,6 +18,4 @@ metadata:
     - events
     - sysid-00000
 spec:
-  type: messaging-queue
-  owner: group:default/team-payments
   system: payments-platform
