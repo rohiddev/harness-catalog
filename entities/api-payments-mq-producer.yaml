@@ -1,0 +1,77 @@
+apiVersion: harness.io/v1
+kind: API
+identifier: payments_mq_producer
+name: payments-mq-producer
+type: asyncapi
+owner: group:account/team-payments
+metadata:
+  title: Payments MQ Producer
+  description: >
+    Messages produced by payments-service to the enterprise message queue.
+    Publishes payment instructions and settlement notifications to downstream
+    processor queues using IBM MQ over AMQP.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - ibm-mq
+    - asyncapi
+    - amqp
+    - producer
+    - sysid-00000
+spec:
+  lifecycle: production
+  system:
+    - system:account/payments_platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments MQ Producer
+      version: "1.0.0"
+      description: >
+        Payment instructions and settlement notifications published by
+        payments-service to the enterprise IBM MQ broker.
+    servers:
+      production:
+        url: mq.bank.com:5672
+        protocol: amqp
+        description: Production IBM MQ broker
+        security:
+          - userPassword: []
+    channels:
+      payments/instructions/outbound:
+        description: Payment instructions sent to downstream processor queues
+        publish:
+          summary: Publish payment instruction
+          bindings:
+            amqp:
+              is: queue
+              queue:
+                name: PAYMENTS.INSTRUCTIONS.OUTBOUND
+                durable: true
+                exclusive: false
+                autoDelete: false
+          message:
+            name: PaymentInstruction
+            contentType: application/json
+            payload:
+              type: object
+              required: [instructionId, amount, currency, destinationAccount]
+              properties:
+                instructionId:
+                  type: string
+                amount:
+                  type: number
+                currency:
+                  type: string
+                  example: USD
+                destinationAccount:
+                  type: string
+                priority:
+                  type: string
+                  enum: [NORMAL, URGENT, SAME_DAY]
+    components:
+      securitySchemes:
+        userPassword:
+          type: userPassword
+          description: IBM MQ user/password authentication
