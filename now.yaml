@@ -43,6 +43,15 @@ dependencies:
         - ledger.events.ledger-confirmation
       description: "Payment lifecycle events, fraud decisions, ledger confirmations"
 
+  mq:
+    - target: payments-ibmmq
+      broker: IBM MQ
+      sends:
+        - PAYMENTS.INSTRUCTIONS.OUTBOUND
+      receives:
+        - PAYMENTS.ACKNOWLEDGEMENTS.INBOUND
+      description: "Payment instructions out, processor acknowledgements in"
+
   ftp:
     - target: payments-ftp
       outbound: /outbound/settlement
