@@ -1,5 +1,6 @@
 apiVersion: harness.io/v1
 kind: Resource
+identifier: payments_redis
 metadata:
   name: payments-redis
   title: Payments Redis Cache

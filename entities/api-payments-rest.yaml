@@ -1,5 +1,6 @@
 apiVersion: harness.io/v1
 kind: API
+identifier: payments_rest_api
 metadata:
   name: payments-rest-api
   title: Payments REST API

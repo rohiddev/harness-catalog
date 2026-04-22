@@ -1,5 +1,6 @@
 apiVersion: harness.io/v1
 kind: API
+identifier: payments_ftp_inbound
 metadata:
   name: payments-ftp-inbound
   title: Payments FTP Inbound

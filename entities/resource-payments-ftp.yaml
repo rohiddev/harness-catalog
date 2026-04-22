@@ -1,5 +1,6 @@
 apiVersion: harness.io/v1
 kind: Resource
+identifier: payments_ftp
 metadata:
   name: payments-ftp
   title: Payments FTP Server
