@@ -17,4 +17,4 @@ metadata:
     - database
     - sysid-00000
 spec:
-  system: system:payments-platform
+  system: system:default/payments-platform
