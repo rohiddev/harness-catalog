@@ -24,7 +24,7 @@ metadata:
       icon: docs
 spec:
   lifecycle: production
-  system: system:default/payments-platform
+  system: system:payments-platform
   definition: |
     openapi: "3.0.0"
     info:
