@@ -3,7 +3,7 @@ kind: Resource
 identifier: payments_redis
 name: payments-redis
 type: cache
-owner: team-payments
+owner: group:account/team-payments
 metadata:
   title: Payments Redis Cache
   description: >
@@ -17,4 +17,5 @@ metadata:
     - elasticache
     - sysid-00000
 spec:
-  system: system:payments_platform
+  system:
+    - system:account/payments_platform
