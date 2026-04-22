@@ -1,0 +1,130 @@
+apiVersion: harness.io/v1
+kind: Component
+
+metadata:
+
+  # ── Identity ──────────────────────────────────────────────────────────────
+  # name: unique identifier for this entity — used in URLs and relation refs.
+  # Use kebab-case. Must be unique across all entities of the same kind.
+  name: your-service-name
+
+  # title: human-readable display name shown in the IDP catalog UI.
+  title: Your Service Name
+
+  # description: one or two sentences explaining what this service does.
+  description: >
+    Brief description of what this service does, who it serves,
+    and its role in the broader platform.
+
+  # ── Annotations ───────────────────────────────────────────────────────────
+  # Annotations drive integrations — each one unlocks a tab or card in IDP.
+  annotations:
+
+    # Source control — drives the Code tab and repo link
+    github.com/project-slug: bank-org/your-service-name
+
+    # TechDocs — enables the Docs tab (dir:. = docs live in this repo)
+    backstage.io/techdocs-ref: dir:.
+
+    # Source location — used by the Code tab to link to the repo
+    backstage.io/source-location: url:https://github.com/bank-org/your-service-name
+
+    # Harness CI/CD — drives the CI/CD tab
+    # project-url: link to the Harness project pipelines page
+    # pipelines: comma-separated list of pipeline IDs to show (leave blank to show all)
+    harness.io/project-url: https://app.harness.io/ng/account/<account-id>/module/ci/orgs/default/projects/<SYSID>/pipelines
+    harness.io/pipelines: your-service-deploy,your-service-ci
+
+    # Kubernetes — drives the Kubernetes tab
+    backstage.io/kubernetes-id: your-service-name
+    backstage.io/kubernetes-namespace: your-namespace
+
+    # PagerDuty — drives the PagerDuty card on Overview
+    pagerduty.com/service-id: PXXXXXXX
+
+    # Datadog — drives the Datadog tab
+    datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/your-dashboard
+
+    # SonarQube — drives the SonarQube card on Overview
+    sonarqube.org/project-key: your-service-name
+
+    # Harness SEI — DORA metrics (deployment frequency, lead time, MTTR, CFR)
+    harness.io/sei-project-id: <SYSID>
+
+    # Jira — links the Jira project for this service
+    jira/project-key: YOURKEY
+
+    # CMDB — links this entity to the ServiceNow CMDB record
+    bank.com/sysid: SYSID-XXXXX
+
+  # ── Tags ──────────────────────────────────────────────────────────────────
+  # Tags are used for filtering in the catalog. Use lowercase kebab-case.
+  # Standard tags: language, framework, domain, tier, sysid.
+  tags:
+    - java                  # primary language
+    - spring-boot           # framework
+    - payments              # domain
+    - tier-1                # criticality tier
+    - sysid-xxxxx           # always include sysid tag for filtering
+
+  # ── Links ─────────────────────────────────────────────────────────────────
+  # Links appear in the Links card on the Overview tab.
+  # icon values: docs, dashboard, book, bug, group, scaffolder, quality, help
+  links:
+    - url: https://runbooks.bank.com/your-service
+      title: Runbook
+      icon: book
+    - url: https://app.datadoghq.com/dashboard/your-dashboard
+      title: Datadog
+      icon: dashboard
+    - url: https://sonar.bank.com/project?id=your-service-name
+      title: SonarQube
+      icon: quality
+    - url: https://confluence.bank.com/display/YOUR/your-service
+      title: Confluence
+      icon: docs
+    - url: https://oncall.bank.com/your-service
+      title: On-Call Schedule
+      icon: group
+
+spec:
+
+  # ── Type ──────────────────────────────────────────────────────────────────
+  # type: what kind of component this is.
+  # Common values: service, library, website, data-pipeline, batch-job
+  type: service
+
+  # ── Lifecycle ─────────────────────────────────────────────────────────────
+  # lifecycle: maturity stage of this component.
+  # Values: production, experimental, deprecated
+  lifecycle: production
+
+  # ── Ownership ─────────────────────────────────────────────────────────────
+  # owner: the team responsible for this component.
+  # Format: group:default/<team-name>
+  owner: group:default/your-team-name
+
+  # ── System ────────────────────────────────────────────────────────────────
+  # system: the parent system this component belongs to.
+  # Must match the name of an existing System entity.
+  system: your-system-name
+
+  # ── APIs ──────────────────────────────────────────────────────────────────
+  # providesApis: APIs this service exposes.
+  # consumesApis: APIs this service depends on from other services.
+  # Values must match the name of existing API entities.
+  providesApis:
+    - your-service-rest-api       # REST API this service exposes
+
+  consumesApis:
+    - auth-api                    # authentication service API
+    - another-service-api         # other upstream service API
+
+  # ── Dependencies ──────────────────────────────────────────────────────────
+  # dependsOn: infrastructure resources this service depends on.
+  # Format: resource:default/<resource-name>
+  # Values must match the name of existing Resource entities.
+  dependsOn:
+    - resource:default/your-service-postgres    # primary database
+    - resource:default/your-service-redis       # cache
+    - resource:default/shared-kafka             # messaging
