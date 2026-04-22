@@ -47,14 +47,15 @@ page:
       contents:
         - component: EntityHarnessCiCdContent
 
-    - name: Datadog
-      path: /datadog
-      title: Datadog
-      contents:
-        - component: EntityDatadogContent
-          specs:
-            gridProps:
-              md: 12
+    # Datadog tab — uncomment when Datadog plugin is installed
+    # - name: Datadog
+    #   path: /datadog
+    #   title: Datadog
+    #   contents:
+    #     - component: EntityDatadogContent
+    #       specs:
+    #         gridProps:
+    #           md: 12
 
     - name: Scorecard
       path: /scorecard
