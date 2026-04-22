@@ -47,7 +47,7 @@ metadata:
       icon: group
 spec:
   lifecycle: production
-  system: payments_platform
+  system: system:payments_platform
   providesApis:
     - payments-rest-api
     - payments-ftp-outbound

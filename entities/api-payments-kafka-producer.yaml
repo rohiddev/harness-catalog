@@ -20,7 +20,7 @@ metadata:
     - sysid-00000
 spec:
   lifecycle: production
-  system: payments_platform
+  system: system:payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:
