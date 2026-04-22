@@ -3,7 +3,7 @@ kind: API
 identifier: payments_ftp_outbound
 name: payments-ftp-outbound
 type: asyncapi
-owner: team-payments
+owner: group:account/team-payments
 metadata:
   title: Payments FTP Outbound
   description: >
@@ -20,7 +20,8 @@ metadata:
     - sysid-00000
 spec:
   lifecycle: production
-  system: system:payments_platform
+  system:
+    - system:account/payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:

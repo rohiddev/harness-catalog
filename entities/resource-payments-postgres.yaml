@@ -3,7 +3,7 @@ kind: Resource
 identifier: payments_postgres
 name: payments-postgres
 type: database
-owner: team-payments
+owner: group:account/team-payments
 metadata:
   title: Payments PostgreSQL DB
   description: >
@@ -17,4 +17,5 @@ metadata:
     - database
     - sysid-00000
 spec:
-  system: system:payments_platform
+  system:
+    - system:account/payments_platform

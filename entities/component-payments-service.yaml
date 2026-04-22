@@ -3,7 +3,7 @@ kind: Component
 identifier: payments_service
 name: payments-service
 type: service
-owner: team-payments
+owner: group:account/team-payments
 metadata:
   title: Payments Service
   description: >
@@ -47,7 +47,8 @@ metadata:
       icon: group
 spec:
   lifecycle: production
-  system: system:payments_platform
+  system:
+    - system:account/payments_platform
   providesApis:
     - payments-rest-api
     - payments-ftp-outbound
@@ -59,7 +60,7 @@ spec:
     - payments-ftp-inbound
     - payments-kafka-consumer
   dependsOn:
-    - resource:default/payments-postgres
-    - resource:default/payments-redis
-    - resource:default/payments-ftp
-    - resource:default/payments-kafka
+    - resource:account/payments_postgres
+    - resource:account/payments_redis
+    - resource:account/payments_ftp
+    - resource:account/payments_kafka

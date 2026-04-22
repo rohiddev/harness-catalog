@@ -3,7 +3,7 @@ kind: API
 identifier: payments_rest_api
 name: payments-rest-api
 type: openapi
-owner: team-payments
+owner: group:account/team-payments
 metadata:
   title: Payments REST API
   description: >
@@ -24,7 +24,8 @@ metadata:
       icon: docs
 spec:
   lifecycle: production
-  system: system:payments_platform
+  system:
+    - system:account/payments_platform
   definition: |
     openapi: "3.0.0"
     info:

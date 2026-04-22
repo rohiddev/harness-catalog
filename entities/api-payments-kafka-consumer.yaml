@@ -3,7 +3,7 @@ kind: API
 identifier: payments_kafka_consumer
 name: payments-kafka-consumer
 type: asyncapi
-owner: team-payments
+owner: group:account/team-payments
 metadata:
   title: Payments Kafka Consumer
   description: >
@@ -20,7 +20,8 @@ metadata:
     - sysid-00000
 spec:
   lifecycle: production
-  system: system:payments_platform
+  system:
+    - system:account/payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:

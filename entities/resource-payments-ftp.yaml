@@ -3,7 +3,7 @@ kind: Resource
 identifier: payments_ftp
 name: payments-ftp
 type: ftp-server
-owner: team-payments
+owner: group:account/team-payments
 metadata:
   title: Payments FTP Server
   description: >
@@ -16,4 +16,5 @@ metadata:
     - file-transfer
     - sysid-00000
 spec:
-  system: system:payments_platform
+  system:
+    - system:account/payments_platform

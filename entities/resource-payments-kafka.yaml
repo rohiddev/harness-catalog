@@ -3,7 +3,7 @@ kind: Resource
 identifier: payments_kafka
 name: payments-kafka
 type: messaging-queue
-owner: team-payments
+owner: group:account/team-payments
 metadata:
   title: Payments Kafka Cluster
   description: >
@@ -18,4 +18,5 @@ metadata:
     - events
     - sysid-00000
 spec:
-  system: system:payments_platform
+  system:
+    - system:account/payments_platform
