@@ -1,8 +1,10 @@
 apiVersion: harness.io/v1
 kind: Resource
 identifier: payments_postgres
+name: payments-postgres
+type: database
+owner: team-payments
 metadata:
-  name: payments-postgres
   title: Payments PostgreSQL DB
   description: >
     Primary transactional store for payments-service.
@@ -15,6 +17,4 @@ metadata:
     - database
     - sysid-00000
 spec:
-  type: database
-  owner: group:default/team-payments
   system: payments-platform

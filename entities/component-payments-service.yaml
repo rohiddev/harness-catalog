@@ -1,8 +1,10 @@
 apiVersion: harness.io/v1
 kind: Component
 identifier: payments_service
+name: payments-service
+type: service
+owner: team-payments
 metadata:
-  name: payments-service
   title: Payments Service
   description: >
     Processes payment transactions, validates against fraud rules,
@@ -44,9 +46,7 @@ metadata:
       title: On-Call Schedule
       icon: group
 spec:
-  type: service
   lifecycle: production
-  owner: group:default/team-payments
   system: payments-platform
   providesApis:
     - payments-rest-api
