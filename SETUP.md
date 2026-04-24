@@ -45,7 +45,122 @@ After import, verify all entities appear under **IDP > Software Catalog**.
 
 ---
 
-## Step 2 — Configure Entity Layouts
+## Step 2 — Configure Homepage & Sidenav
+
+### 2a — Upload Bank Logo (portal-wide)
+
+> The logo appears in the top-left of the sidenav on every page. Set it once here — it does not need to be in any YAML file.
+
+1. Log in to Harness IDP as a **Platform Admin**
+2. Go to **Admin > Appearance**
+3. Upload your bank logo under the **Logo** field
+   - Format: PNG or SVG
+   - Recommended size: 200×40px (horizontal) or 40×40px (icon)
+   - Use a transparent background (sidenav is dark)
+4. Click **Save**
+
+**Production swap:** Repeat this step on the prod Harness account. No YAML changes needed.
+
+---
+
+### 2b — Apply Sidenav Layout
+
+> File: `sidenav.yaml` (in this repo)
+
+1. Go to **Admin > Layout**
+2. Select **Sidenav**
+3. Click **Edit YAML**
+4. Paste the full contents of `sidenav.yaml`
+5. Click **Save**
+
+**Expected result — left sidebar shows exactly 6 items:**
+
+| # | Label | Navigates to |
+|---|---|---|
+| 1 | Home | IDP homepage |
+| 2 | Catalog | Software catalog |
+| 3 | Self-Service | Workflows (100+ available) |
+| 4 | Scorecards | Service quality scores |
+| 5 | TechDocs | Service documentation |
+| 6 | My Starred | User's bookmarked entities |
+
+---
+
+### 2c — Apply Homepage Layout
+
+> File: `homepage.yaml` (in this repo)
+
+**Before pasting — replace these placeholders with real internal URLs:**
+
+| Placeholder in homepage.yaml | Replace with |
+|---|---|
+| `https://confluence.bank.com/display/ENG/freeze-calendar` | Your Confluence freeze calendar URL |
+| `https://servicenow.bank.com/change` | Your ServiceNow change board URL |
+| `https://oncall.bank.com/incidents` | Your incident dashboard URL |
+| `https://oncall.bank.com` | Your on-call schedule URL |
+| `platform-team@bank.com` (×2) | Your platform team email address |
+
+> `https://app.harness.io` and `https://app.datadoghq.com` are real — leave them as-is.
+
+**Steps:**
+
+1. Go to **Admin > Layout**
+2. Select **Homepage**
+3. Click **Edit YAML**
+4. Paste the full contents of `homepage.yaml` (with placeholders replaced)
+5. Click **Save**
+
+**Expected result — homepage layout:**
+
+| Section | Content |
+|---|---|
+| **Banner** | Green strip: "No active production freezes" (update manually during freezes) |
+| **Header** | Personalised greeting: `Good morning, <first name>. Welcome to the Bank Developer Portal.` |
+| **Quick links** | Catalog · Self-Service · Scorecards · TechDocs |
+| **Row 1** | Platform Status (full width) — freeze calendar, CAB, incidents, on-call, pipelines, Datadog |
+| **Row 2** | Recently Visited + Top Visited |
+| **Row 3** | My Starred + What's New |
+| **Row 4** | Getting Started checklist + IDP 101 key concepts |
+
+**Verify with a non-admin developer account:**
+- `<+greeting>` renders as `Good morning` / `Good afternoon` / `Good evening`
+- `<+first_name>` renders as the developer's actual first name (not the literal text)
+- All 4 rows of cards are visible
+- Recently Visited populates after browsing a few catalog entities
+- Starred Entities populates after starring an entity (click ⭐ on any entity page)
+
+---
+
+### 2d — Managing the Freeze Banner
+
+The banner is **static text** — updated manually by the Platform Engineering team in ~2 minutes.
+
+**To activate a production freeze:**
+
+1. Go to **Admin > Layout > Homepage > Edit YAML**
+2. Find the `banner:` section
+3. Change the text to:
+   ```yaml
+   banner:
+     text: "🔴 PROD FREEZE ACTIVE — no deployments to production until [DATE e.g. Friday 1 May 17:00 UTC]. Contact platform-team@bank.com"
+   ```
+4. Click **Save**
+
+**To deactivate:**
+
+1. Go to **Admin > Layout > Homepage > Edit YAML**
+2. Restore the banner to:
+   ```yaml
+   banner:
+     text: "✅ No active production freezes. For platform support contact platform-team@bank.com"
+   ```
+3. Click **Save**
+
+> Total time: ~2 minutes. No code change, no PR, no deployment required.
+
+---
+
+## Step 3 — Configure Entity Layouts
 
 **IDP > Admin > Configure > Layout > Catalog Entities**
 
@@ -73,7 +188,7 @@ After saving each layout, open the corresponding entity in the catalog and verif
 
 ---
 
-## Step 3 — Connect GitHub as Scorecard Data Source
+## Step 4 — Connect GitHub as Scorecard Data Source
 
 > Skip if GitHub is already connected as a data source.
 
@@ -88,7 +203,7 @@ All other checks use Catalog data only and work without this step.
 
 ---
 
-## Step 4 — Create Scorecard Checks
+## Step 5 — Create Scorecard Checks
 
 **IDP > Configure > Scorecards > Checks > + Create Check**
 
@@ -212,7 +327,7 @@ All other checks use Catalog data only and work without this step.
 
 ---
 
-## Step 5 — Create the Production Readiness Scorecard
+## Step 6 — Create the Production Readiness Scorecard
 
 **IDP > Configure > Scorecards > + New Scorecard**
 
@@ -231,7 +346,7 @@ Add all checks created in Step 4. Click **Publish**.
 
 ---
 
-## Step 6 — Add Production Gate to Deployment Pipelines
+## Step 7 — Add Production Gate to Deployment Pipelines
 
 Add this step before the production stage in every Harness CD pipeline.
 It aborts the deployment if the scorecard is below 100%.
@@ -261,7 +376,7 @@ Add `entityName` as a pipeline variable (value = catalog entity name, e.g. `paym
 
 ---
 
-## Step 7 — Verify
+## Step 8 — Verify
 
 Open **payments-service** in the catalog and confirm:
 
@@ -274,7 +389,7 @@ Open **payments-service** in the catalog and confirm:
 
 ---
 
-## Step 8 — Roll Out to Service Teams
+## Step 9 — Roll Out to Service Teams
 
 Share the repo with all teams:
 
@@ -505,10 +620,12 @@ CMDB table: `cmdb_ci_service`
 | `catalog-info.yaml` | Worked example — Payments Platform (catalog-info) |
 | `now.template.yaml` | Golden template — teams copy this for now.yaml |
 | `now.yaml` | Worked example — Payments Platform (now.yaml) |
+| `homepage.yaml` | Homepage layout — apply via Admin > Layout > Homepage |
+| `sidenav.yaml` | Sidenav layout — apply via Admin > Layout > Sidenav |
 | `layout-component-service.yaml` | Component / service page layout |
 | `layout-system.yaml` | System page layout |
 | `layout-resource-*.yaml` | Resource page layouts |
-| `preview.html` | Offline UI preview — open in browser |
+| `preview.html` | Offline UI preview — open in browser (includes homepage view) |
 | `wiki/integrations/` | ServiceNow, blast radius runbook, dependency ingestion docs |
 
 ---
