@@ -2,14 +2,14 @@ site_name: <Service Display Name>        # REQUIRED — e.g. Payments Service
 site_description: >
   <One sentence describing what this service does.>   # REQUIRED
 
-docs_dir: docs
+idpdocs_dir: idpdocs
 
 nav:
   - Overview: index.md
-  - Architecture: architecture.md          # OPTIONAL — create docs/architecture.md if needed
-  - Runbook: runbook.md                    # OPTIONAL — create docs/runbook.md if needed
-  - APIs: apis.md                          # OPTIONAL — create docs/apis.md if needed
-  - On-Call: oncall.md                     # OPTIONAL — create docs/oncall.md if needed
+  - Architecture: architecture.md          # OPTIONAL — create idpdocs/architecture.md if needed
+  - Runbook: runbook.md                    # OPTIONAL — create idpdocs/runbook.md if needed
+  - APIs: apis.md                          # OPTIONAL — create idpdocs/apis.md if needed
+  - On-Call: oncall.md                     # OPTIONAL — create idpdocs/oncall.md if needed
 
 plugins:
-  - techdocs-core
+  - techidpdocs-core

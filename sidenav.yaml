@@ -1,0 +1,32 @@
+# =============================================================================
+# Harness IDP — Sidenav Layout
+#
+# Apply via: Admin > Layout > Sidenav > Edit YAML
+# =============================================================================
+
+page:
+  name: SidebarLayout
+  items:
+    - title: Home
+      url: /
+      icon: home
+
+    - title: Catalog
+      url: /catalog
+      icon: catalog
+
+    - title: Self-Service
+      url: /create
+      icon: scaffolder
+
+    - title: Scorecards
+      url: /scorecards
+      icon: quality
+
+    - title: TechDocs
+      url: /docs
+      icon: docs
+
+    - title: My Starred
+      url: /catalog?filters[starred]=true
+      icon: star

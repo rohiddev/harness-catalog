@@ -1,0 +1,11 @@
+site_name: Payments Platform
+site_description: >
+  End-to-end payments processing platform covering payment initiation,
+  fraud detection, ledger posting and event publishing.
+
+docs_dir: .
+nav:
+  - Overview: IDPReadme.md
+
+plugins:
+  - techdocs-core

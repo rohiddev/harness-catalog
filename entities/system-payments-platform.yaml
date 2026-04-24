@@ -12,6 +12,8 @@ metadata:
   annotations:
     bank.com/sysid: SYSID-00000
     jira/project-key: PAY
+    backstage.io/techdocs-ref: url:https://github.com/<org>/harness-catalog/tree/master/
+    backstage.io/source-location: url:https://github.com/<org>/harness-catalog/tree/master/
   tags:
     - payments
     - core-banking

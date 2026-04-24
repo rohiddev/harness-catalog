@@ -1,0 +1,129 @@
+# =============================================================================
+# Harness IDP — Homepage Layout
+#
+# Apply via: Admin > Layout > Homepage > Edit YAML
+#
+# Logo: Set via Admin > Appearance > Logo (portal-wide, swap URL for prod)
+#
+# Banner: Update manually when a production freeze is active.
+#   Default:  ✅ No active production freezes.
+#   Freeze:   🔴 PROD FREEZE ACTIVE — no deployments to production until [date].
+#             Contact platform-team@bank.com
+# =============================================================================
+
+header:
+  title: "<+greeting>, <+first_name>. Welcome to the Bank Developer Portal."
+  subtitle: "Your single source of truth for services, APIs, and self-service."
+  quickLinks:
+    - title: Catalog
+      url: /catalog
+      icon: catalog
+    - title: Self-Service
+      url: /create
+      icon: scaffolder
+    - title: Scorecards
+      url: /scorecards
+      icon: quality
+    - title: TechDocs
+      url: /docs
+      icon: docs
+
+banner:
+  text: "✅ No active production freezes. For platform support contact platform-team@bank.com"
+
+cards:
+  # ── Row 1: Platform Status (full width) ─────────────────────────────────────
+  # Update links below to point to your internal freeze calendar / ServiceNow board
+  - type: custom
+    width: 12md
+    content: |
+      ## Platform Status
+
+      | | Resource | Description |
+      |---|---|---|
+      | 📅 | [Freeze Calendar](https://confluence.bank.com/display/ENG/freeze-calendar) | Scheduled production freeze windows |
+      | 🎫 | [Change Advisory Board](https://servicenow.bank.com/change) | Active and pending change requests |
+      | 🚨 | [Incident Dashboard](https://oncall.bank.com/incidents) | Live incidents and P1/P2 status |
+      | 📞 | [On-Call Schedule](https://oncall.bank.com) | Who is on-call right now |
+      | 🏗 | [Harness Pipelines](https://app.harness.io) | CI/CD pipeline runs |
+      | 📊 | [Datadog](https://app.datadoghq.com) | Service health and dashboards |
+
+      > To raise a production freeze update on this banner — contact the Platform Engineering team or update via **Admin > Layout > Homepage**.
+
+  # ── Row 2: Personalised (half + half) ───────────────────────────────────────
+  - type: RecentlyVisited
+    width: 6md
+
+  - type: TopVisited
+    width: 6md
+
+  # ── Row 3: My Workspace (half + half) ───────────────────────────────────────
+  - type: StarredEntities
+    width: 6md
+
+  - type: custom
+    width: 6md
+    content: |
+      ## What's New
+
+      **April 2026**
+      - 🆕 ServiceNow CMDB integration live — `now.yaml` required for all services
+      - 🔒 Production Readiness Scorecard enforced — `catalog-info.yaml` + `now.yaml` must both score 100%
+      - ☁️ Public Cloud Onboarding workflow updated with Tier 3 support
+
+      **March 2026**
+      - 🛡 Security Group self-service workflow launched
+      - 👥 AD Group user management workflow available
+      - 📁 Repo provisioning v2 — single workflow creates GitHub repo + AD groups + GitHub Teams
+
+      **February 2026**
+      - 🏆 Scorecards v2 — 12 automated checks, threshold enforcement
+      - 📖 TechDocs enabled — add `docs/index.md` to any repo to activate
+
+      ---
+      [Full platform release notes →](https://developer.harness.io/release-notes/internal-developer-portal)
+
+  # ── Row 4: Onboarding (half + half) ─────────────────────────────────────────
+  - type: custom
+    width: 6md
+    content: |
+      ## Getting Started
+
+      New to the Developer Portal? Here's your checklist:
+
+      **1. Register your service**
+      Add `catalog-info.yaml` to your repo root on `master`, then [import it into the catalog →](/catalog/import)
+
+      **2. Link to CMDB**
+      Add `now.yaml` alongside `catalog-info.yaml`. Both must score 100% on the [Production Readiness Scorecard →](/scorecards)
+
+      **3. Enable TechDocs**
+      Add `mkdocs.yml` + `docs/index.md` to your repo. Your service gets a **Docs** tab automatically.
+
+      **4. Run your first self-service workflow**
+      Browse [Self-Service Workflows →](/create) — onboarding, access, provisioning, and more.
+
+      **5. Star your services**
+      Click ⭐ on any catalog entity to pin it to your homepage.
+
+      ---
+      Need help? Email [platform-team@bank.com](mailto:platform-team@bank.com)
+
+  - type: custom
+    width: 6md
+    content: |
+      ## IDP 101 — Key Concepts
+
+      | Concept | What it is |
+      |---|---|
+      | **Software Catalog** | Central registry of all services, APIs, libraries, and resources across the bank |
+      | **catalog-info.yaml** | Entity definition file — lives in your repo root on `master` branch |
+      | **now.yaml** | CMDB linkage file — declares your service dependencies for ServiceNow |
+      | **Workflow** | Self-service form that triggers a Harness pipeline — replaces Jira tickets |
+      | **Scorecard** | Automated quality gate — checks catalog completeness, CI/CD hygiene, security |
+      | **TechDocs** | Rendered `docs/` folder — your service's living documentation inside IDP |
+      | **System** | Group of related services (e.g. Payments Platform = service + DB + Kafka + APIs) |
+      | **Starred Entities** | Your bookmarked services — pinned to your homepage for quick access |
+
+      ---
+      [Read the full IDP documentation →](https://developer.harness.io/docs/internal-developer-portal)
