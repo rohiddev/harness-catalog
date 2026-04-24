@@ -154,6 +154,88 @@
   .sim-label { font-weight: 700; color: #fff; }
 
   @media (max-width: 900px) { .col-6 { grid-column: span 12; } .sidebar { display: none; } }
+
+  /* ── Homepage ── */
+  .banner-strip { background: #FEF3C7; border-bottom: 1px solid #FDE68A; padding: 9px 28px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: #92400E; }
+  .banner-strip .material-icons { font-size: 16px; color: #D97706; }
+  .banner-strip.ok { background: #ECFDF5; border-color: #A7F3D0; color: #065F46; }
+  .banner-strip.ok .material-icons { color: #10B981; }
+  .banner-strip.freeze { background: #FEF2F2; border-color: #FECACA; color: #7F1D1D; }
+  .banner-strip.freeze .material-icons { color: #EF4444; }
+
+  .hp-header { background: linear-gradient(135deg, #0f1e3d 0%, #1a3a6b 60%, #0d5ea6 100%); padding: 36px 36px 32px; position: relative; overflow: hidden; }
+  .hp-header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 280px; height: 280px; border-radius: 50%; background: rgba(255,255,255,0.03); }
+  .hp-header::after { content: ''; position: absolute; bottom: -80px; right: 120px; width: 200px; height: 200px; border-radius: 50%; background: rgba(0,120,215,0.15); }
+  .hp-logo-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+  .hp-logo-placeholder { height: 32px; background: rgba(255,255,255,0.15); border: 1.5px dashed rgba(255,255,255,0.3); border-radius: 6px; padding: 0 16px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600; letter-spacing: 0.03em; }
+  .hp-logo-placeholder .material-icons { font-size: 14px; }
+  .hp-header-badge { margin-left: auto; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 4px 12px; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.08em; }
+  .hp-greeting { font-size: 26px; font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 6px; }
+  .hp-greeting span { color: #60AEFF; }
+  .hp-subtitle { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 24px; }
+  .hp-quicklinks { display: flex; gap: 8px; flex-wrap: wrap; }
+  .hp-ql { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 6px 14px; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.8); cursor: pointer; transition: all 0.15s; text-decoration: none; }
+  .hp-ql:hover { background: rgba(255,255,255,0.18); color: #fff; border-color: rgba(255,255,255,0.3); }
+  .hp-ql .material-icons { font-size: 13px; }
+
+  .hp-content { padding: 20px 24px; overflow-y: auto; }
+
+  .hp-card { background: #fff; border-radius: 10px; border: 1px solid #E5E7EB; overflow: hidden; height: 100%; }
+  .hp-card-header { padding: 12px 16px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: center; gap: 8px; }
+  .hp-card-title { font-size: 13px; font-weight: 700; color: #111; }
+  .hp-card-subtitle { margin-left: auto; font-size: 11px; color: #9CA3AF; }
+  .hp-card-icon { color: #9CA3AF; }
+  .hp-card-icon .material-icons { font-size: 16px; }
+  .hp-card-body { padding: 14px 16px; }
+
+  .hp-status-table { width: 100%; border-collapse: collapse; }
+  .hp-status-table td { padding: 9px 12px; font-size: 12px; border-bottom: 1px solid #F9FAFB; }
+  .hp-status-table tr:last-child td { border-bottom: none; }
+  .hp-status-table td:first-child { width: 32px; text-align: center; }
+  .hp-status-table .st-icon { font-size: 16px; }
+  .hp-status-table .st-link { color: #0078D7; font-weight: 600; text-decoration: none; }
+  .hp-status-table .st-link:hover { text-decoration: underline; }
+  .hp-status-table .st-desc { color: #9CA3AF; }
+
+  .hp-visited-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #F9FAFB; cursor: pointer; }
+  .hp-visited-item:last-child { border-bottom: none; }
+  .hp-visited-item:hover { background: #F9FAFB; margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+  .hp-visited-icon { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hp-visited-icon.system { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+  .hp-visited-icon.service { background: linear-gradient(135deg, #0078D7, #005EA8); }
+  .hp-visited-icon.resource { background: linear-gradient(135deg, #10B981, #059669); }
+  .hp-visited-icon .material-icons { font-size: 14px; color: #fff; }
+  .hp-visited-name { font-size: 12px; font-weight: 600; color: #111; }
+  .hp-visited-meta { font-size: 11px; color: #9CA3AF; }
+  .hp-visited-time { margin-left: auto; font-size: 10px; color: #D1D5DB; }
+
+  .hp-starred-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #F9FAFB; }
+  .hp-starred-item:last-child { border-bottom: none; }
+  .hp-starred-name { font-size: 12px; font-weight: 600; color: #0078D7; }
+  .hp-starred-meta { font-size: 11px; color: #9CA3AF; }
+
+  .hp-news-item { padding: 10px 0; border-bottom: 1px solid #F9FAFB; }
+  .hp-news-item:last-child { border-bottom: none; }
+  .hp-news-date { font-size: 10px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+  .hp-news-text { font-size: 12px; color: #374151; line-height: 1.5; }
+  .hp-news-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-right: 4px; }
+  .hp-news-tag.new { background: #ECFDF5; color: #065F46; }
+  .hp-news-tag.update { background: #EEF3FD; color: #1D4ED8; }
+  .hp-news-tag.enforce { background: #FEF3C7; color: #92400E; }
+
+  .hp-step { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #F9FAFB; }
+  .hp-step:last-child { border-bottom: none; }
+  .hp-step-num { width: 22px; height: 22px; border-radius: 50%; background: #0078D7; color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .hp-step-title { font-size: 12px; font-weight: 600; color: #111; }
+  .hp-step-desc { font-size: 11px; color: #6B7280; line-height: 1.4; }
+  .hp-step-link { font-size: 11px; color: #0078D7; text-decoration: none; }
+
+  .hp-concept-table { width: 100%; border-collapse: collapse; }
+  .hp-concept-table tr { border-bottom: 1px solid #F9FAFB; }
+  .hp-concept-table tr:last-child { border-bottom: none; }
+  .hp-concept-table td { padding: 7px 0; font-size: 12px; vertical-align: top; }
+  .hp-concept-table .ct-key { width: 130px; font-weight: 700; color: #111; font-family: monospace; font-size: 11px; color: #374151; padding-right: 12px; }
+  .hp-concept-table .ct-val { color: #6B7280; line-height: 1.4; }
 </style>
 </head>
 <body>
@@ -161,7 +243,7 @@
 <div class="sim-bar">
   <div class="sim-dot"></div>
   <span class="sim-label">UI Preview</span>
-  <span>— Harness IDP 2.0 · Software Catalog · Entity Page Layout Simulation</span>
+  <span>— Harness IDP 2.0 · Bank Developer Portal · Homepage + Catalog Entity Pages</span>
 </div>
 
 <div class="shell">
@@ -169,17 +251,16 @@
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><span class="material-icons">hub</span></div>
-      <span class="sidebar-logo-text">Harness IDP</span>
+      <div class="sidebar-logo-icon"><span class="material-icons">account_balance</span></div>
+      <span class="sidebar-logo-text">Bank Developer Portal</span>
     </div>
-    <div class="sidebar-section">Catalog</div>
-    <div class="sidebar-item active"><span class="material-icons">category</span> Software Catalog</div>
-    <div class="sidebar-item"><span class="material-icons">api</span> APIs</div>
+    <div id="nav-home" class="sidebar-item active" onclick="switchEntity('homepage')"><span class="material-icons">home</span> Home</div>
+    <div id="nav-catalog" class="sidebar-item" onclick="switchEntity('system')"><span class="material-icons">category</span> Catalog</div>
+    <div class="sidebar-item"><span class="material-icons">play_circle</span> Self-Service</div>
+    <div class="sidebar-item"><span class="material-icons">verified</span> Scorecards</div>
     <div class="sidebar-item"><span class="material-icons">description</span> TechDocs</div>
-    <div class="sidebar-section" style="margin-top:12px">Self Service</div>
-    <div class="sidebar-item"><span class="material-icons">play_circle</span> Workflows</div>
-    <div class="sidebar-section" style="margin-top:12px">Platform</div>
-    <div class="sidebar-item"><span class="material-icons">settings</span> Admin</div>
+    <div style="height:1px;background:rgba(255,255,255,0.08);margin:10px 16px"></div>
+    <div class="sidebar-item"><span class="material-icons">star</span> My Starred</div>
   </div>
 
   <div class="main">
@@ -200,7 +281,7 @@
     </div>
 
     <!-- Entity switcher -->
-    <div class="entity-switcher">
+    <div class="entity-switcher" id="entity-switcher-bar">
       <button class="entity-btn active" onclick="showEntity('system')">
         <span class="material-icons">layers</span> System
       </button>
@@ -219,7 +300,7 @@
     </div>
 
     <!-- ══ SYSTEM ENTITY ══════════════════════════════════════════════════════ -->
-    <div id="entity-system">
+    <div id="entity-system" style="display:none">
       <div class="entity-header">
         <div class="entity-kind-badge"><span class="material-icons">layers</span> System</div>
         <div class="entity-title-row">
@@ -1075,24 +1156,349 @@
       </div>
     </div>
 
+    <!-- ══ HOMEPAGE ══════════════════════════════════════════════════════════ -->
+    <div id="entity-homepage">
+
+      <!-- Banner -->
+      <div class="banner-strip ok">
+        <span class="material-icons">check_circle</span>
+        <span>✅ No active production freezes. For platform support contact <strong>platform-team@bank.com</strong></span>
+        <span style="margin-left:auto;font-size:10px;opacity:0.6">Updated by Platform Engineering · Admin &gt; Layout &gt; Homepage</span>
+      </div>
+
+      <!-- Header -->
+      <div class="hp-header">
+        <div class="hp-logo-bar">
+          <div class="hp-logo-placeholder"><span class="material-icons">image</span> bank-logo.svg — replace via Admin &gt; Appearance</div>
+          <div class="hp-header-badge">Developer Portal</div>
+        </div>
+        <div class="hp-greeting">Good morning, <span>Alex</span>. Welcome to the Bank Developer Portal.</div>
+        <div class="hp-subtitle">Your single source of truth for services, APIs, and self-service.</div>
+        <div class="hp-quicklinks">
+          <a class="hp-ql" href="#"><span class="material-icons">category</span> Catalog</a>
+          <a class="hp-ql" href="#"><span class="material-icons">play_circle</span> Self-Service</a>
+          <a class="hp-ql" href="#"><span class="material-icons">verified</span> Scorecards</a>
+          <a class="hp-ql" href="#"><span class="material-icons">description</span> TechDocs</a>
+        </div>
+      </div>
+
+      <!-- Cards -->
+      <div class="hp-content">
+        <div class="grid">
+
+          <!-- Row 1: Platform Status (full width) -->
+          <div class="col-12">
+            <div class="hp-card">
+              <div class="hp-card-header">
+                <div class="hp-card-icon"><span class="material-icons">monitor_heart</span></div>
+                <div class="hp-card-title">Platform Status</div>
+                <div class="hp-card-subtitle">All systems operational · Last checked 2 min ago</div>
+              </div>
+              <div class="hp-card-body" style="padding:0">
+                <table class="hp-status-table">
+                  <tr>
+                    <td><span class="st-icon">📅</span></td>
+                    <td><a class="st-link" href="#">Freeze Calendar</a></td>
+                    <td class="st-desc">Scheduled production freeze windows</td>
+                    <td style="text-align:right;padding-right:16px"><span style="background:#D1FAE5;color:#065F46;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">No freeze</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="st-icon">🎫</span></td>
+                    <td><a class="st-link" href="#">Change Advisory Board</a></td>
+                    <td class="st-desc">Active and pending change requests in ServiceNow</td>
+                    <td style="text-align:right;padding-right:16px"><span style="background:#FEF3C7;color:#92400E;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">3 pending</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="st-icon">🚨</span></td>
+                    <td><a class="st-link" href="#">Incident Dashboard</a></td>
+                    <td class="st-desc">Live incidents and P1/P2 status</td>
+                    <td style="text-align:right;padding-right:16px"><span style="background:#D1FAE5;color:#065F46;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">All clear</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="st-icon">📞</span></td>
+                    <td><a class="st-link" href="#">On-Call Schedule</a></td>
+                    <td class="st-desc">Who is on-call right now</td>
+                    <td style="text-align:right;padding-right:16px"><span style="font-size:11px;color:#374151;font-weight:500">Alex Chen · Payments</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="st-icon">🏗</span></td>
+                    <td><a class="st-link" href="#">Harness Pipelines</a></td>
+                    <td class="st-desc">CI/CD pipeline runs across all teams</td>
+                    <td style="text-align:right;padding-right:16px"><span style="background:#D1FAE5;color:#065F46;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">142 passed</span></td>
+                  </tr>
+                  <tr>
+                    <td><span class="st-icon">📊</span></td>
+                    <td><a class="st-link" href="#">Datadog</a></td>
+                    <td class="st-desc">Service health dashboards and alerts</td>
+                    <td style="text-align:right;padding-right:16px"><span style="background:#D1FAE5;color:#065F46;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px">Healthy</span></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2: Recently Visited + Top Visited -->
+          <div class="col-6">
+            <div class="hp-card">
+              <div class="hp-card-header">
+                <div class="hp-card-icon"><span class="material-icons">history</span></div>
+                <div class="hp-card-title">Recently Visited</div>
+                <div class="hp-card-subtitle">Your last 5 views</div>
+              </div>
+              <div class="hp-card-body">
+                <div class="hp-visited-item">
+                  <div class="hp-visited-icon system"><span class="material-icons">hub</span></div>
+                  <div><div class="hp-visited-name">payments-platform</div><div class="hp-visited-meta">System · team-payments</div></div>
+                  <div class="hp-visited-time">2 min ago</div>
+                </div>
+                <div class="hp-visited-item">
+                  <div class="hp-visited-icon service"><span class="material-icons">miscellaneous_services</span></div>
+                  <div><div class="hp-visited-name">payments-service</div><div class="hp-visited-meta">Component · service · production</div></div>
+                  <div class="hp-visited-time">1 hr ago</div>
+                </div>
+                <div class="hp-visited-item">
+                  <div class="hp-visited-icon service"><span class="material-icons">miscellaneous_services</span></div>
+                  <div><div class="hp-visited-name">loan-origination-service</div><div class="hp-visited-meta">Component · service · production</div></div>
+                  <div class="hp-visited-time">Yesterday</div>
+                </div>
+                <div class="hp-visited-item">
+                  <div class="hp-visited-icon resource"><span class="material-icons">storage</span></div>
+                  <div><div class="hp-visited-name">payments-postgres</div><div class="hp-visited-meta">Resource · database · AWS RDS</div></div>
+                  <div class="hp-visited-time">Yesterday</div>
+                </div>
+                <div class="hp-visited-item">
+                  <div class="hp-visited-icon service"><span class="material-icons">miscellaneous_services</span></div>
+                  <div><div class="hp-visited-name">money-transfer-api</div><div class="hp-visited-meta">Component · service · production</div></div>
+                  <div class="hp-visited-time">2 days ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <div class="hp-card">
+              <div class="hp-card-header">
+                <div class="hp-card-icon"><span class="material-icons">trending_up</span></div>
+                <div class="hp-card-title">Top Visited</div>
+                <div class="hp-card-subtitle">Most visited this week</div>
+              </div>
+              <div class="hp-card-body">
+                <div class="hp-visited-item">
+                  <div class="hp-visited-icon system"><span class="material-icons">hub</span></div>
+                  <div><div class="hp-visited-name">payments-platform</div><div class="hp-visited-meta">System · 847 views this week</div></div>
+                  <div style="margin-left:auto"><span class="tag red">tier-1</span></div>
+                </div>
+                <div class="hp-visited-item">
+                  <div class="hp-visited-icon service"><span class="material-icons">miscellaneous_services</span></div>
+                  <div><div class="hp-visited-name">loan-origination-service</div><div class="hp-visited-meta">Component · 612 views</div></div>
+                  <div style="margin-left:auto"><span class="tag red">tier-1</span></div>
+                </div>
+                <div class="hp-visited-item">
+                  <div class="hp-visited-icon service"><span class="material-icons">miscellaneous_services</span></div>
+                  <div><div class="hp-visited-name">money-transfer-api</div><div class="hp-visited-meta">Component · 489 views</div></div>
+                  <div style="margin-left:auto"><span class="tag blue">tier-2</span></div>
+                </div>
+                <div class="hp-visited-item">
+                  <div class="hp-visited-icon service"><span class="material-icons">miscellaneous_services</span></div>
+                  <div><div class="hp-visited-name">auth-service</div><div class="hp-visited-meta">Component · 401 views</div></div>
+                  <div style="margin-left:auto"><span class="tag red">tier-1</span></div>
+                </div>
+                <div class="hp-visited-item">
+                  <div class="hp-visited-icon service"><span class="material-icons">miscellaneous_services</span></div>
+                  <div><div class="hp-visited-name">fraud-detection-service</div><div class="hp-visited-meta">Component · 378 views</div></div>
+                  <div style="margin-left:auto"><span class="tag red">tier-1</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 3: Starred + What's New -->
+          <div class="col-6">
+            <div class="hp-card">
+              <div class="hp-card-header">
+                <div class="hp-card-icon"><span class="material-icons" style="color:#F59E0B">star</span></div>
+                <div class="hp-card-title">My Starred</div>
+                <div class="hp-card-subtitle">Your bookmarked entities</div>
+              </div>
+              <div class="hp-card-body">
+                <div class="hp-starred-item">
+                  <div class="hp-visited-icon service" style="flex-shrink:0"><span class="material-icons">miscellaneous_services</span></div>
+                  <div><div class="hp-starred-name">payments-service</div><div class="hp-starred-meta">Component · service · team-payments</div></div>
+                  <div style="margin-left:auto"><span class="tag green">100%</span></div>
+                </div>
+                <div class="hp-starred-item">
+                  <div class="hp-visited-icon system" style="flex-shrink:0"><span class="material-icons">hub</span></div>
+                  <div><div class="hp-starred-name">payments-platform</div><div class="hp-starred-meta">System · team-payments</div></div>
+                  <div style="margin-left:auto"><span class="tag green">100%</span></div>
+                </div>
+                <div class="hp-starred-item">
+                  <div class="hp-visited-icon resource" style="flex-shrink:0"><span class="material-icons">storage</span></div>
+                  <div><div class="hp-starred-name">payments-postgres</div><div class="hp-starred-meta">Resource · database · AWS RDS</div></div>
+                  <div style="margin-left:auto"><span class="tag green">production</span></div>
+                </div>
+                <div style="margin-top:12px;padding-top:10px;border-top:1px solid #F3F4F6;text-align:center">
+                  <a href="#" style="font-size:11px;color:#0078D7;text-decoration:none">⭐ Star any entity to pin it here →</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <div class="hp-card">
+              <div class="hp-card-header">
+                <div class="hp-card-icon"><span class="material-icons">campaign</span></div>
+                <div class="hp-card-title">What's New</div>
+                <div class="hp-card-subtitle">Platform updates</div>
+              </div>
+              <div class="hp-card-body">
+                <div class="hp-news-item">
+                  <div class="hp-news-date">April 2026</div>
+                  <div class="hp-news-text">
+                    <span class="hp-news-tag new">NEW</span> ServiceNow CMDB integration live — <code style="font-size:10px;background:#F3F4F6;padding:1px 5px;border-radius:3px">now.yaml</code> required for all services<br>
+                    <span class="hp-news-tag enforce">ENFORCE</span> Production Readiness Scorecard — both files must score 100%<br>
+                    <span class="hp-news-tag update">UPDATE</span> Public Cloud Onboarding workflow updated with Tier 3 support
+                  </div>
+                </div>
+                <div class="hp-news-item">
+                  <div class="hp-news-date">March 2026</div>
+                  <div class="hp-news-text">
+                    <span class="hp-news-tag new">NEW</span> Security Group self-service workflow launched<br>
+                    <span class="hp-news-tag new">NEW</span> AD Group user management workflow available<br>
+                    <span class="hp-news-tag update">UPDATE</span> Repo provisioning v2 — creates repo + AD groups + GitHub Teams in one step
+                  </div>
+                </div>
+                <div style="margin-top:10px;padding-top:8px;border-top:1px solid #F3F4F6">
+                  <a href="#" style="font-size:11px;color:#0078D7;text-decoration:none">View full release notes →</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 4: Getting Started + IDP 101 -->
+          <div class="col-6">
+            <div class="hp-card">
+              <div class="hp-card-header">
+                <div class="hp-card-icon"><span class="material-icons">rocket_launch</span></div>
+                <div class="hp-card-title">Getting Started</div>
+                <div class="hp-card-subtitle">New to the portal?</div>
+              </div>
+              <div class="hp-card-body">
+                <div class="hp-step">
+                  <div class="hp-step-num">1</div>
+                  <div>
+                    <div class="hp-step-title">Register your service</div>
+                    <div class="hp-step-desc">Add <code style="font-size:10px;background:#F3F4F6;padding:1px 4px;border-radius:3px">catalog-info.yaml</code> to your repo root on <code style="font-size:10px;background:#F3F4F6;padding:1px 4px;border-radius:3px">master</code>, then <a class="hp-step-link" href="#">import it →</a></div>
+                  </div>
+                </div>
+                <div class="hp-step">
+                  <div class="hp-step-num">2</div>
+                  <div>
+                    <div class="hp-step-title">Link to CMDB</div>
+                    <div class="hp-step-desc">Add <code style="font-size:10px;background:#F3F4F6;padding:1px 4px;border-radius:3px">now.yaml</code> alongside your catalog file. Both must score <strong>100%</strong> on <a class="hp-step-link" href="#">Production Readiness Scorecard →</a></div>
+                  </div>
+                </div>
+                <div class="hp-step">
+                  <div class="hp-step-num">3</div>
+                  <div>
+                    <div class="hp-step-title">Enable TechDocs</div>
+                    <div class="hp-step-desc">Add <code style="font-size:10px;background:#F3F4F6;padding:1px 4px;border-radius:3px">mkdocs.yml</code> + <code style="font-size:10px;background:#F3F4F6;padding:1px 4px;border-radius:3px">docs/index.md</code> to your repo. Your service gets a Docs tab automatically.</div>
+                  </div>
+                </div>
+                <div class="hp-step">
+                  <div class="hp-step-num">4</div>
+                  <div>
+                    <div class="hp-step-title">Run your first self-service workflow</div>
+                    <div class="hp-step-desc">Browse <a class="hp-step-link" href="#">Self-Service Workflows →</a> — onboarding, access, provisioning, cloud infrastructure.</div>
+                  </div>
+                </div>
+                <div class="hp-step">
+                  <div class="hp-step-num">5</div>
+                  <div>
+                    <div class="hp-step-title">Star your services</div>
+                    <div class="hp-step-desc">Click ⭐ on any catalog entity to pin it to this homepage for quick access.</div>
+                  </div>
+                </div>
+                <div style="margin-top:10px;padding-top:8px;border-top:1px solid #F3F4F6;font-size:11px;color:#6B7280">
+                  Need help? Email <a href="#" style="color:#0078D7;text-decoration:none">platform-team@bank.com</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <div class="hp-card">
+              <div class="hp-card-header">
+                <div class="hp-card-icon"><span class="material-icons">school</span></div>
+                <div class="hp-card-title">IDP 101 — Key Concepts</div>
+                <div class="hp-card-subtitle">Quick reference</div>
+              </div>
+              <div class="hp-card-body">
+                <table class="hp-concept-table">
+                  <tr><td class="ct-key">Catalog</td><td class="ct-val">Central registry of all services, APIs, and resources across the bank</td></tr>
+                  <tr><td class="ct-key">catalog-info.yaml</td><td class="ct-val">Entity definition file — lives in your repo root on <code style="font-size:10px;background:#F3F4F6;padding:1px 4px;border-radius:3px">master</code></td></tr>
+                  <tr><td class="ct-key">now.yaml</td><td class="ct-val">CMDB linkage — declares your service dependencies for ServiceNow</td></tr>
+                  <tr><td class="ct-key">Workflow</td><td class="ct-val">Self-service form → Harness pipeline — replaces Jira tickets</td></tr>
+                  <tr><td class="ct-key">Scorecard</td><td class="ct-val">Automated quality gate — catalog completeness, CI/CD, security checks</td></tr>
+                  <tr><td class="ct-key">TechDocs</td><td class="ct-val">Rendered <code style="font-size:10px;background:#F3F4F6;padding:1px 4px;border-radius:3px">docs/</code> folder — your service's living documentation</td></tr>
+                  <tr><td class="ct-key">System</td><td class="ct-val">Group of related services, e.g. Payments Platform = service + DB + Kafka</td></tr>
+                  <tr><td class="ct-key">Starred</td><td class="ct-val">Your bookmarked services — pinned to homepage for quick access</td></tr>
+                </table>
+                <div style="margin-top:12px;padding-top:8px;border-top:1px solid #F3F4F6">
+                  <a href="#" style="font-size:11px;color:#0078D7;text-decoration:none">Read the full IDP documentation →</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /entity-homepage -->
+
   </div><!-- /main -->
 </div><!-- /shell -->
 
 <script>
-  const entities = ['system','service','database','mq','cache'];
-  const entityLabels = { system:'System · payments-platform', service:'Component · payments-service', database:'Resource · payments-postgres', mq:'Resource · payments-rabbitmq', cache:'Resource · payments-redis' };
-  const entityKinds = { system:'System', service:'Component', database:'Resource', mq:'Resource', cache:'Resource' };
+  const entities = ['homepage','system','service','database','mq','cache'];
+  const entityLabels = { homepage:'Home', system:'System · payments-platform', service:'Component · payments-service', database:'Resource · payments-postgres', mq:'Resource · payments-rabbitmq', cache:'Resource · payments-redis' };
+  const entityKinds = { homepage:'', system:'System', service:'Component', database:'Resource', mq:'Resource', cache:'Resource' };
 
-  function showEntity(name) {
+  // Build switcher buttons dynamically
+  const switcherLabels = { homepage:'🏠 Homepage', system:'System', service:'Component · Service', database:'Resource · DB', mq:'Resource · MQ', cache:'Resource · Cache' };
+  const switcherIcons = { homepage:'home', system:'hub', service:'miscellaneous_services', database:'storage', mq:'swap_horiz', cache:'speed' };
+  const bar = document.getElementById('entity-switcher-bar');
+  entities.forEach(e => {
+    const btn = document.createElement('button');
+    btn.className = 'entity-btn' + (e === 'homepage' ? ' active' : '');
+    btn.id = 'btn-' + e;
+    btn.innerHTML = `<span class="material-icons">${switcherIcons[e]}</span> ${switcherLabels[e]}`;
+    btn.onclick = () => switchEntity(e);
+    bar.appendChild(btn);
+  });
+
+  function switchEntity(name) {
     entities.forEach(e => {
       document.getElementById('entity-'+e).style.display = e === name ? 'block' : 'none';
     });
-    document.querySelectorAll('.entity-btn').forEach((btn, i) => {
-      btn.classList.toggle('active', entities[i] === name);
+    document.querySelectorAll('.entity-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.id === 'btn-' + name);
     });
+    // Sidebar nav state
+    const navHome = document.getElementById('nav-home');
+    const navCatalog = document.getElementById('nav-catalog');
+    if (navHome && navCatalog) {
+      navHome.classList.toggle('active', name === 'homepage');
+      navCatalog.classList.toggle('active', name !== 'homepage');
+    }
+    // Breadcrumb
     document.getElementById('breadcrumb-name').textContent = entityLabels[name];
     document.getElementById('breadcrumb-kind').textContent = entityKinds[name];
+    // Hide topnav breadcrumb on homepage
+    const topnav = document.querySelector('.topnav');
+    if (topnav) topnav.style.display = name === 'homepage' ? 'none' : 'flex';
   }
+
+  // Init: show homepage, hide others
+  switchEntity('homepage');
 
   function switchTab(entity, tab) {
     const panes = document.querySelectorAll(`#entity-${entity} .tab-pane`);
