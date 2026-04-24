@@ -40,7 +40,7 @@
 | Item | Value |
 |---|---|
 | **Repo** | `github.com/<org>/<repo>` |
-| **Primary Branch** | `main` |
+| **Primary Branch** | `master` |
 | **Language** | `<Java / Python / Go / .NET / Node.js>` |
 | **Framework** | `<Spring Boot / FastAPI / Gin / Express / Other>` |
 | **Build Tool** | `<Maven / Gradle / pip / go build / Other>` |

@@ -27,8 +27,12 @@ your-repo/
 ```yaml
 metadata:
   annotations:
-    backstage.io/techdocs-ref: dir:.    # points TechDocs at the repo root
+    # Points TechDocs at the master branch repo root
+    backstage.io/techdocs-ref: url:https://github.com/<org>/<repo>/tree/master/
+    backstage.io/source-location: url:https://github.com/<org>/<repo>/tree/master/
 ```
+
+> `catalog-info.yaml`, `mkdocs.yml`, and `docs/` must all be on the **master** branch.
 
 ## Optional additional pages
 

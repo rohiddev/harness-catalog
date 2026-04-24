@@ -71,10 +71,10 @@ metadata:
     github.com/project-slug: <org>/<repo>              # e.g. bank-org/payments-service
 
     # TechDocs — REQUIRED (place docs/ folder in repo root)
-    backstage.io/techdocs-ref: dir:.
+    backstage.io/techdocs-ref: url:https://github.com/<org>/<repo>/tree/master/
 
     # Source location — REQUIRED (drives Code tab)
-    backstage.io/source-location: url:https://github.com/<org>/<repo>
+    backstage.io/source-location: url:https://github.com/<org>/<repo>/tree/master/
 
     # Harness CI/CD — REQUIRED
     # project-url: drives the CI/CD tab — paste the Harness pipelines page URL for your project
