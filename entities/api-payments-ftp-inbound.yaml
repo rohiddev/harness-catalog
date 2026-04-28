@@ -7,8 +7,9 @@ owner: group:account/team-payments
 metadata:
   title: Payments FTP Inbound
   description: >
-    Async file exchange - files deposited on the FTP server by third-party
-    processors and consumed by payments-service.
+    Batch payment instruction files read from FTP by payments-service.
+    Deposited by corporate banking clients and third-party originators.
+    Processed by the batch job at 06:00 and 12:00 daily.
   annotations:
     bank.com/sysid: SYSID-00000
     github.com/project-slug: bank-org/payments-service
@@ -27,3 +28,46 @@ spec:
     info:
       title: Payments FTP Inbound
       version: "1.0.0"
+      description: Batch payment instruction files read by payments-service from FTP.
+    servers:
+      production:
+        url: ftp.bank.com
+        protocol: sftp
+        description: Production SFTP server
+    channels:
+      /inbound/instructions/{date}:
+        description: >
+          Batch payment instruction files deposited by corporate clients.
+          Processed at 06:00 and 12:00 daily.
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
+        subscribe:
+          summary: Consume batch payment instructions
+          message:
+            name: BatchInstructionFile
+            contentType: text/csv
+            payload:
+              type: object
+              description: >
+                CSV columns: instruction_id, amount, currency, source_account,
+                destination_account, value_date, reference, priority
+      /inbound/corrections/{date}:
+        description: Correction files for previously submitted payment batches
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
+        subscribe:
+          summary: Consume payment correction file
+          message:
+            name: CorrectionFile
+            contentType: application/xml
+            payload:
+              type: object
+              description: >
+                ISO 20022 pain.002 format. Contains rejection and return
+                notifications for previously submitted instructions.

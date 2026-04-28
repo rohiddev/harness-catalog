@@ -7,9 +7,9 @@ owner: group:account/team-payments
 metadata:
   title: Payments MQ Producer
   description: >
-    Messages produced by payments-service to the enterprise message queue.
-    Publishes payment instructions and settlement notifications to downstream
-    processor queues using IBM MQ over AMQP.
+    Payment instructions and settlement notifications published by payments-service
+    to the enterprise IBM MQ broker. Consumed by downstream processor queues
+    and the settlement engine.
   annotations:
     bank.com/sysid: SYSID-00000
     github.com/project-slug: bank-org/payments-service
@@ -70,6 +70,32 @@ spec:
                 priority:
                   type: string
                   enum: [NORMAL, URGENT, SAME_DAY]
+      payments/settlement/notifications:
+        description: Settlement completion notifications to the settlement engine
+        publish:
+          summary: Publish settlement notification
+          bindings:
+            amqp:
+              is: queue
+              queue:
+                name: PAYMENTS.SETTLEMENT.NOTIFICATIONS
+                durable: true
+                exclusive: false
+                autoDelete: false
+          message:
+            name: SettlementNotification
+            contentType: application/json
+            payload:
+              type: object
+              required: [settlementId, paymentId, settledAt]
+              properties:
+                settlementId:
+                  type: string
+                paymentId:
+                  type: string
+                settledAt:
+                  type: string
+                  format: date-time
     components:
       securitySchemes:
         userPassword:

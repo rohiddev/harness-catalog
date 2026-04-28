@@ -7,8 +7,9 @@ owner: group:account/team-payments
 metadata:
   title: Payments REST API
   description: >
-    REST API for payment initiation, status queries and refunds.
-    Protected by OAuth2. Rate limited to 1000 req/min per client.
+    REST API for payment initiation, status queries and refunds. Protected by
+    OAuth2 client credentials. Rate limited to 1000 req/min per client.
+    Callers: mobile-banking-app, internet-banking, corporate-portal.
   annotations:
     bank.com/sysid: SYSID-00000
     github.com/project-slug: bank-org/payments-service
@@ -31,16 +32,95 @@ spec:
     info:
       title: Payments API
       version: "2.1.0"
+      description: >
+        REST API for payment initiation, status queries and refunds.
+        Protected by OAuth2 client credentials (scope: payments:write, payments:read).
+    servers:
+      - url: https://api.bank.com/payments
+        description: Production
+      - url: https://api.uat.bank.com/payments
+        description: UAT
     paths:
       /v2/payments:
         post:
           operationId: initiatePayment
           summary: Initiate a payment
+          tags: [Payments]
+          security:
+            - oauth2: [payments:write]
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  required: [amount, currency, sourceAccount, destinationAccount, reference]
+                  properties:
+                    amount:
+                      type: number
+                      example: 1500.00
+                    currency:
+                      type: string
+                      example: USD
+                    sourceAccount:
+                      type: string
+                      example: ACC-001234
+                    destinationAccount:
+                      type: string
+                      example: ACC-005678
+                    reference:
+                      type: string
+                      example: INV-2026-0042
+          responses:
+            '202':
+              description: Payment accepted for processing
+            '400':
+              description: Invalid request
+            '422':
+              description: Business rule violation
       /v2/payments/{id}:
         get:
           operationId: getPaymentStatus
           summary: Get payment status
+          tags: [Payments]
+          security:
+            - oauth2: [payments:read]
+          parameters:
+            - name: id
+              in: path
+              required: true
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Payment status
+            '404':
+              description: Payment not found
       /v2/payments/{id}/refund:
         post:
           operationId: refundPayment
           summary: Refund a payment
+          tags: [Payments]
+          security:
+            - oauth2: [payments:write]
+          parameters:
+            - name: id
+              in: path
+              required: true
+              schema:
+                type: string
+          responses:
+            '202':
+              description: Refund accepted
+            '400':
+              description: Invalid refund request
+    components:
+      securitySchemes:
+        oauth2:
+          type: oauth2
+          flows:
+            clientCredentials:
+              tokenUrl: https://auth.bank.com/oauth2/token
+              scopes:
+                payments:write: Initiate and refund payments
+                payments:read: Query payment status

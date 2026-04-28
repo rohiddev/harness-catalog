@@ -7,9 +7,10 @@ owner: group:account/team-payments
 metadata:
   title: Payments Kafka Cluster
   description: >
-    Kafka cluster used by payments-service for publishing payment lifecycle
-    events and consuming fraud decisions and ledger confirmations.
-    SASL/SCRAM-SHA-256 auth, TLS in transit. Managed by platform team.
+    Dedicated Kafka cluster for payments event streaming. SASL/SCRAM-SHA-256
+    authentication, TLS in transit. Managed by the platform team via Confluent
+    Control Center. Hosts payment lifecycle event topics consumed by fraud,
+    ledger and notification services.
   annotations:
     bank.com/sysid: SYSID-00000
   tags:

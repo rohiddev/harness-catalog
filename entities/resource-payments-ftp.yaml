@@ -7,12 +7,14 @@ owner: group:account/team-payments
 metadata:
   title: Payments FTP Server
   description: >
-    FTP server used by payments-service for secure file exchange with
-    third-party payment processors and settlement partners.
+    Secure FTP server for batch file exchange with third-party payment processors
+    and settlement partners. SFTP over SSH. Used for end-of-day settlement files,
+    payment instruction batches and reconciliation reports.
   annotations:
     bank.com/sysid: SYSID-00000
   tags:
     - ftp
+    - sftp
     - file-transfer
     - sysid-00000
 spec:

@@ -8,12 +8,14 @@ metadata:
   title: Payments Platform
   description: >
     End-to-end payments processing platform covering payment initiation,
-    fraud detection, ledger posting and event publishing.
+    fraud screening, ledger posting and settlement. Processes all retail
+    and corporate payment flows including SWIFT, SEPA, domestic wire and
+    FTP-based batch settlement files.
   annotations:
     bank.com/sysid: SYSID-00000
     jira/project-key: PAY
-    backstage.io/techdocs-ref: url:https://github.com/<org>/harness-catalog/tree/master/
-    backstage.io/source-location: url:https://github.com/<org>/harness-catalog/tree/master/
+    backstage.io/techdocs-ref: url:https://github.com/bank-org/harness-catalog/tree/master/
+    backstage.io/source-location: url:https://github.com/bank-org/harness-catalog/tree/master/
   tags:
     - payments
     - core-banking

@@ -7,8 +7,9 @@ owner: group:account/team-payments
 metadata:
   title: Payments FTP Outbound
   description: >
-    Async file exchange - files produced by payments-service and deposited on
-    the FTP server for downstream processor collection.
+    End-of-day settlement and reconciliation files deposited by payments-service
+    onto the FTP server. Consumed by the settlement engine and third-party
+    clearing houses. Files are PGP-encrypted and delivered by 23:00 local time.
   annotations:
     bank.com/sysid: SYSID-00000
     github.com/project-slug: bank-org/payments-service
@@ -27,3 +28,44 @@ spec:
     info:
       title: Payments FTP Outbound
       version: "1.0.0"
+      description: Settlement and reconciliation files produced by payments-service.
+    servers:
+      production:
+        url: ftp.bank.com
+        protocol: sftp
+        description: Production SFTP server
+    channels:
+      /outbound/settlement/{date}:
+        description: End-of-day settlement file — deposited by 23:00 local time
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
+        publish:
+          summary: Daily settlement file
+          message:
+            name: SettlementFile
+            contentType: text/csv
+            payload:
+              type: object
+              description: >
+                CSV columns: payment_id, amount, currency, source_account,
+                destination_account, status, settled_at
+      /outbound/reconciliation/{date}:
+        description: Daily reconciliation report for clearing houses
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
+        publish:
+          summary: Daily reconciliation report
+          message:
+            name: ReconciliationFile
+            contentType: application/xml
+            payload:
+              type: object
+              description: >
+                ISO 20022 camt.053 format. Contains all payment entries
+                for the business day.

@@ -1,4 +1,4 @@
-# ═══════════════════════════════════════════════════════════════════════════════
+  # ═══════════════════════════════════════════════════════════════════════════════
 # catalog-info.yaml — Golden Template  v1.0
 # Owner: Platform Engineering | Last updated: 2026-04-20
 #
@@ -82,21 +82,11 @@ metadata:
     harness.io/project-url: https://app.harness.io/ng/account/<account-id>/module/ci/orgs/default/projects/<SYSID-NNNNN>/pipelines
     harness.io/pipelines: <pipeline-id-1>,<pipeline-id-2>
 
-    # Kubernetes — OPTIONAL (include if service runs on Kubernetes)
-    backstage.io/kubernetes-id: <service-name>
-    backstage.io/kubernetes-namespace: <namespace>
-
-    # Contact details — OPTIONAL
-    pagerduty.com/service-id: <PD-SERVICE-ID>         # PagerDuty on-call contact ID
-
     # Observability — OPTIONAL (include what applies)
     datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/<id>
 
     # Code quality — OPTIONAL (drives SonarQube card on Overview tab)
     sonarqube.org/project-key: <sonar-project-key>    # e.g. payments-service
-
-    # SEI — OPTIONAL (drives DORA metrics tab — deployment frequency, lead time, MTTR)
-    harness.io/sei-project-id: <SYSID-NNNNN>
 
     # Tracking — OPTIONAL
     jira/project-key: <PROJ>

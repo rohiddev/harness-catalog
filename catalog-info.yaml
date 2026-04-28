@@ -1,19 +1,25 @@
 # =============================================================================
 # catalog-info.yaml — Payments Platform
 #
-# Complete payments platform entity set in Harness IDP 2.0 format.
-# This file is documentation only — import each entity individually via
-# "Create Component > Import from Git" (single-document per import).
+# Complete entity set for the Payments Platform in Harness IDP 2.0 format.
 #
-# Import order:
-#   1. System
-#   2. Resources (postgres, redis, ftp, kafka)
-#   3. Component
-#   4. APIs (rest, ftp-outbound, ftp-inbound, kafka-producer, kafka-consumer)
+# IMPORT ORDER (parent before child — one entity at a time):
+#   1. System        → entities/system-payments-platform.yaml
+#   2. Resources     → entities/resource-payments-*.yaml (any order)
+#   3. Component     → entities/component-payments-service.yaml
+#   4. APIs          → entities/api-payments-*.yaml (any order)
+#
+# HOW TO IMPORT:
+#   Harness IDP > Software Catalog > + Create > Import from Git
+#   Paste the URL to the individual entity file (single-document only)
+#   Multi-document YAML (--- separated) is NOT supported for import.
+#
+# This file is a reference snapshot only — do not import this file directly.
 # =============================================================================
 
+
 # =============================================================================
-# SYSTEM
+# 1. SYSTEM
 # =============================================================================
 apiVersion: harness.io/v1
 kind: System
@@ -25,10 +31,14 @@ metadata:
   title: Payments Platform
   description: >
     End-to-end payments processing platform covering payment initiation,
-    fraud detection, ledger posting and event publishing.
+    fraud screening, ledger posting and settlement. Processes all retail
+    and corporate payment flows including SWIFT, SEPA, domestic wire and
+    FTP-based batch settlement files.
   annotations:
     bank.com/sysid: SYSID-00000
     jira/project-key: PAY
+    backstage.io/techdocs-ref: url:https://github.com/bank-org/harness-catalog/tree/master/
+    backstage.io/source-location: url:https://github.com/bank-org/harness-catalog/tree/master/
   tags:
     - payments
     - core-banking
@@ -53,8 +63,10 @@ spec:
 ---
 
 # =============================================================================
-# RESOURCE — PostgreSQL Database
+# 2. RESOURCES
 # =============================================================================
+
+# --- PostgreSQL Database ---
 apiVersion: harness.io/v1
 kind: Resource
 identifier: payments_postgres
@@ -64,14 +76,16 @@ owner: group:account/team-payments
 metadata:
   title: Payments PostgreSQL DB
   description: >
-    Primary transactional store for payments-service.
-    PostgreSQL 14 on AWS RDS. Multi-AZ, 35-day backup retention.
+    Primary transactional store for payments-service. PostgreSQL 14 on AWS RDS.
+    Multi-AZ deployment with automated failover. 35-day backup retention.
+    Stores payment records, transaction history and reconciliation data.
   annotations:
     bank.com/sysid: SYSID-00000
   tags:
     - postgresql
     - rds
     - database
+    - tier-1
     - sysid-00000
 spec:
   system:
@@ -79,9 +93,7 @@ spec:
 
 ---
 
-# =============================================================================
-# RESOURCE — Redis Cache
-# =============================================================================
+# --- Redis Cache ---
 apiVersion: harness.io/v1
 kind: Resource
 identifier: payments_redis
@@ -91,14 +103,15 @@ owner: group:account/team-payments
 metadata:
   title: Payments Redis Cache
   description: >
-    Session cache and idempotency key store for payments-service.
-    Redis 7 on AWS ElastiCache. 2 read replicas, in-transit encryption.
+    Session and idempotency cache for payments-service. Redis 7 on AWS ElastiCache.
+    2 read replicas, in-transit encryption. Used for deduplication keys,
+    rate-limit counters and short-lived payment state.
   annotations:
     bank.com/sysid: SYSID-00000
   tags:
     - redis
-    - cache
     - elasticache
+    - cache
     - sysid-00000
 spec:
   system:
@@ -106,35 +119,7 @@ spec:
 
 ---
 
-# =============================================================================
-# RESOURCE — FTP Server
-# =============================================================================
-apiVersion: harness.io/v1
-kind: Resource
-identifier: payments_ftp
-name: payments-ftp
-type: ftp-server
-owner: group:account/team-payments
-metadata:
-  title: Payments FTP Server
-  description: >
-    FTP server used by payments-service for secure file exchange with
-    third-party payment processors and settlement partners.
-  annotations:
-    bank.com/sysid: SYSID-00000
-  tags:
-    - ftp
-    - file-transfer
-    - sysid-00000
-spec:
-  system:
-    - system:account/payments_platform
-
----
-
-# =============================================================================
-# RESOURCE — Kafka Cluster
-# =============================================================================
+# --- Kafka Cluster ---
 apiVersion: harness.io/v1
 kind: Resource
 identifier: payments_kafka
@@ -144,9 +129,10 @@ owner: group:account/team-payments
 metadata:
   title: Payments Kafka Cluster
   description: >
-    Kafka cluster used by payments-service for publishing payment lifecycle
-    events and consuming fraud decisions and ledger confirmations.
-    SASL/SCRAM-SHA-256 auth, TLS in transit. Managed by platform team.
+    Dedicated Kafka cluster for payments event streaming. SASL/SCRAM-SHA-256
+    authentication, TLS in transit. Managed by the platform team via Confluent
+    Control Center. Hosts payment lifecycle event topics consumed by fraud,
+    ledger and notification services.
   annotations:
     bank.com/sysid: SYSID-00000
   tags:
@@ -160,8 +146,60 @@ spec:
 
 ---
 
+# --- IBM MQ Broker ---
+apiVersion: harness.io/v1
+kind: Resource
+identifier: payments_mq
+name: payments-mq
+type: messaging-queue
+owner: group:account/team-payments
+metadata:
+  title: Payments IBM MQ Broker
+  description: >
+    Enterprise message broker for payments-service. IBM MQ over AMQP (port 5672).
+    User/password authentication. Handles payment instructions from corporate
+    banking channels and settlement notifications to the settlement engine.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - ibm-mq
+    - amqp
+    - messaging
+    - sysid-00000
+spec:
+  system:
+    - system:account/payments_platform
+
+---
+
+# --- FTP Server ---
+apiVersion: harness.io/v1
+kind: Resource
+identifier: payments_ftp
+name: payments-ftp
+type: ftp-server
+owner: group:account/team-payments
+metadata:
+  title: Payments FTP Server
+  description: >
+    Secure FTP server for batch file exchange with third-party payment processors
+    and settlement partners. SFTP over SSH. Used for end-of-day settlement files,
+    payment instruction batches and reconciliation reports.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - ftp
+    - sftp
+    - file-transfer
+    - sysid-00000
+spec:
+  system:
+    - system:account/payments_platform
+
+---
+
 # =============================================================================
-# COMPONENT — Payments Service
+# 3. COMPONENT
 # =============================================================================
 apiVersion: harness.io/v1
 kind: Component
@@ -172,38 +210,43 @@ owner: group:account/team-payments
 metadata:
   title: Payments Service
   description: >
-    Processes payment transactions, validates against fraud rules,
-    posts to the ledger and publishes lifecycle events to Kafka.
+    Core payments processing service. Validates and initiates payment transactions,
+    applies fraud screening rules, posts to the ledger and publishes payment
+    lifecycle events. Handles REST API requests from frontend and batch payment
+    instructions from FTP. Does NOT handle authentication — delegated to auth-service.
   annotations:
     # Source control
     github.com/project-slug: bank-org/payments-service
-    backstage.io/source-location: url:https://github.com/bank-org/payments-service
-    # TechDocs
+
+    # TechDocs — served from repo root
     backstage.io/techdocs-ref: dir:.
+
+    # Source location — drives Code tab
+    backstage.io/source-location: url:https://github.com/bank-org/payments-service/tree/master/
+
     # Harness CI/CD
-    harness.io/project-url: https://app.harness.io/ng/account/<account-id>/module/ci/orgs/default/projects/SYSID-00000/pipelines
+    harness.io/project-url: https://app.harness.io/ng/account/ACCOUNT_ID/module/ci/orgs/default/projects/SYSID-00000/pipelines
     harness.io/pipelines: payments-deploy,payments-ci
-    # Harness SEI - DORA metrics
-    harness.io/sei-project-id: SYSID-00000
-    # Kubernetes
-    backstage.io/kubernetes-id: payments-service
-    backstage.io/kubernetes-namespace: payments-p
-    # PagerDuty
-    pagerduty.com/service-id: PABC123
-    # Datadog
+
+    # Observability
     datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments
-    # SonarQube
+
+    # Code quality
     sonarqube.org/project-key: payments-service
-    # Jira
+
+    # Tracking
     jira/project-key: PAY
-    # CMDB
+
+    # CMDB correlation
     bank.com/sysid: SYSID-00000
+
   tags:
     - java
     - spring-boot
     - payments
     - tier-1
     - sysid-00000
+
   links:
     - url: https://runbooks.bank.com/payments-service
       title: Runbook
@@ -220,31 +263,40 @@ metadata:
     - url: https://oncall.bank.com/payments
       title: On-Call Schedule
       icon: group
+    - url: https://jira.bank.com/projects/PAY
+      title: Jira
+      icon: bug
+
 spec:
   lifecycle: production
   system:
     - system:account/payments_platform
   providesApis:
-    - payments_rest_api
-    - payments_ftp_outbound
-    - payments_kafka_producer
+    - payments-rest-api
+    - payments-kafka-producer
+    - payments-mq-producer
+    - payments-ftp-outbound
   consumesApis:
-    - auth_api
-    - fraud_detection_api
-    - ledger_api
-    - payments_ftp_inbound
-    - payments_kafka_consumer
+    - auth-api
+    - fraud-detection-api
+    - ledger-api
+    - payments-kafka-consumer
+    - payments-mq-consumer
+    - payments-ftp-inbound
   dependsOn:
     - resource:account/payments_postgres
     - resource:account/payments_redis
-    - resource:account/payments_ftp
     - resource:account/payments_kafka
+    - resource:account/payments_mq
+    - resource:account/payments_ftp
 
 ---
 
 # =============================================================================
-# API — REST (OpenAPI)
+# 4. APIs
 # =============================================================================
+
+# --- REST API ---
 apiVersion: harness.io/v1
 kind: API
 identifier: payments_rest_api
@@ -254,8 +306,9 @@ owner: group:account/team-payments
 metadata:
   title: Payments REST API
   description: >
-    REST API for payment initiation, status queries and refunds.
-    Protected by OAuth2. Rate limited to 1000 req/min per client.
+    REST API for payment initiation, status queries and refunds. Protected by
+    OAuth2 client credentials. Rate limited to 1000 req/min per client.
+    Callers: mobile-banking-app, internet-banking, corporate-portal.
   annotations:
     bank.com/sysid: SYSID-00000
     github.com/project-slug: bank-org/payments-service
@@ -269,9 +322,6 @@ metadata:
     - url: https://api-docs.bank.com/payments
       title: API Docs
       icon: docs
-    - url: https://postman.bank.com/payments-api
-      title: Postman Collection
-      icon: scaffolder
 spec:
   lifecycle: production
   system:
@@ -281,198 +331,25 @@ spec:
     info:
       title: Payments API
       version: "2.1.0"
-      description: REST API for payment initiation and management
     servers:
       - url: https://api.bank.com/payments
-    security:
-      - oauth2: [payments.write, payments.read]
     paths:
       /v2/payments:
         post:
           operationId: initiatePayment
           summary: Initiate a payment
-          tags: [Payments]
-          requestBody:
-            required: true
-            content:
-              application/json:
-                schema:
-                  type: object
-                  required: [amount, currency, destinationAccount]
-                  properties:
-                    amount:
-                      type: number
-                      example: 1500.00
-                    currency:
-                      type: string
-                      example: USD
-                    destinationAccount:
-                      type: string
-                      example: "ACC-000123"
-                    reference:
-                      type: string
-          responses:
-            '202':
-              description: Payment accepted for processing
-            '400':
-              description: Invalid request
-            '422':
-              description: Business rule violation
       /v2/payments/{id}:
         get:
           operationId: getPaymentStatus
           summary: Get payment status
-          tags: [Payments]
-          parameters:
-            - name: id
-              in: path
-              required: true
-              schema:
-                type: string
-          responses:
-            '200':
-              description: Payment details
-            '404':
-              description: Payment not found
       /v2/payments/{id}/refund:
         post:
           operationId: refundPayment
           summary: Refund a payment
-          tags: [Payments]
-          responses:
-            '202':
-              description: Refund initiated
 
 ---
 
-# =============================================================================
-# API — FTP Outbound / Producer (AsyncAPI)
-# payments-service produces files → FTP server → downstream processors
-# =============================================================================
-apiVersion: harness.io/v1
-kind: API
-identifier: payments_ftp_outbound
-name: payments-ftp-outbound
-type: asyncapi
-owner: group:account/team-payments
-metadata:
-  title: Payments FTP Outbound
-  description: >
-    Async file exchange - files produced by payments-service and deposited on
-    the FTP server for downstream processor collection. Covers settlement
-    reports, reconciliation files and payment confirmation batches.
-  annotations:
-    bank.com/sysid: SYSID-00000
-    github.com/project-slug: bank-org/payments-service
-  tags:
-    - ftp
-    - asyncapi
-    - file-transfer
-    - producer
-    - sysid-00000
-spec:
-  lifecycle: production
-  system:
-    - system:account/payments_platform
-  definition: |
-    asyncapi: "2.6.0"
-    info:
-      title: Payments FTP Outbound
-      version: "1.0.0"
-      description: >
-        Async file exchange produced by payments-service. Files are deposited
-        on the FTP server on a scheduled basis for downstream processors.
-    servers:
-      production:
-        url: ftp.bank.com
-        protocol: ftp
-        description: Production FTP server
-    channels:
-      /outbound/settlement/{date}:
-        description: Daily settlement report - one file per business day
-        parameters:
-          date:
-            description: Business date in YYYYMMDD format
-            schema:
-              type: string
-              example: "20260420"
-        publish:
-          summary: Deposit settlement report
-          message:
-            name: SettlementReport
-            contentType: text/csv
-            payload:
-              type: object
-              description: Fixed-width CSV. Columns - txn_id, amount, currency, status, settled_at
-
----
-
-# =============================================================================
-# API — FTP Inbound / Consumer (AsyncAPI)
-# Third-party processors produce files → FTP server → payments-service consumes
-# =============================================================================
-apiVersion: harness.io/v1
-kind: API
-identifier: payments_ftp_inbound
-name: payments-ftp-inbound
-type: asyncapi
-owner: group:account/team-payments
-metadata:
-  title: Payments FTP Inbound
-  description: >
-    Async file exchange - files deposited on the FTP server by third-party
-    processors and consumed by payments-service. Covers incoming payment
-    instruction files and processor acknowledgement files.
-  annotations:
-    bank.com/sysid: SYSID-00000
-    github.com/project-slug: bank-org/payments-service
-  tags:
-    - ftp
-    - asyncapi
-    - file-transfer
-    - consumer
-    - sysid-00000
-spec:
-  lifecycle: production
-  system:
-    - system:account/payments_platform
-  definition: |
-    asyncapi: "2.6.0"
-    info:
-      title: Payments FTP Inbound
-      version: "1.0.0"
-      description: >
-        Async file exchange consumed by payments-service. Files are deposited
-        by third-party processors and polled by payments-service for ingestion.
-    servers:
-      production:
-        url: ftp.bank.com
-        protocol: ftp
-        description: Production FTP server
-    channels:
-      /inbound/instructions/{date}:
-        description: Incoming bulk payment instruction files from processors
-        parameters:
-          date:
-            description: Business date in YYYYMMDD format
-            schema:
-              type: string
-              example: "20260420"
-        subscribe:
-          summary: Consume incoming payment instructions
-          message:
-            name: PaymentInstructionFile
-            contentType: application/xml
-            payload:
-              type: object
-              description: ISO 20022 pain.001 payment initiation message
-
----
-
-# =============================================================================
-# API — Kafka Producer (AsyncAPI)
-# payments-service publishes payment lifecycle events → Kafka
-# =============================================================================
+# --- Kafka Producer ---
 apiVersion: harness.io/v1
 kind: API
 identifier: payments_kafka_producer
@@ -482,9 +359,8 @@ owner: group:account/team-payments
 metadata:
   title: Payments Kafka Producer
   description: >
-    Async event stream produced by payments-service. Publishes payment lifecycle
-    events to Kafka topics for consumption by downstream services such as
-    notifications, reporting and audit.
+    Payment lifecycle events published by payments-service to Kafka.
+    Topics: payment-initiated, payment-completed, payment-failed.
   annotations:
     bank.com/sysid: SYSID-00000
     github.com/project-slug: bank-org/payments-service
@@ -503,57 +379,20 @@ spec:
     info:
       title: Payments Kafka Producer
       version: "1.0.0"
-      description: >
-        Payment lifecycle events published by payments-service to Kafka.
-        Consumers include notification-service, audit-service and reporting-service.
-    servers:
-      production:
-        url: kafka.bank.com:9092
-        protocol: kafka
-        description: Production Kafka cluster
-        security:
-          - saslScram: []
     channels:
+      payments.events.payment-initiated:
+        publish:
+          summary: Payment initiated event
       payments.events.payment-completed:
-        description: Published when a payment is successfully processed and settled
         publish:
           summary: Payment completed event
-          bindings:
-            kafka:
-              topic: payments.events.payment-completed
-              partitions: 12
-              replicas: 3
-          message:
-            name: PaymentCompleted
-            contentType: application/json
-            payload:
-              type: object
-              required: [eventId, txnId, amount, currency, completedAt]
-              properties:
-                eventId:
-                  type: string
-                txnId:
-                  type: string
-                amount:
-                  type: number
-                currency:
-                  type: string
-                  example: USD
-                completedAt:
-                  type: string
-                  format: date-time
-    components:
-      securitySchemes:
-        saslScram:
-          type: scramSha256
-          description: SASL/SCRAM-SHA-256 authentication
+      payments.events.payment-failed:
+        publish:
+          summary: Payment failed event
 
 ---
 
-# =============================================================================
-# API — Kafka Consumer (AsyncAPI)
-# payments-service subscribes to fraud decisions and ledger confirmations
-# =============================================================================
+# --- Kafka Consumer ---
 apiVersion: harness.io/v1
 kind: API
 identifier: payments_kafka_consumer
@@ -563,9 +402,8 @@ owner: group:account/team-payments
 metadata:
   title: Payments Kafka Consumer
   description: >
-    Async event stream consumed by payments-service. Subscribes to fraud
-    decisions from fraud-detection-service and ledger confirmations from
-    ledger-service to complete payment processing.
+    Kafka topics consumed by payments-service. Subscribes to fraud decisions
+    from fraud-detection-service to gate payment completion.
   annotations:
     bank.com/sysid: SYSID-00000
     github.com/project-slug: bank-org/payments-service
@@ -584,44 +422,164 @@ spec:
     info:
       title: Payments Kafka Consumer
       version: "1.0.0"
-      description: >
-        Kafka topics consumed by payments-service. Fraud decisions and ledger
-        confirmations are consumed to drive payment state transitions.
-    servers:
-      production:
-        url: kafka.bank.com:9092
-        protocol: kafka
-        description: Production Kafka cluster
-        security:
-          - saslScram: []
     channels:
       fraud.events.fraud-decision:
-        description: Fraud decision events published by fraud-detection-service
         subscribe:
           summary: Consume fraud decision
-          bindings:
-            kafka:
-              topic: fraud.events.fraud-decision
-              groupId: payments-service-fraud-consumer
-          message:
-            name: FraudDecision
-            contentType: application/json
-            payload:
-              type: object
-              required: [txnId, decision, score, decidedAt]
-              properties:
-                txnId:
-                  type: string
-                decision:
-                  type: string
-                  enum: [APPROVE, BLOCK, REVIEW]
-                score:
-                  type: number
-                decidedAt:
-                  type: string
-                  format: date-time
-    components:
-      securitySchemes:
-        saslScram:
-          type: scramSha256
-          description: SASL/SCRAM-SHA-256 authentication
+
+---
+
+# --- IBM MQ Producer ---
+apiVersion: harness.io/v1
+kind: API
+identifier: payments_mq_producer
+name: payments-mq-producer
+type: asyncapi
+owner: group:account/team-payments
+metadata:
+  title: Payments MQ Producer
+  description: >
+    Payment instructions and settlement notifications published to IBM MQ.
+    Consumed by downstream processor queues and the settlement engine.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - ibm-mq
+    - asyncapi
+    - amqp
+    - producer
+    - sysid-00000
+spec:
+  lifecycle: production
+  system:
+    - system:account/payments_platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments MQ Producer
+      version: "1.0.0"
+    channels:
+      payments/instructions/outbound:
+        publish:
+          summary: Payment instruction to processor
+      payments/settlement/notifications:
+        publish:
+          summary: Settlement completion notification
+
+---
+
+# --- IBM MQ Consumer ---
+apiVersion: harness.io/v1
+kind: API
+identifier: payments_mq_consumer
+name: payments-mq-consumer
+type: asyncapi
+owner: group:account/team-payments
+metadata:
+  title: Payments MQ Consumer
+  description: >
+    Enterprise MQ queues consumed by payments-service. Reads inbound payment
+    instructions from corporate banking channels via IBM MQ.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - ibm-mq
+    - asyncapi
+    - amqp
+    - consumer
+    - sysid-00000
+spec:
+  lifecycle: production
+  system:
+    - system:account/payments_platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments MQ Consumer
+      version: "1.0.0"
+    channels:
+      payments/instructions/inbound:
+        subscribe:
+          summary: Inbound payment instruction from corporate channels
+
+---
+
+# --- FTP Outbound ---
+apiVersion: harness.io/v1
+kind: API
+identifier: payments_ftp_outbound
+name: payments-ftp-outbound
+type: asyncapi
+owner: group:account/team-payments
+metadata:
+  title: Payments FTP Outbound
+  description: >
+    End-of-day settlement and reconciliation files deposited by payments-service.
+    PGP-encrypted, delivered by 23:00 local time.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - ftp
+    - asyncapi
+    - file-transfer
+    - producer
+    - sysid-00000
+spec:
+  lifecycle: production
+  system:
+    - system:account/payments_platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments FTP Outbound
+      version: "1.0.0"
+    channels:
+      /outbound/settlement/{date}:
+        publish:
+          summary: Daily settlement file (CSV)
+      /outbound/reconciliation/{date}:
+        publish:
+          summary: Daily reconciliation report (ISO 20022 camt.053)
+
+---
+
+# --- FTP Inbound ---
+apiVersion: harness.io/v1
+kind: API
+identifier: payments_ftp_inbound
+name: payments-ftp-inbound
+type: asyncapi
+owner: group:account/team-payments
+metadata:
+  title: Payments FTP Inbound
+  description: >
+    Batch payment instruction files read from FTP. Deposited by corporate
+    clients and third-party originators. Processed at 06:00 and 12:00 daily.
+  annotations:
+    bank.com/sysid: SYSID-00000
+    github.com/project-slug: bank-org/payments-service
+  tags:
+    - ftp
+    - asyncapi
+    - file-transfer
+    - consumer
+    - sysid-00000
+spec:
+  lifecycle: production
+  system:
+    - system:account/payments_platform
+  definition: |
+    asyncapi: "2.6.0"
+    info:
+      title: Payments FTP Inbound
+      version: "1.0.0"
+    channels:
+      /inbound/instructions/{date}:
+        subscribe:
+          summary: Batch payment instruction file (CSV)
+      /inbound/corrections/{date}:
+        subscribe:
+          summary: Payment correction file (ISO 20022 pain.002)

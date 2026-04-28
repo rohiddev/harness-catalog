@@ -1,0 +1,22 @@
+apiVersion: harness.io/v1
+kind: Resource
+identifier: payments_mq
+name: payments-mq
+type: messaging-queue
+owner: group:account/team-payments
+metadata:
+  title: Payments IBM MQ Broker
+  description: >
+    Enterprise message broker for payments-service. IBM MQ over AMQP (port 5672).
+    User/password authentication. Handles payment instructions from corporate
+    banking channels and settlement notifications to the settlement engine.
+  annotations:
+    bank.com/sysid: SYSID-00000
+  tags:
+    - ibm-mq
+    - amqp
+    - messaging
+    - sysid-00000
+spec:
+  system:
+    - system:account/payments_platform

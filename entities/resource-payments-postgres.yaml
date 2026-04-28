@@ -7,14 +7,16 @@ owner: group:account/team-payments
 metadata:
   title: Payments PostgreSQL DB
   description: >
-    Primary transactional store for payments-service.
-    PostgreSQL 14 on AWS RDS. Multi-AZ, 35-day backup retention.
+    Primary transactional store for payments-service. PostgreSQL 14 on AWS RDS.
+    Multi-AZ deployment with automated failover. 35-day backup retention.
+    Stores payment records, transaction history and reconciliation data.
   annotations:
     bank.com/sysid: SYSID-00000
   tags:
     - postgresql
     - rds
     - database
+    - tier-1
     - sysid-00000
 spec:
   system:

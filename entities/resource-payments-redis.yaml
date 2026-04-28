@@ -7,14 +7,15 @@ owner: group:account/team-payments
 metadata:
   title: Payments Redis Cache
   description: >
-    Session cache and idempotency key store for payments-service.
-    Redis 7 on AWS ElastiCache. 2 read replicas, in-transit encryption.
+    Session and idempotency cache for payments-service. Redis 7 on AWS ElastiCache.
+    2 read replicas, in-transit encryption. Used for deduplication keys,
+    rate-limit counters and short-lived payment state.
   annotations:
     bank.com/sysid: SYSID-00000
   tags:
     - redis
-    - cache
     - elasticache
+    - cache
     - sysid-00000
 spec:
   system:

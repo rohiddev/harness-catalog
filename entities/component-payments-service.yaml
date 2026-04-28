@@ -7,28 +7,43 @@ owner: group:account/team-payments
 metadata:
   title: Payments Service
   description: >
-    Processes payment transactions, validates against fraud rules,
-    posts to the ledger and publishes lifecycle events to Kafka.
+    Core payments processing service. Validates and initiates payment transactions,
+    applies fraud screening rules, posts to the ledger and publishes payment
+    lifecycle events. Handles REST API requests from frontend and batch payment
+    instructions from FTP. Does NOT handle authentication — delegated to auth-service.
   annotations:
+    # Source control
     github.com/project-slug: bank-org/payments-service
+
+    # TechDocs — served from repo root
     backstage.io/techdocs-ref: dir:.
-    backstage.io/source-location: url:https://github.com/bank-org/payments-service
-    harness.io/project-url: https://app.harness.io/ng/account/<account-id>/module/ci/orgs/default/projects/SYSID-00000/pipelines
+
+    # Source location — drives Code tab
+    backstage.io/source-location: url:https://github.com/bank-org/payments-service/tree/master/
+
+    # Harness CI/CD
+    harness.io/project-url: https://app.harness.io/ng/account/ACCOUNT_ID/module/ci/orgs/default/projects/SYSID-00000/pipelines
     harness.io/pipelines: payments-deploy,payments-ci
-    backstage.io/kubernetes-id: payments-service
-    backstage.io/kubernetes-namespace: payments-p
-    pagerduty.com/service-id: PABC123
+
+    # Observability
     datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments
+
+    # Code quality
     sonarqube.org/project-key: payments-service
-    harness.io/sei-project-id: SYSID-00000
+
+    # Tracking
     jira/project-key: PAY
+
+    # CMDB correlation
     bank.com/sysid: SYSID-00000
+
   tags:
     - java
     - spring-boot
     - payments
     - tier-1
     - sysid-00000
+
   links:
     - url: https://runbooks.bank.com/payments-service
       title: Runbook
@@ -45,22 +60,29 @@ metadata:
     - url: https://oncall.bank.com/payments
       title: On-Call Schedule
       icon: group
+    - url: https://jira.bank.com/projects/PAY
+      title: Jira
+      icon: bug
+
 spec:
   lifecycle: production
   system:
     - system:account/payments_platform
   providesApis:
     - payments-rest-api
-    - payments-ftp-outbound
     - payments-kafka-producer
+    - payments-mq-producer
+    - payments-ftp-outbound
   consumesApis:
     - auth-api
     - fraud-detection-api
     - ledger-api
-    - payments-ftp-inbound
     - payments-kafka-consumer
+    - payments-mq-consumer
+    - payments-ftp-inbound
   dependsOn:
     - resource:account/payments_postgres
     - resource:account/payments_redis
-    - resource:account/payments_ftp
     - resource:account/payments_kafka
+    - resource:account/payments_mq
+    - resource:account/payments_ftp

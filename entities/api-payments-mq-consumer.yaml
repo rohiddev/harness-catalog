@@ -7,9 +7,9 @@ owner: group:account/team-payments
 metadata:
   title: Payments MQ Consumer
   description: >
-    Messages consumed by payments-service from the enterprise IBM MQ broker.
-    Receives payment acknowledgements and processor responses from downstream
-    processor queues using IBM MQ over AMQP.
+    Enterprise MQ queues consumed by payments-service. Reads inbound payment
+    instructions from corporate banking channels and third-party payment
+    gateways via IBM MQ.
   annotations:
     bank.com/sysid: SYSID-00000
     github.com/project-slug: bank-org/payments-service
@@ -28,9 +28,7 @@ spec:
     info:
       title: Payments MQ Consumer
       version: "1.0.0"
-      description: >
-        Payment acknowledgements and processor responses consumed by
-        payments-service from the enterprise IBM MQ broker.
+      description: Enterprise MQ queues consumed by payments-service.
     servers:
       production:
         url: mq.bank.com:5672
@@ -39,35 +37,40 @@ spec:
         security:
           - userPassword: []
     channels:
-      payments/acknowledgements/inbound:
-        description: Payment acknowledgements received from downstream processors
+      payments/instructions/inbound:
+        description: >
+          Inbound payment instructions from corporate banking channels
+          and third-party payment gateways.
         subscribe:
-          summary: Consume payment acknowledgement
+          summary: Consume inbound payment instruction
           bindings:
             amqp:
               is: queue
               queue:
-                name: PAYMENTS.ACKNOWLEDGEMENTS.INBOUND
+                name: PAYMENTS.INSTRUCTIONS.INBOUND
                 durable: true
                 exclusive: false
                 autoDelete: false
           message:
-            name: PaymentAcknowledgement
+            name: InboundPaymentInstruction
             contentType: application/json
             payload:
               type: object
-              required: [instructionId, status, processedAt]
+              required: [instructionId, amount, currency, sourceAccount, destinationAccount]
               properties:
                 instructionId:
                   type: string
-                status:
+                amount:
+                  type: number
+                currency:
                   type: string
-                  enum: [ACCEPTED, REJECTED, PENDING]
-                rejectionReason:
+                sourceAccount:
                   type: string
-                processedAt:
+                destinationAccount:
                   type: string
-                  format: date-time
+                channel:
+                  type: string
+                  enum: [CORPORATE_BANKING, THIRD_PARTY_GATEWAY, BATCH]
     components:
       securitySchemes:
         userPassword:
