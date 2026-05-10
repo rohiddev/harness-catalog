@@ -30,8 +30,9 @@ metadata:
     kubernetes/clusters: prod-eks-us-east-1,dr-eks-us-west-2
 
     # Rafay — fleet management for SRE (Rafay Kubernetes Ops Platform plugin)
+    # Enable plugin in IDP marketplace + configure Rafay API credentials before uncommenting
     # System maps to a Rafay project — shows all clusters + namespaces in this platform
-    rafay.dev/project-name: payments-platform
+    # rafay.dev/project-name: payments-platform
 
     # On-call — platform-level (who owns the system, not individual services)
     oncall/team: payments-platform-sre
