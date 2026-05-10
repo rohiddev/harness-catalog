@@ -37,6 +37,11 @@ metadata:
     backstage.io/kubernetes-label-selector: app.kubernetes.io/name=payments-service
     backstage.io/kubernetes-namespace: payments
 
+    # Rafay — SRE namespace + workload management (Rafay Kubernetes Ops Platform plugin)
+    rafay.dev/project-name: payments-platform
+    rafay.dev/cluster-name: prod-eks-us-east-1
+    rafay.dev/namespace: payments
+
     # Observability
     datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments-service
     datadoghq.com/service-name: payments-service

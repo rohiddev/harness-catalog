@@ -23,11 +23,15 @@ metadata:
     bank.com/owner-email: team-payments@bank.com
 
     # Telemetry — platform-wide dashboards (all services in this system)
-    datadog.com/system-dashboard-url: "https://app.datadoghq.com/dashboard/payments-platform-overview"
+    datadoghq.com/system-dashboard-url: "https://app.datadoghq.com/dashboard/payments-platform-overview"
     dynatrace.com/system-dashboard-url: "https://bank.live.dynatrace.com/#dashboard;id=payments-platform"
 
-    # Kubernetes — clusters this platform spans
+    # Kubernetes — clusters this platform spans (informational — shown in EntityAdditionalInfoCard)
     kubernetes/clusters: prod-eks-us-east-1,dr-eks-us-west-2
+
+    # Rafay — fleet management for SRE (Rafay Kubernetes Ops Platform plugin)
+    # System maps to a Rafay project — shows all clusters + namespaces in this platform
+    rafay.dev/project-name: payments-platform
 
     # On-call — platform-level (who owns the system, not individual services)
     oncall/team: payments-platform-sre
