@@ -12,6 +12,8 @@ metadata:
     rate-limit counters and short-lived payment state.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
   tags:
     - redis
     - elasticache

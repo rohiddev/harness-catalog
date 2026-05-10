@@ -12,6 +12,8 @@ metadata:
     banking channels and settlement notifications to the settlement engine.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
   tags:
     - ibm-mq
     - amqp

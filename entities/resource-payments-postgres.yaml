@@ -12,6 +12,8 @@ metadata:
     Stores payment records, transaction history and reconciliation data.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
   tags:
     - postgresql
     - rds

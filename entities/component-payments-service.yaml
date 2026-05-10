@@ -12,7 +12,7 @@ metadata:
     lifecycle events. Handles REST API requests from frontend and batch payment
     instructions from FTP. Does NOT handle authentication — delegated to auth-service.
   annotations:
-    # Source control
+    # Source control — REQUIRED
     github.com/project-slug: bank-org/payments-service
 
     # TechDocs — served from repo root
@@ -23,19 +23,70 @@ metadata:
 
     # Harness CI/CD
     harness.io/project-url: https://app.harness.io/ng/account/ACCOUNT_ID/module/ci/orgs/default/projects/SYSID-00000/pipelines
-    harness.io/pipelines: payments-deploy,payments-ci
 
-    # Observability
-    datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments
-
-    # Code quality
-    sonarqube.org/project-key: payments-service
+    # CMDB — REQUIRED
+    bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
 
     # Tracking
     jira/project-key: PAY
 
-    # CMDB correlation
-    bank.com/sysid: SYSID-00000
+    # Kubernetes — Backstage Kubernetes plugin (live pod health in IDP)
+    backstage.io/kubernetes-id: payments_service
+    backstage.io/kubernetes-label-selector: app.kubernetes.io/name=payments-service
+    backstage.io/kubernetes-namespace: payments
+
+    # Observability
+    datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments-service
+    datadoghq.com/service-name: payments-service
+    dynatrace.com/dashboard-url: https://bank.live.dynatrace.com/#dashboard;id=payments-svc
+    dynatrace.com/entity-id: SERVICE-abc12345
+
+    # Code Quality — activates SonarQube plugin card
+    sonarqube.org/project-key: payments-service
+    sonarqube.org/dashboard-url: https://sonarqube.bank.com/dashboard?id=payments-service
+    quality/coverage-target: "80"
+    quality/dora-dashboard-url: https://sei.bank.com/teams/payments
+
+    # Security Scan — written by scan pipeline on every PR
+    security-scan/vulnerability-count: "3"
+    security-scan/quality-gate: pass
+    security-scan/last-scan-date: "2026-05-09"
+
+    # On-call / Incidents
+    oncall/team: payments-platform-sre
+    oncall/rotation-url: https://servicenow.bank.com/oncall/payments-service
+    oncall/incidents-url: https://servicenow.bank.com/incidents?service=payments
+    oncall/last-incident-date: "2026-04-22"
+
+    # Cloud Cost — written nightly by cost pipeline (Kubecost + AWS Cost Explorer)
+    cloud-cost/k8s-monthly: "$284.00"
+    cloud-cost/aws-monthly: "$1,247.00"
+    cloud-cost/namespace: payments
+    cloud-cost/cost-centre: team-payments
+
+    # Database
+    db/engine: postgresql
+    db/schema: payments
+    db/dba-runbook-url: https://runbooks.bank.com/payments-service/dba
+    db/last-migration: "2026-04-15"
+    db/backup-policy: daily-30d
+
+    # ── Auto-written by pipelines — DO NOT fill manually ──────────────────
+    # SBOM signals — written by GitHub Actions on every PR
+    # sbom/kafka: "true"
+    # sbom/database: "true"
+    # sbom/mq: "true"
+    # sbom/ftp: "true"
+    # sbom/api: "true"
+    # sbom/last-scan: "2026-05-09"
+    #
+    # Blast radius — written nightly by cross-reference pipeline
+    # blast-radius/last-validated: "2026-05-09"
+    # blast-radius/undeclared-deps: "0"
+    # blast-radius/stale-deps: "0"
+    # ──────────────────────────────────────────────────────────────────────
 
   tags:
     - java
@@ -45,19 +96,19 @@ metadata:
     - sysid-00000
 
   links:
-    - url: https://runbooks.bank.com/payments-service
-      title: Runbook
-      icon: book
-    - url: https://app.datadoghq.com/dashboard/payments
-      title: Datadog
-      icon: dashboard
-    - url: https://sonar.bank.com/project?id=payments-service
-      title: SonarQube
-      icon: quality
     - url: https://confluence.bank.com/display/PAY/payments-service
       title: Confluence
       icon: docs
-    - url: https://oncall.bank.com/payments
+    - url: https://runbooks.bank.com/payments-service
+      title: Runbook
+      icon: book
+    - url: https://app.datadoghq.com/dashboard/payments-service
+      title: Datadog
+      icon: dashboard
+    - url: https://sonarqube.bank.com/dashboard?id=payments-service
+      title: SonarQube
+      icon: quality
+    - url: https://servicenow.bank.com/oncall/payments-service
       title: On-Call Schedule
       icon: group
     - url: https://jira.bank.com/projects/PAY

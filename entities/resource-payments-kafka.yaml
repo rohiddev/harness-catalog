@@ -13,6 +13,8 @@ metadata:
     ledger and notification services.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
   tags:
     - kafka
     - messaging

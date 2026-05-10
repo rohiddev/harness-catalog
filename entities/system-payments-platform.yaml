@@ -11,16 +11,34 @@ metadata:
     fraud screening, ledger posting and settlement. Processes all retail
     and corporate payment flows including SWIFT, SEPA, domestic wire and
     FTP-based batch settlement files.
-  annotations:
-    bank.com/sysid: SYSID-00000
-    jira/project-key: PAY
-    backstage.io/techdocs-ref: url:https://github.com/bank-org/harness-catalog/tree/master/
-    backstage.io/source-location: url:https://github.com/bank-org/harness-catalog/tree/master/
   tags:
     - payments
     - core-banking
     - tier-1
     - sysid-00000
+  annotations:
+    # CMDB — REQUIRED
+    bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
+
+    # Telemetry — platform-wide dashboards (all services in this system)
+    datadog.com/system-dashboard-url: "https://app.datadoghq.com/dashboard/payments-platform-overview"
+    dynatrace.com/system-dashboard-url: "https://bank.live.dynatrace.com/#dashboard;id=payments-platform"
+
+    # Kubernetes — clusters this platform spans
+    kubernetes/clusters: prod-eks-us-east-1,dr-eks-us-west-2
+
+    # On-call — platform-level (who owns the system, not individual services)
+    oncall/team: payments-platform-sre
+    oncall/rotation-url: https://servicenow.bank.com/oncall/payments-platform
+    oncall/incidents-url: https://servicenow.bank.com/incidents?platform=payments
+
+    # ── Auto-written by pipelines — DO NOT fill manually ──────────────────
+    # blast-radius/last-validated: "2026-05-09"
+    # blast-radius/tier-1-dependents: "7"
+    # blast-radius/transitive-count: "23"
+
   links:
     - url: https://confluence.bank.com/display/PAY
       title: Confluence Space
@@ -34,5 +52,6 @@ metadata:
     - url: https://jira.bank.com/projects/PAY
       title: Jira Project
       icon: bug
+
 spec:
   domain: banking
