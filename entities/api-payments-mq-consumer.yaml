@@ -12,6 +12,8 @@ metadata:
     gateways via IBM MQ.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
     github.com/project-slug: bank-org/payments-service
   tags:
     - ibm-mq

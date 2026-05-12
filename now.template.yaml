@@ -1,0 +1,92 @@
+# ───────────────────────────────────────────────────────────────────────────────
+# now.yaml — CSDM as Code (RapDev)  *** GOLDEN TEMPLATE ***
+#
+# INSTRUCTIONS
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. Copy this file to your repo root as now.yaml
+# 2. Fill in REQUIRED fields (marked below)
+# 3. Declare every direct (1-hop) dependency your service uses
+# 4. Push to master — RapDev reads this file and updates ServiceNow cmdb_rel_ci
+#
+# NAMING RULE — CRITICAL FOR BLAST RADIUS
+# ─────────────────────────────────────────────────────────────────────────────
+# The target: value under each dependency section must exactly match the
+# Resource Name you entered in the IDP "Update Catalog Entry" workflow.
+# Mismatch = blast radius graph breaks silently.
+#
+#   IDP workflow form:   Resource Name = payments-postgres
+#   now.yaml:            target: payments-postgres        ← must be identical
+#
+# ───────────────────────────────────────────────────────────────────────────────
+
+apiVersion: csdm/v1
+kind: BusinessService
+
+metadata:
+  sysId: SYSID-00000          # REQUIRED — your full SYSID string (e.g. SYSID-06534)
+  name: your-service-name     # REQUIRED — kebab-case service name (matches catalog-info.yaml identifier)
+  projectName: Your Service   # REQUIRED — human-readable display name
+
+dependencies:
+
+  # ── REST APIs ────────────────────────────────────────────────────────────────
+  # Services this service calls over HTTP/REST. One entry per downstream service.
+  # target: must be the catalog identifier of the downstream service.
+  # Remove this section if your service makes no outbound REST calls.
+  apis:
+    - target: auth-service
+      description: "Brief description of why this service is called"
+    # - target: another-service
+    #   description: "..."
+
+  # ── Databases & Caches ───────────────────────────────────────────────────────
+  # All relational databases, NoSQL databases, and caches this service owns or uses.
+  # RapDev maps to the correct CMDB class automatically based on engine:
+  #   postgresql/mysql/oracle/mssql → cmdb_ci_db_instance
+  #   redis/memcached               → cmdb_ci_cache
+  #   mongodb/dynamodb              → cmdb_ci_nosql_instance
+  # target: must match the Resource Name entered in the IDP workflow.
+  # Remove this section if your service has no databases or caches.
+  databases:
+    - target: your-service-postgres   # matches IDP workflow Resource Name
+      engine: postgresql              # postgresql | mysql | oracle | mssql | mongodb | dynamodb | redis | memcached
+      description: "Primary transactional store"
+    # - target: your-service-redis
+    #   engine: redis
+    #   description: "Session cache"
+
+  # ── Kafka ────────────────────────────────────────────────────────────────────
+  # Kafka clusters this service produces to or consumes from.
+  # target: must match the Resource Name entered in the IDP workflow.
+  # List all topics produced and consumed — stored as metadata on the relationship.
+  # Remove this section if your service does not use Kafka.
+  kafka:
+    - target: your-service-kafka      # matches IDP workflow Resource Name
+      produces:
+        - your-service.events.something-happened
+      consumes:
+        - other-service.events.something-else
+      description: "Brief description of what events flow through this cluster"
+
+  # ── IBM MQ ───────────────────────────────────────────────────────────────────
+  # IBM MQ brokers this service sends to or receives from.
+  # target: must match the Resource Name entered in the IDP workflow.
+  # Remove this section if your service does not use IBM MQ.
+  mq:
+    - target: your-service-ibmmq      # matches IDP workflow Resource Name
+      broker: IBM MQ
+      sends:
+        - YOUR.QUEUE.OUTBOUND
+      receives:
+        - YOUR.QUEUE.INBOUND
+      description: "Brief description of what messages flow through this broker"
+
+  # ── FTP ──────────────────────────────────────────────────────────────────────
+  # FTP/SFTP servers this service deposits files to or reads files from.
+  # target: must match the Resource Name entered in the IDP workflow.
+  # Remove this section if your service does not use FTP.
+  ftp:
+    - target: your-service-ftp        # matches IDP workflow Resource Name
+      outbound: /outbound/your-path
+      inbound: /inbound/your-path
+      description: "Brief description of what files are exchanged"

@@ -34,16 +34,42 @@ metadata:
     fraud screening, ledger posting and settlement. Processes all retail
     and corporate payment flows including SWIFT, SEPA, domestic wire and
     FTP-based batch settlement files.
-  annotations:
-    bank.com/sysid: SYSID-00000
-    jira/project-key: PAY
-    backstage.io/techdocs-ref: url:https://github.com/bank-org/harness-catalog/tree/master/
-    backstage.io/source-location: url:https://github.com/bank-org/harness-catalog/tree/master/
   tags:
     - payments
     - core-banking
     - tier-1
     - sysid-00000
+  annotations:
+    # CMDB — REQUIRED
+    bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
+
+    # Telemetry — platform-wide dashboards (all services in this system)
+    datadoghq.com/system-dashboard-url: "https://app.datadoghq.com/dashboard/payments-platform-overview"
+    dynatrace.com/system-dashboard-url: "https://bank.live.dynatrace.com/#dashboard;id=payments-platform"
+
+    # Kubernetes — clusters this platform spans (informational — shown in EntityAdditionalInfoCard)
+    kubernetes/clusters: prod-eks-us-east-1,dr-eks-us-west-2
+
+    # Rafay — fleet management for SRE (Rafay Kubernetes Ops Platform plugin)
+    # Enable plugin in IDP marketplace + configure Rafay API credentials before uncommenting
+    # System maps to a Rafay project — shows all clusters + namespaces in this platform
+    # rafay.dev/project-name: payments-platform
+
+    # Wiz — platform-level security posture across all payments cloud resources
+    wiz.io/project-id: payments-platform-prod
+
+    # On-call — platform-level (who owns the system, not individual services)
+    oncall/team: payments-platform-sre
+    oncall/rotation-url: https://servicenow.bank.com/oncall/payments-platform
+    oncall/incidents-url: https://servicenow.bank.com/incidents?platform=payments
+
+    # ── Auto-written by pipelines — DO NOT fill manually ──────────────────
+    # blast-radius/last-validated: "2026-05-09"
+    # blast-radius/tier-1-dependents: "7"
+    # blast-radius/transitive-count: "23"
+
   links:
     - url: https://confluence.bank.com/display/PAY
       title: Confluence Space
@@ -57,6 +83,7 @@ metadata:
     - url: https://jira.bank.com/projects/PAY
       title: Jira Project
       icon: bug
+
 spec:
   domain: banking
 
@@ -65,8 +92,6 @@ spec:
 # =============================================================================
 # 2. RESOURCES
 # =============================================================================
-
-# --- PostgreSQL Database ---
 apiVersion: harness.io/v1
 kind: Resource
 identifier: payments_postgres
@@ -81,6 +106,13 @@ metadata:
     Stores payment records, transaction history and reconciliation data.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
+    db/engine: postgresql
+    db/schema: payments
+    db/dba-runbook-url: https://runbooks.bank.com/payments-service/dba
+    db/last-migration: "2026-04-15"
+    db/backup-policy: daily-30d
   tags:
     - postgresql
     - rds
@@ -93,7 +125,6 @@ spec:
 
 ---
 
-# --- Redis Cache ---
 apiVersion: harness.io/v1
 kind: Resource
 identifier: payments_redis
@@ -108,6 +139,9 @@ metadata:
     rate-limit counters and short-lived payment state.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
+    cache/engine: redis
   tags:
     - redis
     - elasticache
@@ -119,12 +153,11 @@ spec:
 
 ---
 
-# --- Kafka Cluster ---
 apiVersion: harness.io/v1
 kind: Resource
 identifier: payments_kafka
 name: payments-kafka
-type: messaging-queue
+type: kafka
 owner: group:account/team-payments
 metadata:
   title: Payments Kafka Cluster
@@ -135,6 +168,9 @@ metadata:
     ledger and notification services.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
+    kafka/bootstrap-servers: kafka.bank.com:9092
   tags:
     - kafka
     - messaging
@@ -146,12 +182,11 @@ spec:
 
 ---
 
-# --- IBM MQ Broker ---
 apiVersion: harness.io/v1
 kind: Resource
-identifier: payments_mq
-name: payments-mq
-type: messaging-queue
+identifier: payments_ibmmq
+name: payments-ibmmq
+type: ibm-mq
 owner: group:account/team-payments
 metadata:
   title: Payments IBM MQ Broker
@@ -161,6 +196,11 @@ metadata:
     banking channels and settlement notifications to the settlement engine.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
+    mq/host: mqserver.bank.com:1414
+    mq/queue-manager: QM_PAYMENTS
+    mq/channel: PAYMENTS.SVRCONN
   tags:
     - ibm-mq
     - amqp
@@ -172,12 +212,11 @@ spec:
 
 ---
 
-# --- FTP Server ---
 apiVersion: harness.io/v1
 kind: Resource
 identifier: payments_ftp
 name: payments-ftp
-type: ftp-server
+type: file-server
 owner: group:account/team-payments
 metadata:
   title: Payments FTP Server
@@ -187,6 +226,8 @@ metadata:
     payment instruction batches and reconciliation reports.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
   tags:
     - ftp
     - sftp
@@ -215,7 +256,7 @@ metadata:
     lifecycle events. Handles REST API requests from frontend and batch payment
     instructions from FTP. Does NOT handle authentication — delegated to auth-service.
   annotations:
-    # Source control
+    # Source control — REQUIRED
     github.com/project-slug: bank-org/payments-service
 
     # TechDocs — served from repo root
@@ -226,19 +267,83 @@ metadata:
 
     # Harness CI/CD
     harness.io/project-url: https://app.harness.io/ng/account/ACCOUNT_ID/module/ci/orgs/default/projects/SYSID-00000/pipelines
-    harness.io/pipelines: payments-deploy,payments-ci
 
-    # Observability
-    datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments
-
-    # Code quality
-    sonarqube.org/project-key: payments-service
+    # CMDB — REQUIRED
+    bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
 
     # Tracking
     jira/project-key: PAY
 
-    # CMDB correlation
-    bank.com/sysid: SYSID-00000
+    # Kubernetes — Backstage Kubernetes plugin (live pod health in IDP)
+    backstage.io/kubernetes-id: payments_service
+    backstage.io/kubernetes-label-selector: app.kubernetes.io/name=payments-service
+    backstage.io/kubernetes-namespace: payments
+
+    # Rafay — SRE namespace + workload management (Rafay Kubernetes Ops Platform plugin)
+    # Enable plugin in IDP marketplace + configure Rafay API credentials before uncommenting
+    # rafay.dev/project-name: payments-platform
+    # rafay.dev/cluster-name: prod-eks-us-east-1
+    # rafay.dev/namespace: payments
+
+    # Wiz — cloud security posture
+    wiz.io/project-id: payments-platform-prod
+
+    # Observability
+    datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments-service
+    datadoghq.com/service-name: payments-service
+    dynatrace.com/dashboard-url: https://bank.live.dynatrace.com/#dashboard;id=payments-svc
+    dynatrace.com/entity-id: SERVICE-abc12345
+
+    # Code Quality — activates SonarQube plugin card
+    sonarqube.org/project-key: payments-service
+    sonarqube.org/dashboard-url: https://sonarqube.bank.com/dashboard?id=payments-service
+    quality/coverage-target: "80"
+    quality/dora-dashboard-url: https://sei.bank.com/teams/payments
+
+    # Harness SEI — DORA metrics (deployment frequency, lead time, MTTR, change failure rate)
+    # Uncomment once SEI plugin is enabled in IDP Admin → Plugins
+    # harness.io/sei-project-id: SYSID-00000
+
+    # Security Scan — written by scan pipeline on every PR
+    security-scan/vulnerability-count: "3"
+    security-scan/quality-gate: pass
+    security-scan/last-scan-date: "2026-05-09"
+
+    # On-call / Incidents
+    oncall/team: payments-platform-sre
+    oncall/rotation-url: https://servicenow.bank.com/oncall/payments-service
+    oncall/incidents-url: https://servicenow.bank.com/incidents?service=payments
+    oncall/last-incident-date: "2026-04-22"
+
+    # Cloud Cost — written nightly by cost pipeline (Kubecost + AWS Cost Explorer)
+    cloud-cost/k8s-monthly: "$284.00"
+    cloud-cost/aws-monthly: "$1,247.00"
+    cloud-cost/namespace: payments
+    cloud-cost/cost-centre: team-payments
+
+    # Database
+    db/engine: postgresql
+    db/schema: payments
+    db/dba-runbook-url: https://runbooks.bank.com/payments-service/dba
+    db/last-migration: "2026-04-15"
+    db/backup-policy: daily-30d
+
+    # ── Auto-written by pipelines — DO NOT fill manually ──────────────────
+    # SBOM signals — written by GitHub Actions on every PR
+    # sbom/kafka: "true"
+    # sbom/database: "true"
+    # sbom/mq: "true"
+    # sbom/ftp: "true"
+    # sbom/api: "true"
+    # sbom/last-scan: "2026-05-09"
+    #
+    # Blast radius — written nightly by cross-reference pipeline
+    # blast-radius/last-validated: "2026-05-09"
+    # blast-radius/undeclared-deps: "0"
+    # blast-radius/stale-deps: "0"
+    # ──────────────────────────────────────────────────────────────────────
 
   tags:
     - java
@@ -248,24 +353,30 @@ metadata:
     - sysid-00000
 
   links:
-    - url: https://runbooks.bank.com/payments-service
-      title: Runbook
-      icon: book
-    - url: https://app.datadoghq.com/dashboard/payments
-      title: Datadog
-      icon: dashboard
-    - url: https://sonar.bank.com/project?id=payments-service
-      title: SonarQube
-      icon: quality
     - url: https://confluence.bank.com/display/PAY/payments-service
       title: Confluence
       icon: docs
-    - url: https://oncall.bank.com/payments
+    - url: https://runbooks.bank.com/payments-service
+      title: Runbook
+      icon: book
+    - url: https://app.datadoghq.com/dashboard/payments-service
+      title: Datadog
+      icon: dashboard
+    - url: https://sonarqube.bank.com/dashboard?id=payments-service
+      title: SonarQube
+      icon: quality
+    - url: https://servicenow.bank.com/oncall/payments-service
       title: On-Call Schedule
       icon: group
     - url: https://jira.bank.com/projects/PAY
       title: Jira
       icon: bug
+    - url: https://app.harness.io/ng/account/ACCOUNT_ID/sei/overview
+      title: SEI Dashboard
+      icon: dashboard
+    - url: https://runbooks.bank.com/payments-service/database
+      title: Database Ops Runbook
+      icon: book
 
 spec:
   lifecycle: production
@@ -287,7 +398,7 @@ spec:
     - resource:account/payments_postgres
     - resource:account/payments_redis
     - resource:account/payments_kafka
-    - resource:account/payments_mq
+    - resource:account/payments_ibmmq
     - resource:account/payments_ftp
 
 ---
@@ -295,8 +406,6 @@ spec:
 # =============================================================================
 # 4. APIs
 # =============================================================================
-
-# --- REST API ---
 apiVersion: harness.io/v1
 kind: API
 identifier: payments_rest_api
@@ -311,6 +420,8 @@ metadata:
     Callers: mobile-banking-app, internet-banking, corporate-portal.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
     github.com/project-slug: bank-org/payments-service
   tags:
     - rest
@@ -331,25 +442,101 @@ spec:
     info:
       title: Payments API
       version: "2.1.0"
+      description: >
+        REST API for payment initiation, status queries and refunds.
+        Protected by OAuth2 client credentials (scope: payments:write, payments:read).
     servers:
       - url: https://api.bank.com/payments
+        description: Production
+      - url: https://api.uat.bank.com/payments
+        description: UAT
     paths:
       /v2/payments:
         post:
           operationId: initiatePayment
           summary: Initiate a payment
+          tags: [Payments]
+          security:
+            - oauth2: [payments:write]
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  required: [amount, currency, sourceAccount, destinationAccount, reference]
+                  properties:
+                    amount:
+                      type: number
+                      example: 1500.00
+                    currency:
+                      type: string
+                      example: USD
+                    sourceAccount:
+                      type: string
+                      example: ACC-001234
+                    destinationAccount:
+                      type: string
+                      example: ACC-005678
+                    reference:
+                      type: string
+                      example: INV-2026-0042
+          responses:
+            '202':
+              description: Payment accepted for processing
+            '400':
+              description: Invalid request
+            '422':
+              description: Business rule violation
       /v2/payments/{id}:
         get:
           operationId: getPaymentStatus
           summary: Get payment status
+          tags: [Payments]
+          security:
+            - oauth2: [payments:read]
+          parameters:
+            - name: id
+              in: path
+              required: true
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Payment status
+            '404':
+              description: Payment not found
       /v2/payments/{id}/refund:
         post:
           operationId: refundPayment
           summary: Refund a payment
+          tags: [Payments]
+          security:
+            - oauth2: [payments:write]
+          parameters:
+            - name: id
+              in: path
+              required: true
+              schema:
+                type: string
+          responses:
+            '202':
+              description: Refund accepted
+            '400':
+              description: Invalid refund request
+    components:
+      securitySchemes:
+        oauth2:
+          type: oauth2
+          flows:
+            clientCredentials:
+              tokenUrl: https://auth.bank.com/oauth2/token
+              scopes:
+                payments:write: Initiate and refund payments
+                payments:read: Query payment status
 
 ---
 
-# --- Kafka Producer ---
 apiVersion: harness.io/v1
 kind: API
 identifier: payments_kafka_producer
@@ -360,9 +547,12 @@ metadata:
   title: Payments Kafka Producer
   description: >
     Payment lifecycle events published by payments-service to Kafka.
-    Topics: payment-initiated, payment-completed, payment-failed.
+    Downstream consumers: fraud-detection-service, ledger-service,
+    notification-service. Events published on every payment state transition.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
     github.com/project-slug: bank-org/payments-service
   tags:
     - kafka
@@ -379,20 +569,107 @@ spec:
     info:
       title: Payments Kafka Producer
       version: "1.0.0"
+      description: Payment lifecycle events published by payments-service.
+    servers:
+      production:
+        url: kafka.bank.com:9092
+        protocol: kafka
+        description: Production Kafka cluster
+        security:
+          - saslScram: []
     channels:
       payments.events.payment-initiated:
+        description: Published when a payment is accepted and queued for processing
         publish:
           summary: Payment initiated event
+          bindings:
+            kafka:
+              topic: payments.events.payment-initiated
+              partitions: 12
+              replicas: 3
+          message:
+            name: PaymentInitiated
+            contentType: application/json
+            payload:
+              type: object
+              required: [eventId, paymentId, amount, currency, occurredAt]
+              properties:
+                eventId:
+                  type: string
+                  description: Unique event ID (UUID)
+                paymentId:
+                  type: string
+                  description: Payment reference ID
+                amount:
+                  type: number
+                currency:
+                  type: string
+                status:
+                  type: string
+                  enum: [INITIATED]
+                occurredAt:
+                  type: string
+                  format: date-time
       payments.events.payment-completed:
+        description: Published when a payment is successfully settled
         publish:
           summary: Payment completed event
+          bindings:
+            kafka:
+              topic: payments.events.payment-completed
+              partitions: 12
+              replicas: 3
+          message:
+            name: PaymentCompleted
+            contentType: application/json
+            payload:
+              type: object
+              required: [eventId, paymentId, occurredAt]
+              properties:
+                eventId:
+                  type: string
+                paymentId:
+                  type: string
+                status:
+                  type: string
+                  enum: [COMPLETED]
+                occurredAt:
+                  type: string
+                  format: date-time
       payments.events.payment-failed:
+        description: Published when a payment fails processing or fraud screening
         publish:
           summary: Payment failed event
+          bindings:
+            kafka:
+              topic: payments.events.payment-failed
+              partitions: 12
+              replicas: 3
+          message:
+            name: PaymentFailed
+            contentType: application/json
+            payload:
+              type: object
+              required: [eventId, paymentId, reason, occurredAt]
+              properties:
+                eventId:
+                  type: string
+                paymentId:
+                  type: string
+                reason:
+                  type: string
+                  description: Failure reason code
+                occurredAt:
+                  type: string
+                  format: date-time
+    components:
+      securitySchemes:
+        saslScram:
+          type: scramSha256
+          description: SASL/SCRAM-SHA-256 authentication
 
 ---
 
-# --- Kafka Consumer ---
 apiVersion: harness.io/v1
 kind: API
 identifier: payments_kafka_consumer
@@ -406,6 +683,8 @@ metadata:
     from fraud-detection-service to gate payment completion.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
     github.com/project-slug: bank-org/payments-service
   tags:
     - kafka
@@ -422,14 +701,51 @@ spec:
     info:
       title: Payments Kafka Consumer
       version: "1.0.0"
+      description: Kafka topics consumed by payments-service.
+    servers:
+      production:
+        url: kafka.bank.com:9092
+        protocol: kafka
+        description: Production Kafka cluster
+        security:
+          - saslScram: []
     channels:
       fraud.events.fraud-decision:
+        description: >
+          Fraud decisions from fraud-detection-service. payments-service
+          gates payment completion on APPROVED decisions.
         subscribe:
           summary: Consume fraud decision
+          bindings:
+            kafka:
+              topic: fraud.events.fraud-decision
+              groupId: payments-fraud-decision-consumer
+          message:
+            name: FraudDecision
+            contentType: application/json
+            payload:
+              type: object
+              required: [paymentId, decision, occurredAt]
+              properties:
+                paymentId:
+                  type: string
+                decision:
+                  type: string
+                  enum: [APPROVED, REJECTED, REVIEW]
+                score:
+                  type: number
+                  description: Fraud risk score 0-100
+                occurredAt:
+                  type: string
+                  format: date-time
+    components:
+      securitySchemes:
+        saslScram:
+          type: scramSha256
+          description: SASL/SCRAM-SHA-256 authentication
 
 ---
 
-# --- IBM MQ Producer ---
 apiVersion: harness.io/v1
 kind: API
 identifier: payments_mq_producer
@@ -439,10 +755,13 @@ owner: group:account/team-payments
 metadata:
   title: Payments MQ Producer
   description: >
-    Payment instructions and settlement notifications published to IBM MQ.
-    Consumed by downstream processor queues and the settlement engine.
+    Payment instructions and settlement notifications published by payments-service
+    to the enterprise IBM MQ broker. Consumed by downstream processor queues
+    and the settlement engine.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
     github.com/project-slug: bank-org/payments-service
   tags:
     - ibm-mq
@@ -459,17 +778,82 @@ spec:
     info:
       title: Payments MQ Producer
       version: "1.0.0"
+      description: >
+        Payment instructions and settlement notifications published by
+        payments-service to the enterprise IBM MQ broker.
+    servers:
+      production:
+        url: mq.bank.com:5672
+        protocol: amqp
+        description: Production IBM MQ broker
+        security:
+          - userPassword: []
     channels:
       payments/instructions/outbound:
+        description: Payment instructions sent to downstream processor queues
         publish:
-          summary: Payment instruction to processor
+          summary: Publish payment instruction
+          bindings:
+            amqp:
+              is: queue
+              queue:
+                name: PAYMENTS.INSTRUCTIONS.OUTBOUND
+                durable: true
+                exclusive: false
+                autoDelete: false
+          message:
+            name: PaymentInstruction
+            contentType: application/json
+            payload:
+              type: object
+              required: [instructionId, amount, currency, destinationAccount]
+              properties:
+                instructionId:
+                  type: string
+                amount:
+                  type: number
+                currency:
+                  type: string
+                  example: USD
+                destinationAccount:
+                  type: string
+                priority:
+                  type: string
+                  enum: [NORMAL, URGENT, SAME_DAY]
       payments/settlement/notifications:
+        description: Settlement completion notifications to the settlement engine
         publish:
-          summary: Settlement completion notification
+          summary: Publish settlement notification
+          bindings:
+            amqp:
+              is: queue
+              queue:
+                name: PAYMENTS.SETTLEMENT.NOTIFICATIONS
+                durable: true
+                exclusive: false
+                autoDelete: false
+          message:
+            name: SettlementNotification
+            contentType: application/json
+            payload:
+              type: object
+              required: [settlementId, paymentId, settledAt]
+              properties:
+                settlementId:
+                  type: string
+                paymentId:
+                  type: string
+                settledAt:
+                  type: string
+                  format: date-time
+    components:
+      securitySchemes:
+        userPassword:
+          type: userPassword
+          description: IBM MQ user/password authentication
 
 ---
 
-# --- IBM MQ Consumer ---
 apiVersion: harness.io/v1
 kind: API
 identifier: payments_mq_consumer
@@ -480,9 +864,12 @@ metadata:
   title: Payments MQ Consumer
   description: >
     Enterprise MQ queues consumed by payments-service. Reads inbound payment
-    instructions from corporate banking channels via IBM MQ.
+    instructions from corporate banking channels and third-party payment
+    gateways via IBM MQ.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
     github.com/project-slug: bank-org/payments-service
   tags:
     - ibm-mq
@@ -499,14 +886,57 @@ spec:
     info:
       title: Payments MQ Consumer
       version: "1.0.0"
+      description: Enterprise MQ queues consumed by payments-service.
+    servers:
+      production:
+        url: mq.bank.com:5672
+        protocol: amqp
+        description: Production IBM MQ broker
+        security:
+          - userPassword: []
     channels:
       payments/instructions/inbound:
+        description: >
+          Inbound payment instructions from corporate banking channels
+          and third-party payment gateways.
         subscribe:
-          summary: Inbound payment instruction from corporate channels
+          summary: Consume inbound payment instruction
+          bindings:
+            amqp:
+              is: queue
+              queue:
+                name: PAYMENTS.INSTRUCTIONS.INBOUND
+                durable: true
+                exclusive: false
+                autoDelete: false
+          message:
+            name: InboundPaymentInstruction
+            contentType: application/json
+            payload:
+              type: object
+              required: [instructionId, amount, currency, sourceAccount, destinationAccount]
+              properties:
+                instructionId:
+                  type: string
+                amount:
+                  type: number
+                currency:
+                  type: string
+                sourceAccount:
+                  type: string
+                destinationAccount:
+                  type: string
+                channel:
+                  type: string
+                  enum: [CORPORATE_BANKING, THIRD_PARTY_GATEWAY, BATCH]
+    components:
+      securitySchemes:
+        userPassword:
+          type: userPassword
+          description: IBM MQ user/password authentication
 
 ---
 
-# --- FTP Outbound ---
 apiVersion: harness.io/v1
 kind: API
 identifier: payments_ftp_outbound
@@ -516,10 +946,13 @@ owner: group:account/team-payments
 metadata:
   title: Payments FTP Outbound
   description: >
-    End-of-day settlement and reconciliation files deposited by payments-service.
-    PGP-encrypted, delivered by 23:00 local time.
+    End-of-day settlement and reconciliation files deposited by payments-service
+    onto the FTP server. Consumed by the settlement engine and third-party
+    clearing houses. Files are PGP-encrypted and delivered by 23:00 local time.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
     github.com/project-slug: bank-org/payments-service
   tags:
     - ftp
@@ -536,17 +969,50 @@ spec:
     info:
       title: Payments FTP Outbound
       version: "1.0.0"
+      description: Settlement and reconciliation files produced by payments-service.
+    servers:
+      production:
+        url: ftp.bank.com
+        protocol: sftp
+        description: Production SFTP server
     channels:
       /outbound/settlement/{date}:
+        description: End-of-day settlement file — deposited by 23:00 local time
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
         publish:
-          summary: Daily settlement file (CSV)
+          summary: Daily settlement file
+          message:
+            name: SettlementFile
+            contentType: text/csv
+            payload:
+              type: object
+              description: >
+                CSV columns: payment_id, amount, currency, source_account,
+                destination_account, status, settled_at
       /outbound/reconciliation/{date}:
+        description: Daily reconciliation report for clearing houses
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
         publish:
-          summary: Daily reconciliation report (ISO 20022 camt.053)
+          summary: Daily reconciliation report
+          message:
+            name: ReconciliationFile
+            contentType: application/xml
+            payload:
+              type: object
+              description: >
+                ISO 20022 camt.053 format. Contains all payment entries
+                for the business day.
 
 ---
 
-# --- FTP Inbound ---
 apiVersion: harness.io/v1
 kind: API
 identifier: payments_ftp_inbound
@@ -556,10 +1022,13 @@ owner: group:account/team-payments
 metadata:
   title: Payments FTP Inbound
   description: >
-    Batch payment instruction files read from FTP. Deposited by corporate
-    clients and third-party originators. Processed at 06:00 and 12:00 daily.
+    Batch payment instruction files read from FTP by payments-service.
+    Deposited by corporate banking clients and third-party originators.
+    Processed by the batch job at 06:00 and 12:00 daily.
   annotations:
     bank.com/sysid: SYSID-00000
+    bank.com/tier: tier-1
+    bank.com/owner-email: team-payments@bank.com
     github.com/project-slug: bank-org/payments-service
   tags:
     - ftp
@@ -576,10 +1045,49 @@ spec:
     info:
       title: Payments FTP Inbound
       version: "1.0.0"
+      description: Batch payment instruction files read by payments-service from FTP.
+    servers:
+      production:
+        url: ftp.bank.com
+        protocol: sftp
+        description: Production SFTP server
     channels:
       /inbound/instructions/{date}:
+        description: >
+          Batch payment instruction files deposited by corporate clients.
+          Processed at 06:00 and 12:00 daily.
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
         subscribe:
-          summary: Batch payment instruction file (CSV)
+          summary: Consume batch payment instructions
+          message:
+            name: BatchInstructionFile
+            contentType: text/csv
+            payload:
+              type: object
+              description: >
+                CSV columns: instruction_id, amount, currency, source_account,
+                destination_account, value_date, reference, priority
       /inbound/corrections/{date}:
+        description: Correction files for previously submitted payment batches
+        parameters:
+          date:
+            description: Business date in YYYYMMDD format
+            schema:
+              type: string
         subscribe:
-          summary: Payment correction file (ISO 20022 pain.002)
+          summary: Consume payment correction file
+          message:
+            name: CorrectionFile
+            contentType: application/xml
+            payload:
+              type: object
+              description: >
+                ISO 20022 pain.002 format. Contains rejection and return
+                notifications for previously submitted instructions.
+
+---
+

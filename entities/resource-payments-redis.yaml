@@ -14,6 +14,7 @@ metadata:
     bank.com/sysid: SYSID-00000
     bank.com/tier: tier-1
     bank.com/owner-email: team-payments@bank.com
+    cache/engine: redis
   tags:
     - redis
     - elasticache

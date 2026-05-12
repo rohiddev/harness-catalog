@@ -2,7 +2,7 @@ apiVersion: harness.io/v1
 kind: Resource
 identifier: payments_kafka
 name: payments-kafka
-type: messaging-queue
+type: kafka
 owner: group:account/team-payments
 metadata:
   title: Payments Kafka Cluster
@@ -15,6 +15,7 @@ metadata:
     bank.com/sysid: SYSID-00000
     bank.com/tier: tier-1
     bank.com/owner-email: team-payments@bank.com
+    kafka/bootstrap-servers: kafka.bank.com:9092
   tags:
     - kafka
     - messaging

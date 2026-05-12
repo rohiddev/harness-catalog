@@ -9,6 +9,25 @@
 # IMPORT ORDER (one entity at a time via IDP UI or auto-discovery):
 #   1. System    — import first if platform does not exist in IDP yet
 #   2. Component — import after System
+#
+# TEMPLATE VARIABLES (resolved by seeder at stamp time):
+#   {{PLATFORM_IDENTIFIER}}   snake_case platform ID         e.g. payments_platform
+#   {{PLATFORM_NAME}}         kebab-case platform name       e.g. payments-platform
+#   {{PLATFORM_DISPLAY_NAME}} human-readable platform name   e.g. Payments Platform
+#   {{SERVICE_IDENTIFIER}}    snake_case service ID          e.g. payments_service
+#   {{SERVICE_NAME}}          kebab-case service name        e.g. payments-service
+#   {{SERVICE_DISPLAY_NAME}}  human-readable service name    e.g. Payments Service
+#   {{TEAM_IDENTIFIER}}       kebab-case team name           e.g. team-payments
+#   {{OWNER_EMAIL}}           team distribution email        e.g. team-payments@bank.com
+#   {{DOMAIN}}                business domain                e.g. payments
+#   {{SYSID}}                 full SYSID string              e.g. SYSID-06534
+#   {{SYSID_SHORT}}           5-digit suffix only            e.g. 06534
+#   {{TIER}}                  service tier                   e.g. tier-1 | tier-2 | tier-3
+#   {{GITHUB_ORG}}            GitHub org name                e.g. bank-org
+#   {{REPO_NAME}}             repository name                e.g. payments-service
+#   {{JIRA_PROJECT_KEY}}      Jira project key               e.g. PAY
+#   {{ACCOUNT_ID}}            Harness account ID             seeder-level config constant
+#   {{LANGUAGE}}              primary language               e.g. java | python | golang | dotnet
 # =============================================================================
 
 
@@ -19,22 +38,61 @@
 # =============================================================================
 apiVersion: harness.io/v1
 kind: System
-identifier: {{PLATFORM_IDENTIFIER}}        # e.g. payments_platform  (snake_case, from CMDB)
-name: {{PLATFORM_NAME}}                    # e.g. payments-platform  (kebab-case, from CMDB)
+identifier: {{PLATFORM_IDENTIFIER}}
+name: {{PLATFORM_NAME}}
 type: system
-owner: group:account/{{TEAM_IDENTIFIER}}   # e.g. group:account/team-payments  (from CMDB assignment_group)
+owner: group:account/{{TEAM_IDENTIFIER}}
 metadata:
-  title: {{PLATFORM_DISPLAY_NAME}}         # e.g. Payments Platform  (from CMDB business_service)
+  title: {{PLATFORM_DISPLAY_NAME}}
   description: >
     Managed by {{TEAM_IDENTIFIER}}. Update this description via the IDP
     "Update Catalog Entry" workflow.
-  annotations:
-    bank.com/sysid: {{SYSID}}              # e.g. SYSID-00000  (from CMDB sys_id)
   tags:
-    - {{DOMAIN}}                           # e.g. payments  (from CMDB business_domain)
-    - sysid-{{SYSID_SHORT}}               # e.g. sysid-00000
+    - {{DOMAIN}}
+    - {{TIER}}
+    - sysid-{{SYSID_SHORT}}
+  annotations:
+    bank.com/sysid: {{SYSID}}
+    bank.com/tier: {{TIER}}                  # tier-1 | tier-2 | tier-3 — from CMDB criticality
+    bank.com/owner-email: {{OWNER_EMAIL}}    # team distribution email — used by blast radius + notification pipelines
+
+    # Telemetry — system-level aggregate dashboard (whole platform health)
+    # datadoghq.com/system-dashboard-url: "https://app.datadoghq.com/dashboard/<id>"
+    # dynatrace.com/system-dashboard-url: "https://company.live.dynatrace.com/#dashboard;id=<id>"
+
+    # Kubernetes — clusters this platform spans (comma-separated cluster names)
+    # Written by the IDP "Update Catalog Entry" workflow when system info is updated
+    # kubernetes/clusters: ""   # e.g. prod-eks-us-east-1,dr-eks-us-west-2
+
+    # Rafay Kubernetes Ops Platform — SRE fleet management
+    # ── AUDIENCE: SRE team, not management. Management value is through Rafay standalone reporting.
+    # ── WHAT SRE SEES IN IDP (System level = Rafay project view):
+    #      - All clusters registered under this project (fleet health, K8s version, node count)
+    #      - All namespaces across clusters — who owns what, resource quotas
+    #      - RBAC summary — who has access to which namespace
+    #      - Workload rollout status across the whole platform
+    # ── MANAGEMENT VALUE (enabled by Rafay, told through standalone reporting):
+    #      - Governance: every namespace created through IDP self-service — no ad-hoc kubectl
+    #      - Cost accountability: every namespace tagged to a team — K8s spend allocated by team
+    #      - Risk: no developer has direct cluster admin — central RBAC, one place to revoke access
+    #      - Standardisation: all clusters on the same blueprint — not 40 teams doing it differently
+    #      - Scale: new service onboarded to K8s in minutes via IDP, not a 2-week infra ticket
+    # ── TO ACTIVATE: IDP Admin → Plugins → Rafay Kubernetes Ops Platform → Enable
+    #      Configure Rafay API endpoint + organisation credentials in IDP admin settings
+    #      Then uncomment the annotation below — plugin wires up automatically
+    # rafay.dev/project-name: {{PLATFORM_IDENTIFIER}}
+
+    # On-call — platform-level on-call (who owns the system, not individual components)
+    # oncall/team: {{TEAM_IDENTIFIER}}
+    # oncall/rotation-url: ""
+    # oncall/incidents-url: ""
+
+    # ── Auto-written by pipelines — DO NOT fill manually ──────────────────
+    # Blast radius validation — written nightly by cross-reference pipeline
+    #   blast-radius/last-validated, blast-radius/tier-1-dependents, blast-radius/transitive-count
+
 spec:
-  domain: {{DOMAIN}}                       # e.g. banking | lending | risk | payments | operations
+  domain: {{DOMAIN}}
 
 ---
 
@@ -45,12 +103,12 @@ spec:
 # =============================================================================
 apiVersion: harness.io/v1
 kind: Component
-identifier: {{SERVICE_IDENTIFIER}}         # e.g. payments_service  (snake_case, matches repo name)
-name: {{SERVICE_NAME}}                     # e.g. payments-service  (kebab-case, matches repo name)
+identifier: {{SERVICE_IDENTIFIER}}
+name: {{SERVICE_NAME}}
 type: service                              # service | library | website | batch-job
-owner: group:account/{{TEAM_IDENTIFIER}}   # e.g. group:account/team-payments
+owner: group:account/{{TEAM_IDENTIFIER}}
 metadata:
-  title: {{SERVICE_DISPLAY_NAME}}          # e.g. Payments Service  (from CMDB)
+  title: {{SERVICE_DISPLAY_NAME}}
   description: >
     Update this description via the IDP "Update Catalog Entry" workflow.
   annotations:
@@ -66,22 +124,85 @@ metadata:
     # Harness CI/CD
     harness.io/project-url: https://app.harness.io/ng/account/{{ACCOUNT_ID}}/module/ci/orgs/default/projects/{{SYSID}}/pipelines
 
-    # Observability — add dashboard URL via workflow
-    # datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/<id>
-
-    # Code quality — add project key via workflow
-    # sonarqube.org/project-key: {{SERVICE_NAME}}
-
-    # Tracking
-    jira/project-key: {{JIRA_PROJECT_KEY}}  # e.g. PAY  (from CMDB)
-
     # CMDB correlation — REQUIRED
     bank.com/sysid: {{SYSID}}
+    bank.com/tier: {{TIER}}                  # tier-1 | tier-2 | tier-3 — from CMDB criticality
+    bank.com/owner-email: {{OWNER_EMAIL}}    # used by blast radius reports + failure notification pipeline
+
+    # Tracking
+    jira/project-key: {{JIRA_PROJECT_KEY}}
+
+    # Kubernetes — Backstage Kubernetes plugin (shows live pods/deployments in IDP)
+    # Written by the IDP "Update Catalog Entry" workflow when workloads are declared
+    # backstage.io/kubernetes-id: {{SERVICE_IDENTIFIER}}
+    # backstage.io/kubernetes-label-selector: app.kubernetes.io/name={{SERVICE_NAME}}
+    # backstage.io/kubernetes-namespace: {{SERVICE_IDENTIFIER}}
+
+    # Rafay Kubernetes Ops Platform — SRE namespace + workload management
+    # ── AUDIENCE: SRE team. Complements Kubernetes by Spotify (read-only) with operational actions.
+    # ── WHAT SRE SEES IN IDP (Component level = namespace view for this service):
+    #      - Namespace health and resource quota usage (CPU/memory requests vs limits)
+    #      - Workload deployments — replica count, rollout status, last deploy timestamp
+    #      - RBAC — service account bindings for this namespace
+    #      - Self-service actions: request namespace, rotate service account, adjust quotas
+    # ── KUBERNETES BY SPOTIFY vs RAFAY (different tools, same K8s data, different audience):
+    #      Kubernetes by Spotify → developer: live pods, restarts, crash loops (read-only)
+    #      Rafay               → SRE: namespace management, RBAC, workload ops (operational)
+    # ── TO ACTIVATE: enable Rafay plugin in IDP marketplace, configure API credentials,
+    #      then uncomment the three annotations below
+    # rafay.dev/project-name: {{PLATFORM_IDENTIFIER}}
+    # rafay.dev/cluster-name: ""   # primary cluster — e.g. prod-eks-us-east-1
+    # rafay.dev/namespace: {{SERVICE_IDENTIFIER}}
+
+    # Observability — fill whichever tool your team uses
+    # datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/<id>
+    # datadoghq.com/service-name: {{SERVICE_NAME}}
+    # dynatrace.com/dashboard-url: https://company.live.dynatrace.com/#dashboard;id=<id>
+    # dynatrace.com/entity-id: SERVICE-<id>
+
+    # Code Quality — SonarQube plugin (activates plugin card on entity page)
+    # sonarqube.org/project-key: {{SERVICE_NAME}}
+    # sonarqube.org/dashboard-url: https://sonarqube.company.com/dashboard?id={{SERVICE_NAME}}
+    # quality/coverage-target: "80"
+    # quality/dora-dashboard-url: ""
+
+    # Security Scan — pipeline-written metrics (shown in EntityAdditionalInfoCard)
+    # security-scan/vulnerability-count: ""  # written by SonarQube/scan pipeline
+    # security-scan/quality-gate: ""         # pass | fail — written by scan pipeline
+    # security-scan/last-scan-date: ""       # written by scan pipeline
+
+    # On-call / Incidents
+    # oncall/team: {{TEAM_IDENTIFIER}}
+    # oncall/rotation-url: ""
+    # oncall/incidents-url: ""
+    # oncall/last-incident-date: ""
+
+    # Cloud Cost — populated nightly by cost pipeline (Kubecost + AWS Cost Explorer)
+    # cloud-cost/k8s-monthly: ""             # e.g. "$142.00" — namespace-level K8s spend
+    # cloud-cost/aws-monthly: ""             # e.g. "$890.00" — EC2/RDS/S3 spend
+    # cloud-cost/namespace: {{SERVICE_IDENTIFIER}}
+    # cloud-cost/cost-centre: {{TEAM_IDENTIFIER}}
+
+    # Database — fill if service owns a database
+    # db/engine: postgresql
+    # db/schema: {{SERVICE_IDENTIFIER}}
+    # db/dba-runbook-url: ""
+    # db/last-migration: ""
+    # db/backup-policy: daily-7d
+
+    # ── Auto-written by pipelines — DO NOT fill manually ──────────────────
+    # SBOM signals — written by GitHub Actions on every PR
+    #   sbom/kafka, sbom/database, sbom/mq, sbom/ftp, sbom/api, sbom/last-scan
+    #
+    # Blast radius validation — written nightly by cross-reference pipeline
+    #   blast-radius/last-validated, blast-radius/undeclared-deps, blast-radius/stale-deps
+    # ──────────────────────────────────────────────────────────────────────
 
   tags:
-    - {{LANGUAGE}}                          # e.g. java | python | golang | dotnet  (from CMDB or repo scan)
-    - {{DOMAIN}}                            # e.g. payments
-    - sysid-{{SYSID_SHORT}}                # e.g. sysid-00000
+    - {{LANGUAGE}}
+    - {{DOMAIN}}
+    - {{TIER}}
+    - sysid-{{SYSID_SHORT}}
 
   links:
     - url: https://confluence.bank.com/display/{{JIRA_PROJECT_KEY}}
@@ -95,4 +216,7 @@ spec:
   lifecycle: production                    # production | experimental | deprecated
   system:
     - system:account/{{PLATFORM_IDENTIFIER}}
-  # Resources and APIs added later via IDP "Update Catalog Entry" workflow
+  # dependsOn — written by now.yaml pipeline from CMDB cmdb_rel_ci relationships
+  # dependsOn: []
+  # providesApis / consumesApis — added via IDP "Update Catalog Entry" workflow
+  # Resources added via IDP "Update Catalog Entry" workflow

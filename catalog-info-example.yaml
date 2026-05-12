@@ -229,7 +229,7 @@ metadata:
     - sysid-xxxxx
 
 spec:
-  # type common values: database, cache, messaging-queue, ftp-server, s3-bucket, secret-store
+  # type common values: database, cache, kafka, ibm-mq, file-server, s3-bucket, secret-store
   system:
     - system:account/your_platform_name
 
@@ -276,7 +276,7 @@ kind: Resource
 
 identifier: shared_kafka
 name: shared-kafka
-type: messaging-queue
+type: kafka
 owner: group:account/platform-team
 
 metadata:

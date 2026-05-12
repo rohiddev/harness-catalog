@@ -43,6 +43,9 @@ metadata:
     # rafay.dev/cluster-name: prod-eks-us-east-1
     # rafay.dev/namespace: payments
 
+    # Wiz — cloud security posture
+    wiz.io/project-id: payments-platform-prod
+
     # Observability
     datadoghq.com/dashboard-url: https://app.datadoghq.com/dashboard/payments-service
     datadoghq.com/service-name: payments-service
@@ -54,6 +57,10 @@ metadata:
     sonarqube.org/dashboard-url: https://sonarqube.bank.com/dashboard?id=payments-service
     quality/coverage-target: "80"
     quality/dora-dashboard-url: https://sei.bank.com/teams/payments
+
+    # Harness SEI — DORA metrics (deployment frequency, lead time, MTTR, change failure rate)
+    # Uncomment once SEI plugin is enabled in IDP Admin → Plugins
+    # harness.io/sei-project-id: SYSID-00000
 
     # Security Scan — written by scan pipeline on every PR
     security-scan/vulnerability-count: "3"
@@ -120,6 +127,12 @@ metadata:
     - url: https://jira.bank.com/projects/PAY
       title: Jira
       icon: bug
+    - url: https://app.harness.io/ng/account/ACCOUNT_ID/sei/overview
+      title: SEI Dashboard
+      icon: dashboard
+    - url: https://runbooks.bank.com/payments-service/database
+      title: Database Ops Runbook
+      icon: book
 
 spec:
   lifecycle: production
@@ -141,5 +154,5 @@ spec:
     - resource:account/payments_postgres
     - resource:account/payments_redis
     - resource:account/payments_kafka
-    - resource:account/payments_mq
+    - resource:account/payments_ibmmq
     - resource:account/payments_ftp

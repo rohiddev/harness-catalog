@@ -28,30 +28,11 @@ page:
           gridProps:
             md: 6
           specs:
-            title: Database
+            title: Kafka Cluster
             items:
-              - label: Engine
-                value: <+metadata.annotations["db/engine"]>
+              - label: Bootstrap Servers
+                value: <+metadata.annotations["kafka/bootstrap-servers"]>
                 type: text
-              - label: Schema
-                value: <+metadata.annotations["db/schema"]>
-                type: text
-              - label: Backup Policy
-                value: <+metadata.annotations["db/backup-policy"]>
-                type: text
-              - label: Last Migration
-                value: <+metadata.annotations["db/last-migration"]>
-                type: text
-
-        - component: EntityAdditionalInfoCard
-          gridProps:
-            md: 6
-          specs:
-            title: DBA
-            items:
-              - label: Runbook
-                value: <+metadata.annotations["db/dba-runbook-url"]>
-                type: link
 
     - name: Dependencies
       path: /dependencies

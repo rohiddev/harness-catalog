@@ -24,6 +24,22 @@ page:
             gridProps:
               md: 6
 
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: IBM MQ Broker
+            items:
+              - label: Host
+                value: <+metadata.annotations["mq/host"]>
+                type: text
+              - label: Queue Manager
+                value: <+metadata.annotations["mq/queue-manager"]>
+                type: text
+              - label: Channel
+                value: <+metadata.annotations["mq/channel"]>
+                type: text
+
     - name: Dependencies
       path: /dependencies
       title: Dependencies

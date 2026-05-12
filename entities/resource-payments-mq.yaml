@@ -1,8 +1,8 @@
 apiVersion: harness.io/v1
 kind: Resource
-identifier: payments_mq
-name: payments-mq
-type: messaging-queue
+identifier: payments_ibmmq
+name: payments-ibmmq
+type: ibm-mq
 owner: group:account/team-payments
 metadata:
   title: Payments IBM MQ Broker
@@ -14,6 +14,9 @@ metadata:
     bank.com/sysid: SYSID-00000
     bank.com/tier: tier-1
     bank.com/owner-email: team-payments@bank.com
+    mq/host: mqserver.bank.com:1414
+    mq/queue-manager: QM_PAYMENTS
+    mq/channel: PAYMENTS.SVRCONN
   tags:
     - ibm-mq
     - amqp

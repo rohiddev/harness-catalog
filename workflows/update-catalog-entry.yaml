@@ -5,7 +5,7 @@ identifier: update_catalog_entry
 type: service
 owner: platform_engineering
 orgIdentifier: default
-projectIdentifier: cfg-IDP-project
+projectIdentifier: xxx-IDP-project
 icon: scaffolder
 metadata:
   description: >
@@ -38,6 +38,11 @@ spec:
             path: proxy/catalog-api/v1/entities?filter=kind=Component
             valueSelector: identifier
             labelSelector: metadata.title
+            setContextData:
+              sysid: metadata.annotations.bank.com/sysid
+              systemIdentifier: spec.system.0
+              ownerGroup: spec.owner
+              repoSlug: metadata.annotations.github.com/project-slug
           ui:autofocus: true
 
         sysid:
@@ -122,10 +127,55 @@ spec:
                   type: string
                   description: "Comma-separated — e.g. payments,tier-1"
                   ui:placeholder: "Tags - e.g. payments,tier-1"
+                systemKubernetesClusters:
+                  title: Kubernetes Clusters
+                  type: string
+                  description: "Comma-separated list of cluster names this platform spans — powers system-level cluster registry"
+                  ui:placeholder: "Kubernetes Clusters - e.g. prod-eks-us-east-1,dr-eks-us-west-2"
+                systemDatadogDashboardUrl:
+                  title: System Datadog Dashboard URL
+                  type: string
+                  description: "Platform-wide dashboard covering all components in this system"
+                  ui:placeholder: "Datadog Dashboard URL - https://app.datadoghq.com/dashboard/<id>"
+                systemDynatraceDashboardUrl:
+                  title: System Dynatrace Dashboard URL
+                  type: string
+                  ui:placeholder: "Dynatrace Dashboard URL - https://company.live.dynatrace.com/#dashboard;id=<id>"
+                systemOncallTeam:
+                  title: System On-call Team
+                  type: string
+                  ui:placeholder: "On-call Team - e.g. payments-platform-sre"
+                systemOncallRotationUrl:
+                  title: System On-call Rotation URL
+                  type: string
+                  ui:placeholder: "Rotation URL - link to ServiceNow on-call schedule"
+                systemOncallIncidentsUrl:
+                  title: System Incidents URL
+                  type: string
+                  ui:placeholder: "Incidents URL - link to ServiceNow platform incident view"
               required:
                 - systemTitle
                 - systemDescription
                 - systemDomain
+
+    - title: Service Info
+      properties:
+        componentDescription:
+          title: Service Description
+          type: string
+          description: "What this service does — shown on the catalog entity page"
+          ui:widget: textarea
+          ui:options:
+            rows: 3
+          ui:placeholder: "Service Description - e.g. Handles payment processing for retail banking customers"
+        componentConfluenceUrl:
+          title: Confluence URL
+          type: string
+          ui:placeholder: "Confluence URL - https://confluence.bank.com/display/PAY"
+        componentRunbookUrl:
+          title: Runbook URL
+          type: string
+          ui:placeholder: "Runbook URL - https://runbooks.bank.com/payments-service"
 
     - title: Resources
       properties:
@@ -144,8 +194,8 @@ spec:
                 title: Resource Name
                 type: string
                 pattern: "^[a-z][a-z0-9-]+$"
-                description: "kebab-case — e.g. orders-db"
-                ui:placeholder: "Resource Name - e.g. orders-db"
+                description: "kebab-case — must match target: in now.yaml databases section. e.g. payments-postgres"
+                ui:placeholder: "Resource Name - e.g. payments-postgres"
               engine:
                 title: Engine
                 type: string
@@ -154,6 +204,7 @@ spec:
                   - mysql
                   - oracle
                   - mssql
+                  - mongodb
               description:
                 title: Description
                 type: string
@@ -177,8 +228,8 @@ spec:
                 title: Resource Name
                 type: string
                 pattern: "^[a-z][a-z0-9-]+$"
-                description: "kebab-case — e.g. orders-cache"
-                ui:placeholder: "Resource Name - e.g. orders-cache"
+                description: "kebab-case — must match target: in now.yaml databases section (engine redis/memcached). e.g. payments-redis"
+                ui:placeholder: "Resource Name - e.g. payments-redis"
               engine:
                 title: Engine
                 type: string
@@ -207,8 +258,12 @@ spec:
                 title: Resource Name
                 type: string
                 pattern: "^[a-z][a-z0-9-]+$"
-                description: "kebab-case — e.g. orders-kafka"
-                ui:placeholder: "Resource Name - e.g. orders-kafka"
+                description: "kebab-case — must match target: in now.yaml kafka section. e.g. payments-kafka"
+                ui:placeholder: "Resource Name - e.g. payments-kafka"
+              bootstrapServers:
+                title: Bootstrap Servers
+                type: string
+                ui:placeholder: "Bootstrap Servers - e.g. kafka.bank.com:9092"
               description:
                 title: Description
                 type: string
@@ -231,12 +286,24 @@ spec:
                 title: Resource Name
                 type: string
                 pattern: "^[a-z][a-z0-9-]+$"
-                description: "kebab-case — e.g. orders-mq"
-                ui:placeholder: "Resource Name - e.g. orders-mq"
+                description: "kebab-case — must match target: in now.yaml mq section. e.g. payments-ibmmq"
+                ui:placeholder: "Resource Name - e.g. payments-ibmmq"
+              host:
+                title: Host
+                type: string
+                ui:placeholder: "Host - e.g. mqserver.bank.com:1414"
+              queueManager:
+                title: Queue Manager
+                type: string
+                ui:placeholder: "Queue Manager - e.g. QM1"
+              channel:
+                title: Channel
+                type: string
+                ui:placeholder: "Channel - e.g. APP.SVRCONN"
               description:
                 title: Description
                 type: string
-                ui:placeholder: "Description - host, port, auth, queues managed"
+                ui:placeholder: "Description - auth method, queues managed"
                 ui:widget: textarea
                 ui:options:
                   rows: 2
@@ -255,8 +322,8 @@ spec:
                 title: Resource Name
                 type: string
                 pattern: "^[a-z][a-z0-9-]+$"
-                description: "kebab-case — e.g. orders-ftp"
-                ui:placeholder: "Resource Name - e.g. orders-ftp"
+                description: "kebab-case — must match target: in now.yaml ftp section. e.g. payments-ftp"
+                ui:placeholder: "Resource Name - e.g. payments-ftp"
               description:
                 title: Description
                 type: string
@@ -264,6 +331,141 @@ spec:
                 ui:widget: textarea
                 ui:options:
                   rows: 2
+
+        kubernetesWorkloads:
+          title: Kubernetes Workloads
+          type: array
+          description: "Add one entry per Kubernetes cluster or namespace this service deploys to. Powers the Backstage Kubernetes plugin."
+          items:
+            type: object
+            required:
+              - cluster
+              - namespace
+              - labelSelector
+              - environment
+            properties:
+              cluster:
+                title: Cluster Name
+                type: string
+                description: "EKS cluster or AKS cluster name"
+                ui:placeholder: "Cluster Name - e.g. prod-eks-us-east-1"
+              namespace:
+                title: Namespace
+                type: string
+                ui:placeholder: "Namespace - e.g. payments"
+              labelSelector:
+                title: Label Selector
+                type: string
+                description: "Kubernetes label selector to identify workload pods"
+                ui:placeholder: "Label Selector - e.g. app.kubernetes.io/name=payments-service"
+              environment:
+                title: Environment
+                type: string
+                enum:
+                  - dev
+                  - qa
+                  - prod
+                ui:widget: select
+
+    - title: Observability & Quality
+      properties:
+        datadogDashboardUrl:
+          title: Datadog Dashboard URL
+          type: string
+          ui:placeholder: "Datadog Dashboard URL - https://app.datadoghq.com/dashboard/<id>"
+        datadogServiceName:
+          title: Datadog Service Name
+          type: string
+          ui:placeholder: "Datadog Service Name - e.g. loan-app"
+        dynatraceDashboardUrl:
+          title: Dynatrace Dashboard URL
+          type: string
+          ui:placeholder: "Dynatrace Dashboard URL - https://company.live.dynatrace.com/#dashboard;id=<id>"
+        dynatraceEntityId:
+          title: Dynatrace Entity ID
+          type: string
+          ui:placeholder: "Dynatrace Entity ID - e.g. SERVICE-abc123"
+        sonarqubeProjectKey:
+          title: SonarQube Project Key
+          type: string
+          ui:placeholder: "SonarQube Project Key - e.g. loan-app"
+        sonarqubeDashboardUrl:
+          title: SonarQube Dashboard URL
+          type: string
+          ui:placeholder: "SonarQube Dashboard URL - https://sonarqube.company.com/dashboard?id=loan-app"
+        qualityCoverageTarget:
+          title: Coverage Target (%)
+          type: string
+          ui:placeholder: "Coverage Target - e.g. 80"
+        qualityDoraDashboardUrl:
+          title: DORA / SEI Dashboard URL
+          type: string
+          ui:placeholder: "DORA Dashboard URL - link to SEI dashboard for this service"
+
+    - title: On-call & Database Info
+      properties:
+        oncallTeam:
+          title: On-call Team
+          type: string
+          ui:placeholder: "On-call Team - e.g. lending-platform-team"
+        oncallRotationUrl:
+          title: Rotation Schedule URL
+          type: string
+          ui:placeholder: "Rotation Schedule URL - link to PagerDuty or ServiceNow schedule"
+        oncallIncidentsUrl:
+          title: Incident Dashboard URL
+          type: string
+          ui:placeholder: "Incident Dashboard URL - link to ServiceNow or incident view"
+        oncallLastIncidentDate:
+          title: Last Incident Date
+          type: string
+          ui:placeholder: "Last Incident Date - e.g. 2026-04-15"
+        dbEngine:
+          title: Database Engine
+          type: string
+          enum:
+            - ""
+            - postgresql
+            - mysql
+            - oracle
+            - mssql
+            - mongodb
+          enumNames:
+            - "Not applicable"
+            - PostgreSQL
+            - MySQL
+            - Oracle
+            - MSSQL
+            - MongoDB
+          default: ""
+        dbSchema:
+          title: Database Schema
+          type: string
+          ui:placeholder: "Database Schema - e.g. loan_schema"
+        dbDbaRunbookUrl:
+          title: DBA Runbook URL
+          type: string
+          ui:placeholder: "DBA Runbook URL - link to DBA team runbook for this service"
+        dbLastMigration:
+          title: Last Migration Date
+          type: string
+          ui:placeholder: "Last Migration Date - e.g. 2026-04-15"
+        dbBackupPolicy:
+          title: Backup Policy
+          type: string
+          enum:
+            - ""
+            - daily-7d
+            - daily-30d
+            - weekly-90d
+            - none
+          enumNames:
+            - "Not applicable"
+            - Daily - 7 day retention
+            - Daily - 30 day retention
+            - Weekly - 90 day retention
+            - No backup
+          default: ""
 
     - title: APIs
       properties:
@@ -513,6 +715,9 @@ spec:
           sysid: "{{ parameters.sysid }}"
           systemIdentifier: "{{ parameters.systemIdentifier }}"
           ownerGroup: "{{ parameters.ownerGroup }}"
+          componentDescription: "{{ parameters.componentDescription or '' }}"
+          componentConfluenceUrl: "{{ parameters.componentConfluenceUrl or '' }}"
+          componentRunbookUrl: "{{ parameters.componentRunbookUrl or '' }}"
           updateSystem: "{{ parameters.updateSystem }}"
           systemTitle: "{{ parameters.systemTitle or '' }}"
           systemDescription: "{{ parameters.systemDescription or '' }}"
@@ -520,6 +725,28 @@ spec:
           systemConfluence: "{{ parameters.systemConfluence or '' }}"
           systemRunbook: "{{ parameters.systemRunbook or '' }}"
           systemTags: "{{ parameters.systemTags or '' }}"
+          systemDatadogDashboardUrl: "{{ parameters.systemDatadogDashboardUrl or '' }}"
+          systemDynatraceDashboardUrl: "{{ parameters.systemDynatraceDashboardUrl or '' }}"
+          systemOncallTeam: "{{ parameters.systemOncallTeam or '' }}"
+          systemOncallRotationUrl: "{{ parameters.systemOncallRotationUrl or '' }}"
+          systemOncallIncidentsUrl: "{{ parameters.systemOncallIncidentsUrl or '' }}"
+          datadogDashboardUrl: "{{ parameters.datadogDashboardUrl or '' }}"
+          datadogServiceName: "{{ parameters.datadogServiceName or '' }}"
+          dynatraceDashboardUrl: "{{ parameters.dynatraceDashboardUrl or '' }}"
+          dynatraceEntityId: "{{ parameters.dynatraceEntityId or '' }}"
+          sonarqubeProjectKey: "{{ parameters.sonarqubeProjectKey or '' }}"
+          sonarqubeDashboardUrl: "{{ parameters.sonarqubeDashboardUrl or '' }}"
+          qualityCoverageTarget: "{{ parameters.qualityCoverageTarget or '' }}"
+          qualityDoraDashboardUrl: "{{ parameters.qualityDoraDashboardUrl or '' }}"
+          oncallTeam: "{{ parameters.oncallTeam or '' }}"
+          oncallRotationUrl: "{{ parameters.oncallRotationUrl or '' }}"
+          oncallIncidentsUrl: "{{ parameters.oncallIncidentsUrl or '' }}"
+          oncallLastIncidentDate: "{{ parameters.oncallLastIncidentDate or '' }}"
+          dbEngine: "{{ parameters.dbEngine or '' }}"
+          dbSchema: "{{ parameters.dbSchema or '' }}"
+          dbDbaRunbookUrl: "{{ parameters.dbDbaRunbookUrl or '' }}"
+          dbLastMigration: "{{ parameters.dbLastMigration or '' }}"
+          dbBackupPolicy: "{{ parameters.dbBackupPolicy or '' }}"
           databases: "{{ parameters.databases | dump }}"
           caches: "{{ parameters.caches | dump }}"
           kafkaClusters: "{{ parameters.kafkaClusters | dump }}"
@@ -532,6 +759,8 @@ spec:
           mqConsumers: "{{ parameters.mqConsumers | dump }}"
           ftpOutbound: "{{ parameters.ftpOutbound | dump }}"
           ftpInbound: "{{ parameters.ftpInbound | dump }}"
+          kubernetesWorkloads: "{{ parameters.kubernetesWorkloads | dump }}"
+          systemKubernetesClusters: "{{ parameters.systemKubernetesClusters or '' }}"
           requestorName: "${{ user.entity.metadata.name }}"
           requestorEmail: "${{ user.entity.spec.profile.email or user.entity.metadata.name }}"
 
@@ -549,4 +778,4 @@ spec:
         requestor: "${{ user.entity.metadata.name }}"
     links:
       - title: View Pipeline Execution
-        url: "https://app.harness.io/ng/account/{{ parameters.accountId }}/module/idp-admin/orgs/default/projects/cfg-IDP-project/pipelines/update_catalog_entry_pipeline/executions"
+        url: "https://app.harness.io/ng/account/{{ parameters.accountId }}/module/idp-admin/orgs/default/projects/xxx-IDP-project/pipelines/update_catalog_entry_pipeline/executions"

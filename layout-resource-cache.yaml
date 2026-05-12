@@ -24,6 +24,16 @@ page:
             gridProps:
               md: 6
 
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: Cache
+            items:
+              - label: Engine
+                value: <+metadata.annotations["cache/engine"]>
+                type: text
+
     - name: Dependencies
       path: /dependencies
       title: Dependencies

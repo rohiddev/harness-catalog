@@ -14,6 +14,11 @@ metadata:
     bank.com/sysid: SYSID-00000
     bank.com/tier: tier-1
     bank.com/owner-email: team-payments@bank.com
+    db/engine: postgresql
+    db/schema: payments
+    db/dba-runbook-url: https://runbooks.bank.com/payments-service/dba
+    db/last-migration: "2026-04-15"
+    db/backup-policy: daily-30d
   tags:
     - postgresql
     - rds

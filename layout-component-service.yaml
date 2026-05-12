@@ -1,105 +1,349 @@
+# =============================================================================
+# Catalog Layout — Service Component
+# Applies to: kind: Component, type: service
+#
+# Tabs:
+#   Overview | Blast Radius | Observability | Security Scan | Wiz | On-call / Incidents |
+#   Code Quality | Database | Kubernetes | Cloud Cost | CI/CD | Docs
+#
+# Annotations reference: idpdocuments/catalog-info.seed.yaml
+# =============================================================================
+
 page:
-  name: EntityLayout
+  name: service-default-layout
+  path: /
+  title: Service
   tabs:
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # Overview — identity, ownership, scorecard
+    # ─────────────────────────────────────────────────────────────────────────
     - name: Overview
       path: /
       title: Overview
       contents:
-        - component: EntityOrphanWarning
-        - component: EntityRelationWarning
-        - component: EntityProcessingErrorsPanel
-
         - component: EntityAboutCard
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 6
+          gridProps:
+            md: 6
+        - component: EntityOwnershipCard
+          gridProps:
+            md: 6
+        - component: EntityHasApisCard
+          gridProps:
+            md: 12
+        - component: EntityScorecardCard
+          gridProps:
+            md: 12
 
-        - component: EntityLinksCard
-          specs:
-            props:
-              variant: gridItem
-              height: 400
-            gridProps:
-              md: 6
-
+    # ─────────────────────────────────────────────────────────────────────────
+    # Blast Radius — dependency graph + validation signal findings
+    # Graph driven by spec.dependsOn in catalog-info.yaml (from CMDB/now.yaml)
+    # Annotation findings written nightly by the cross-reference pipeline
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: Blast Radius
+      path: /blast-radius
+      title: Blast Radius
+      contents:
         - component: EntityCatalogGraphCard
+          gridProps:
+            md: 12
+
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: Validation Status
+            items:
+              - label: Last Validated
+                value: <+metadata.annotations["blast-radius/last-validated"]>
+                type: text
+              - label: Undeclared Dependencies
+                value: <+metadata.annotations["blast-radius/undeclared-deps"]>
+                type: text
+              - label: Stale Declarations
+                value: <+metadata.annotations["blast-radius/stale-deps"]>
+                type: text
+
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: SBOM Signals
+            items:
+              - label: Kafka
+                value: <+metadata.annotations["sbom/kafka"]>
+                type: text
+              - label: Database
+                value: <+metadata.annotations["sbom/database"]>
+                type: text
+              - label: MQ
+                value: <+metadata.annotations["sbom/mq"]>
+                type: text
+              - label: FTP
+                value: <+metadata.annotations["sbom/ftp"]>
+                type: text
+              - label: API
+                value: <+metadata.annotations["sbom/api"]>
+                type: text
+              - label: Last Scan
+                value: <+metadata.annotations["sbom/last-scan"]>
+                type: text
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Observability — Datadog and Dynatrace, teams fill whichever applies
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: Observability
+      path: /observability
+      title: Observability
+      contents:
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: Datadog
+            items:
+              - label: Dashboard
+                value: <+metadata.annotations["datadoghq.com/dashboard-url"]>
+                type: link
+              - label: Service Name
+                value: <+metadata.annotations["datadoghq.com/service-name"]>
+                type: text
+
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: Dynatrace
+            items:
+              - label: Dashboard
+                value: <+metadata.annotations["dynatrace.com/dashboard-url"]>
+                type: link
+              - label: Entity ID
+                value: <+metadata.annotations["dynatrace.com/entity-id"]>
+                type: text
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Security Scan — scan results, quality gate, last scan date
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: Security Scan
+      path: /security-scan
+      title: Security Scan
+      contents:
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: Scan Results
+            items:
+              - label: Quality Gate
+                value: <+metadata.annotations["security-scan/quality-gate"]>
+                type: text
+              - label: Vulnerability Count
+                value: <+metadata.annotations["security-scan/vulnerability-count"]>
+                type: text
+              - label: Last Scan
+                value: <+metadata.annotations["security-scan/last-scan-date"]>
+                type: text
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Wiz — cloud security posture, issue severity and trend charts
+    # Requires wiz.io/project-id annotation + Wiz plugin configured in app-config.yaml
+    # Plugin by Roadie (open-source): EntityWizIssues, EntityIssuesChart, EntitySeverityChart
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: Wiz
+      path: /wiz
+      title: Wiz
+      contents:
+        - component: EntityWizIssues
           specs:
             props:
               variant: gridItem
-              height: 400
             gridProps:
-              md: 12
-              xs: 12
-
-        - component: EntitySonarQubeCard
+              md: 6
+        - component: EntityIssuesWidget
           specs:
             props:
               variant: gridItem
             gridProps:
-              md: 12
+              md: 6
+        - component: EntityIssuesChart
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 6
+        - component: EntitySeverityChart
+          specs:
+            props:
+              variant: gridItem
+            gridProps:
+              md: 6
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # On-call / Incidents — rotation, incident history, ServiceNow
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: On-call / Incidents
+      path: /oncall
+      title: On-call / Incidents
+      contents:
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: On-call
+            items:
+              - label: Team
+                value: <+metadata.annotations["oncall/team"]>
+                type: text
+              - label: Rotation Schedule
+                value: <+metadata.annotations["oncall/rotation-url"]>
+                type: link
+
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: Incidents
+            items:
+              - label: Incident Dashboard
+                value: <+metadata.annotations["oncall/incidents-url"]>
+                type: link
+              - label: Last Incident
+                value: <+metadata.annotations["oncall/last-incident-date"]>
+                type: text
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Code Quality — SonarQube, coverage, DORA
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: Code Quality
+      path: /code-quality
+      title: Code Quality
+      contents:
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: SonarQube
+            items:
+              - label: Dashboard
+                value: <+metadata.annotations["sonarqube.org/dashboard-url"]>
+                type: link
+              - label: Project Key
+                value: <+metadata.annotations["sonarqube.org/project-key"]>
+                type: text
+              - label: Coverage Target
+                value: <+metadata.annotations["quality/coverage-target"]>
+                type: text
+
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: DORA Metrics
+            items:
+              - label: SEI Dashboard
+                value: <+metadata.annotations["quality/dora-dashboard-url"]>
+                type: link
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Database — engine, schema, DBA runbook, migration history
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: Database
+      path: /database
+      title: Database
+      contents:
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: Database Info
+            items:
+              - label: Engine
+                value: <+metadata.annotations["db/engine"]>
+                type: text
+              - label: Schema
+                value: <+metadata.annotations["db/schema"]>
+                type: text
+              - label: Backup Policy
+                value: <+metadata.annotations["db/backup-policy"]>
+                type: text
+              - label: Last Migration
+                value: <+metadata.annotations["db/last-migration"]>
+                type: text
+
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: DBA
+            items:
+              - label: Runbook
+                value: <+metadata.annotations["db/dba-runbook-url"]>
+                type: link
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Kubernetes — live pod health, deployments, restarts (Kubernetes by Spotify)
+    # Powered by backstage.io/kubernetes-id annotation — dev-facing read-only view
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: Kubernetes
+      path: /kubernetes
+      title: Kubernetes
+      contents:
+        - component: EntityKubernetesContent
+          gridProps:
+            md: 12
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Cloud Cost — K8s namespace spend (Kubecost) + AWS spend (Cost Explorer)
+    # Written nightly by cost pipeline — cloud-cost/* annotations
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: Cloud Cost
+      path: /cloud-cost
+      title: Cloud Cost
+      contents:
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: Monthly Spend
+            items:
+              - label: Kubernetes (Kubecost)
+                value: <+metadata.annotations["cloud-cost/k8s-monthly"]>
+                type: text
+              - label: AWS (Cost Explorer)
+                value: <+metadata.annotations["cloud-cost/aws-monthly"]>
+                type: text
+
+        - component: EntityAdditionalInfoCard
+          gridProps:
+            md: 6
+          specs:
+            title: Cost Allocation
+            items:
+              - label: Namespace
+                value: <+metadata.annotations["cloud-cost/namespace"]>
+                type: text
+              - label: Cost Centre
+                value: <+metadata.annotations["cloud-cost/cost-centre"]>
+                type: text
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # CI/CD — Harness native CI/CD integration
+    # Powered by harness.io/project-url annotation
+    # ─────────────────────────────────────────────────────────────────────────
     - name: CI/CD
       path: /ci-cd
       title: CI/CD
       contents:
         - component: EntityHarnessCiCdContent
 
-    # Datadog tab — uncomment when Datadog plugin is installed
-    # - name: Datadog
-    #   path: /datadog
-    #   title: Datadog
-    #   contents:
-    #     - component: EntityDatadogContent
-    #       specs:
-    #         gridProps:
-    #           md: 12
-
-    - name: Scorecard
-      path: /scorecard
-      title: Scorecard
-      contents:
-        - component: EntityScorecardContent
-          specs:
-            gridProps:
-              md: 12
-
-    - name: API
-      path: /api
-      title: API
-      contents:
-        - component: EntityProvidedApisCard
-          specs:
-            gridProps:
-              md: 12
-
-        - component: EntityConsumedApisCard
-          specs:
-            gridProps:
-              md: 12
-
-    - name: Dependencies
-      path: /dependencies
-      title: Dependencies
-      contents:
-        - component: EntityDependsOnComponentsCard
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 6
-
-        - component: EntityDependsOnResourcesCard
-          specs:
-            props:
-              variant: gridItem
-            gridProps:
-              md: 6
-
-    - name: TechDocs
+    # ─────────────────────────────────────────────────────────────────────────
+    # Docs — TechDocs (MkDocs served from repo)
+    # ─────────────────────────────────────────────────────────────────────────
+    - name: Docs
       path: /docs
       title: Docs
       contents:
         - component: EntityTechdocsContent
+          gridProps:
+            md: 12

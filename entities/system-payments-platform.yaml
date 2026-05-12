@@ -34,6 +34,9 @@ metadata:
     # System maps to a Rafay project — shows all clusters + namespaces in this platform
     # rafay.dev/project-name: payments-platform
 
+    # Wiz — platform-level security posture across all payments cloud resources
+    wiz.io/project-id: payments-platform-prod
+
     # On-call — platform-level (who owns the system, not individual services)
     oncall/team: payments-platform-sre
     oncall/rotation-url: https://servicenow.bank.com/oncall/payments-platform
