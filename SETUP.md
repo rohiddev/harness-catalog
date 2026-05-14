@@ -160,14 +160,14 @@ The banner is **static text** — updated manually by the Platform Engineering t
 
 ---
 
-## Step 2e — Apply Homepage & Sidenav to All Three Accounts (P-2, P-1, P)
+## Step 2e — Apply Homepage & Sidenav to All Three Accounts (dev, staging, prod)
 
 The homepage and sidenav must be configured manually in each Harness account.
 Repeat Steps 2a–2c for each account. The YAML files are identical across accounts.
 
 ### Account checklist
 
-| Step | P-2 (dev) | P-1 (staging) | P (prod) |
+| Step | dev | staging | prod |
 |---|---|---|---|
 | 2a — Upload logo | [ ] | [ ] | [ ] |
 | 2b — Apply sidenav.yaml | [ ] | [ ] | [ ] |
@@ -177,17 +177,17 @@ Repeat Steps 2a–2c for each account. The YAML files are identical across accou
 
 1. Log in to Harness at `https://app.harness.io`
 2. Click your **account name** in the top-left
-3. Select the target account (P-2 / P-1 / P)
+3. Select the target account (dev / staging / prod)
 4. Go to **Admin > Layout** and repeat Steps 2b and 2c
 
 ### What changes between accounts
 
-| Item | P-2 | P-1 | P |
+| Item | dev | staging | prod |
 |---|---|---|---|
 | Homepage YAML | Same | Same | Same |
 | Sidenav YAML | Same | Same | Same |
 | Logo | Same | Same | Same |
-| Account ID in workflow output links | P-2 account ID | P-1 account ID | P account ID |
+| Account ID in workflow output links | dev account ID | staging account ID | prod account ID |
 
 > The only difference is the account ID in workflow `spec.output.links` URLs.
 > These are set per branch (develop/staging/master) — not in the layout YAML.
@@ -195,8 +195,8 @@ Repeat Steps 2a–2c for each account. The YAML files are identical across accou
 ### Freeze banner
 
 Each account has its own banner. During a production freeze:
-- Update the banner in **P (prod) only**
-- P-2 and P-1 banners can stay green unless you also freeze lower environments
+- Update the banner in **prod only**
+- dev and staging banners can stay green unless you also freeze lower environments
 
 ---
 
