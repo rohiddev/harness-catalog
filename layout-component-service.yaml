@@ -213,35 +213,28 @@ page:
                 type: text
 
     # ─────────────────────────────────────────────────────────────────────────
-    # Code Quality — SonarQube, coverage, DORA
+    # Code Quality — SonarQube live card + DORA
+    # Requires sonarqube.org/project-key annotation + SonarQube plugin enabled
+    # in IDP Admin → Plugins with sonarqube host + token configured
     # ─────────────────────────────────────────────────────────────────────────
     - name: Code Quality
       path: /code-quality
       title: Code Quality
       contents:
-        - component: EntityAdditionalInfoCard
+        - component: EntitySonarQubeCard
           gridProps:
-            md: 6
-          specs:
-            title: SonarQube
-            items:
-              - label: Dashboard
-                value: <+metadata.annotations["sonarqube.org/dashboard-url"]>
-                type: link
-              - label: Project Key
-                value: <+metadata.annotations["sonarqube.org/project-key"]>
-                type: text
-              - label: Coverage Target
-                value: <+metadata.annotations["quality/coverage-target"]>
-                type: text
+            md: 8
 
         - component: EntityAdditionalInfoCard
           gridProps:
-            md: 6
+            md: 4
           specs:
-            title: DORA Metrics
+            title: Quality Targets
             items:
-              - label: SEI Dashboard
+              - label: Coverage Target
+                value: <+metadata.annotations["quality/coverage-target"]>
+                type: text
+              - label: DORA Dashboard
                 value: <+metadata.annotations["quality/dora-dashboard-url"]>
                 type: link
 
