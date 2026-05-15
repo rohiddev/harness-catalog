@@ -22,7 +22,7 @@ metadata:
     backstage.io/source-location: url:https://github.com/bank-org/payments-service/tree/master/
 
     # Harness CI/CD
-    harness.io/project-url: https://app.harness.io/ng/account/ACCOUNT_ID/module/ci/orgs/default/projects/SYSID-00000/pipelines
+    harness.io/project-url: https://app.harness.io/ng/account/N2E2MWI4YjQtNDU4OS00ZJ/module/ci/orgs/default/projects/SYSID-00000/pipelines
 
     # CMDB — REQUIRED
     bank.com/sysid: SYSID-00000
@@ -127,7 +127,7 @@ metadata:
     - url: https://jira.bank.com/projects/PAY
       title: Jira
       icon: bug
-    - url: https://app.harness.io/ng/account/ACCOUNT_ID/sei/overview
+    - url: https://app.harness.io/ng/account/N2E2MWI4YjQtNDU4OS00ZJ/sei/overview
       title: SEI Dashboard
       icon: dashboard
     - url: https://runbooks.bank.com/payments-service/database
