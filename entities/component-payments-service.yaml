@@ -138,17 +138,14 @@ spec:
   lifecycle: production
   system: system:account/payments_platform
   providesApis:
-    - payments-rest-api
-    - payments-kafka-producer
-    - payments-mq-producer
-    - payments-ftp-outbound
+    - api:account/payments_rest_api
+    - api:account/payments_kafka_producer
+    - api:account/payments_mq_producer
+    - api:account/payments_ftp_outbound
   consumesApis:
-    - auth-api
-    - fraud-detection-api
-    - ledger-api
-    - payments-kafka-consumer
-    - payments-mq-consumer
-    - payments-ftp-inbound
+    - api:account/payments_kafka_consumer
+    - api:account/payments_mq_consumer
+    - api:account/payments_ftp_inbound
   dependsOn:
     - resource:account/payments_postgres
     - resource:account/payments_redis
