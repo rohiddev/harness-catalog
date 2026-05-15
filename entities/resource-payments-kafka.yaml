@@ -22,4 +22,4 @@ metadata:
     - events
     - sysid-00000
 spec:
-  system: payments_platform
+  system: system:account/payments_platform

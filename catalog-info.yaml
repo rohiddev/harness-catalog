@@ -120,7 +120,7 @@ metadata:
     - tier-1
     - sysid-00000
 spec:
-  system: payments_platform
+  system: system:account/payments_platform
 
 ---
 
@@ -147,7 +147,7 @@ metadata:
     - cache
     - sysid-00000
 spec:
-  system: payments_platform
+  system: system:account/payments_platform
 
 ---
 
@@ -175,7 +175,7 @@ metadata:
     - events
     - sysid-00000
 spec:
-  system: payments_platform
+  system: system:account/payments_platform
 
 ---
 
@@ -204,7 +204,7 @@ metadata:
     - messaging
     - sysid-00000
 spec:
-  system: payments_platform
+  system: system:account/payments_platform
 
 ---
 
@@ -230,7 +230,7 @@ metadata:
     - file-transfer
     - sysid-00000
 spec:
-  system: payments_platform
+  system: system:account/payments_platform
 
 ---
 
@@ -375,7 +375,7 @@ metadata:
 
 spec:
   lifecycle: production
-  system: payments_platform
+  system: system:account/payments_platform
   providesApis:
     - payments-rest-api
     - payments-kafka-producer
@@ -429,7 +429,7 @@ metadata:
       icon: docs
 spec:
   lifecycle: production
-  system: payments_platform
+  system: system:account/payments_platform
   definition: |
     openapi: "3.0.0"
     info:
@@ -555,7 +555,7 @@ metadata:
     - sysid-00000
 spec:
   lifecycle: production
-  system: payments_platform
+  system: system:account/payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:
@@ -686,7 +686,7 @@ metadata:
     - sysid-00000
 spec:
   lifecycle: production
-  system: payments_platform
+  system: system:account/payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:
@@ -762,7 +762,7 @@ metadata:
     - sysid-00000
 spec:
   lifecycle: production
-  system: payments_platform
+  system: system:account/payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:
@@ -869,7 +869,7 @@ metadata:
     - sysid-00000
 spec:
   lifecycle: production
-  system: payments_platform
+  system: system:account/payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:
@@ -951,7 +951,7 @@ metadata:
     - sysid-00000
 spec:
   lifecycle: production
-  system: payments_platform
+  system: system:account/payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:
@@ -1026,7 +1026,7 @@ metadata:
     - sysid-00000
 spec:
   lifecycle: production
-  system: payments_platform
+  system: system:account/payments_platform
   definition: |
     asyncapi: "2.6.0"
     info:
