@@ -20,5 +20,4 @@ metadata:
     - file-transfer
     - sysid-00000
 spec:
-  system:
-    - system:account/payments_platform
+  system: payments_platform

@@ -136,8 +136,7 @@ metadata:
 
 spec:
   lifecycle: production
-  system:
-    - system:account/payments_platform
+  system: payments_platform
   providesApis:
     - payments-rest-api
     - payments-kafka-producer
