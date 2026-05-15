@@ -15,8 +15,8 @@ metadata:
     # Source control — REQUIRED
     github.com/project-slug: bank-org/payments-service
 
-    # TechDocs — served from repo root
-    backstage.io/techdocs-ref: dir:.
+    # TechDocs — served from harness-catalog repo (entity source)
+    backstage.io/techdocs-ref: url:https://github.com/rohiddev/harness-catalog/tree/develop/
 
     # Source location — drives Code tab
     backstage.io/source-location: url:https://github.com/bank-org/payments-service/tree/master/
